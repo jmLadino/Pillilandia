@@ -1,0 +1,1843 @@
+Categoría: Selección Múltiple: 1 Opción
+
+Q1
+You are configuring a single business process flow in Dynamics 365 for Customer Service.
+You need to design the business process flow.
+What should you do?
+Options:
+-	Merge peer branches to a single stage when merging branches.
+-	Span the process across 10 unique entities.
+-	Combine multiple conditions in a rule by using both the AND and OR operators.
+-	Use 40 steps per stage.
+Answer:
+-	Merge peer branches to a single stage when merging branches.
+Community Confirm: No
+
+Q2
+You are a customer service representative using Dynamics 365 for Customer Service.
+You need to identify and eliminate duplicate cases.
+What should you do?
+Options:
+-	Configure Dynamics 365 AI for Customer Service
+-	Use business rules
+-	Merge cases
+-	Use parent-child case relationships
+Answer:
+-	Use business rules
+Community Confirm: No
+
+Q3
+You are a system administrator for Dynamics 365 for Customer Service.
+All child cases must inherit the product, customer name, case title, and case type from the parent case. Parent cases must not be closed until all child cases are closed.
+You need to configure cases.
+What should you do?
+Options:
+-	Validate that customer and case title fields have not been removed as fields that child cases inherit from parent cases. Add product and case-type fields to the list. Set the closure preference setting to Don’t allow parent case closure until all child cases are closed.
+-	Validate that customer and case title fields have not been removed as fields that child cases inherit from the parent cases. Add product and case-type fields to the list. The closure preference setting does not need to be changed. This is default behavior.
+-	On the case entity, update the Parent case-Child case 1:N relationship field mapping to include the fields. Create a business rule on the case entity to prevent the parent from closing if it has one or more open child cases.
+-	Create a business rule.
+Answer:
+-	Validate that customer and case title fields have not been removed as fields that child cases inherit from parent cases. Add product and case-type fields to the list. Set the closure preference setting to Don’t allow parent case closure until all child cases are closed.
+Community Confirm: No
+
+Q4
+You manage Dynamics 365 for Customer Service.
+You need to configure automatic case creation for emails received by customers who have a support contract.
+What should you do?
+Options:
+-	Configure service level agreements to be on hold until a call can be made to the customer.
+-	Create an automatic record creation and update rule. Set the source type to email. Configure the rule to send automatic email responses to customers when records are created.
+-	Create an automatic record creation and update rule. Set the source type to service activity. Configure the rule to send automatic email responses to customers when records are created.
+-	Create an automatic record creation and update rule. Set the source type to email. If a valid entitlement exists, configure the rule to create a case.
+Answer:
+-	Create an automatic record creation and update rule. Set the source type to email. If a valid entitlement exists, configure the rule to create a case.
+Community Confirm: No
+
+
+Q5
+A company implements Dynamics 365 for Customer Service. You are assigned a case.
+You accidently close the case before completing your work.
+You need to ensure that you can continue to work on the case.
+What should you do?
+Options:
+-	Reassign the case
+-	Reactivate the case
+-	Clone the case
+-	Change the status reason to In Progress
+Answer:
+-	Reactivate the case
+
+Community Confirm: No
+
+Q6
+A company uses Dynamics 365 for Customer Service. A case in the queue is routed to you.
+You will be going on a vacation.
+You need to assign the case to someone else.
+What should you do?
+Options:
+
+-	Release the case.
+-	Route the case to another queue.
+-	Share the case.
+-	Escalate the case
+Answer:
+-	Release the case.
+
+Community Confirm: No
+
+
+Q7
+You manage a Dynamics 365 for Customer Service environment.
+The entitlement for a customer ended last month. The customer must renew the entitlement and use the same parameters as the expired entitlement.
+You need to create the entitlement for the customer.
+What should you do?
+Options:
+
+-	Create a new template with the dates and terms. Activate the template.
+-	Delete the old entitlement. Create a new entitlement template.
+-	Add the new end date to the current entitlement and set new terms. Activate the entitlement.
+-	Make a copy of the old entitlement. Activate the copy.
+-	In the old entitlement, zero out the remaining terms and the total terms. Activate the entitlement.
+Answer:
+-	Add the new end date to the current entitlement and set new terms. Activate the entitlement.
+
+Community Confirm: No
+
+Q8
+You are using Dynamics 365 for Customer Service.
+You need to automate the process of adding cases to a queue.
+What should you do?
+Options:
+
+-	Use routing rules
+-	Use the convert activities functionality with cases
+-	Use the add to queue button on a case
+-	Use the Assign button on a case
+Answer:
+-	Use routing rules
+
+Community Confirm: No
+
+
+Q9
+You are a Dynamics 365 for Customer Service administrator.
+Your company provides standard support contracts for a total of 20 hours of email support. All 20 hours are for email support only. Phone support is offered as a premium service in allotments of 10 incidents.
+You need to set up an entitlement template for the standard support.
+What should you configure?
+Options:
+
+-	Set up an entitlement record for each account. 
+Set the value of the Total terms field for an entitlement to 20. 
+Do not configure an entitlement channel.
+-	Set the value of the Total terms field for an entitlement to 20. 
+Set the value of the entitlement channel option to Email.
+-	Set up an entitlement record for each account. 
+Set the value of the Total terms field for an entitlement to 20. 
+Set the entitlement channel option to Web. Set the value of the Total terms field to 20.
+-	Set the value of the Total terms field for an entitlement to 20. 
+Set the entitlement channel option to Email. Set the value of the Total terms field to 0. 
+Add the Phone option. Set the value of the Total Terms field to 10.
+Answer:
+-	Set the value of the Total terms field for an entitlement to 20. 
+Set the entitlement channel option to Email. Set the value of the Total terms field to 0. 
+Add the Phone option. Set the value of the Total Terms field to 10.
+
+Community Confirm: No
+
+Q10
+You are a Dynamics 365 for Customer Service administrator.
+Your company provides standard support contracts for 20 hours of email support. Phone is offered as a premium service in allotments of 10 incidents.
+You need to set up an entitlement template for the standard support. 
+What should you configure? 
+Options:
+-	Set the value of the Total terms field for an entitlement to 20.
+Set the entitlement channel option to Phone.
+Set the value of the Total terms value to 20.
+-	Set the value of the Total terms field for an entitlement to 20.
+Set the entitlement channel option to Email. Set the value of the Total terms field to 20. 
+-	Set the value of the Total terms field for an entitlement to 20. 
+Set the entitlement channel option to Email. 
+Set the value of the Total terms field to 10. 
+Add the Phone option. Set the value of the Total Terms field to 10. 
+-	Set the value of the Total terms field for an entitlement to 20. 
+Set the entitlement channel option to Email. Set the value of the Total terms field to 0.
+Add the Phone option.
+Set the value of the Total Terms field to 10. 
+Answer:
+-	Set the value of the Total terms field for an entitlement to 20. 
+Set the entitlement channel option to Email. 
+Set the value of the Total terms field to 10. 
+Add the Phone option. Set the value of the Total Terms field to 10. 
+
+Community Confirm: No
+
+
+Q11
+You are using Dynamics 365 for Customer Service.
+You need to create the entitlements for your customers.
+What should you do?
+Options:
+-	Create queues for each channel.
+-	Create an entity for each channel and configure the relationship with the entitlement.
+-	Configure entitlement channels.
+-	Configure routing rules.
+
+Answer:
+-	Configure entitlement channels.
+
+Community Confirm: No
+
+Q12
+A company has the following business units:
+-	Call center
+-	Customer service
+-	Digital response
+-	Escalation
+The security roles have not been modified. The customer service business unit is the parent of all other business units. Each business unit has its own queues.
+Customer service cases are routed to the appropriate individuals by using the queues.
+You need to ensure that a specific user within the customer service business unit can read all queues within the parent and child business units.
+Which security role should you assign to the user?
+Options:
+-	Customer service manager
+-	Scheduler
+-	Customer service representative
+-	System customizer
+
+Answer:
+-	Customer service manager
+
+Community Confirm: No
+
+
+
+Q13
+You are a customer service manager using Dynamics 365 for Customer Service.
+You need to restrict support to the products that a customer has purchased.
+What should you do?
+Options:
+-	Add the product to the account
+-	Add the products to the case
+-	Add the products to the customer’s entitlement
+-	Add the products to the customer
+
+Answer:
+-	Add the products to the customer’s entitlement
+
+Community Confirm: No
+
+
+Q14
+You manage a Dynamics 365 for Customer Service environment. You create and activate a routing rule.
+You need to modify the routing rule to a target a queue instead of a user. You navigate to routing rule sets.
+What should you do first?
+Options:
+-	Use Lookup to specify the Add to queue value.
+-	Select Edit to the command bar.
+-	Toggle the radio button for Route from user/team to queue.
+-	Deactivate the routing rule.
+
+Answer:
+-	Deactivate the routing rule.
+
+Community Confirm: No
+
+Q15
+You are a Dynamics 365 Customer Service administrator. You are creating a customer service schedule.
+You need to ensure that the schedule shows the correct time zone for available customer service hours.
+What should you do?
+Options:
+-	Set the time zone in each customized schedule.
+-	Allow the system to automatically convert to each user's time zone when a user signs in.
+-	Set the time zone in Dynamics 365 personal options.
+-	Set the time zone to GMT (Coordinated Universal Time) to enable conversion when you sign in.
+
+Answer:
+-	Set the time zone in each customized schedule.
+
+Community Confirm: No
+
+
+Q16
+A company uses Dynamics 365 Customer Service.
+The schedule shows working intervals of 45 minutes. The intervals cause customer service representatives to have too much free time during working hours. The company wants to change the intervals to every 30 minutes.
+You need to configure the intervals.
+What should you configure?
+Options:
+-	Schedule with travel time and distance
+-	Fulfillment preferences
+-	Resource crew scheduling
+-	Requirement groups
+-	Schedule within time constraints
+
+Answer:
+-	Fulfillment preferences
+
+Community Confirm: No
+
+
+Q17
+You are helping a company implement Power Virtual Agents with Omnichannel for Customer Service.
+The company has a chatbot that escalates to a manager if a customer wants to escalate from a chatbot.
+You need to configure a prerequisite before you can implement the chatbot.
+Which prerequisite should you configure?
+Options:
+-	Configure context variables for a chatbot.
+-	Create one chatbot in one queue with a human having a higher capacity over the chatbot.
+-	Create one chatbot in one queue with the chatbot having the highest capacity over human capacity.
+-	Configure a Microsoft Teams support channel for the chatbot.
+-	Configure an SMS channel for a chatbot.
+
+Answer:
+-	Configure context variables for a chatbot.
+
+Community Confirm: No
+
+
+Q18
+A company is implementing Omnichannel for Customer Service.
+The company separates agents into teams for billing, new product inquiries, support, and warranty. The new product team currently handles text messages, emails, and live chats from the company website.
+The company plans to release a new product. Before the new product launch, the company wants to add the ability to manage conversations coming in from
+Facebook and Twitter.
+You need to configure the system with the least amount of effort.
+What should you do?
+Options:
+-	Create a new resource characteristic.
+-	Create a routing rule.
+-	Create a new work stream for each channel.
+-	Add the new channel to the existing work stream.
+
+Answer:
+-	Add the new channel to the existing work stream.
+
+Community Confirm: No
+
+
+Q19
+Your organization plans to use Microsoft Power BI to access and analyze data in Dynamics 365 for Customer Service.
+You need to configure a Power BI connection to a Dynamics 365 organization named Contoso.
+Which service URL should you use?
+Options:
+-	https://contoso.crm.dynamics.com
+-	https://disco.crm.dynamics.com/xrmservices/2011/discovery.svc
+-	https://contoso.api.crm.dynamics.com/xrmservices/2011/organization.svc
+-	https://disco.crm.dynamics.com/api/discovery/v9.1
+
+Answer:
+-	https://contoso.crm.dynamics.com
+
+Community Confirm: No
+
+
+Q20
+You are a Dynamics 365 Customer Service administrator.
+You are configuring a case dashboard.
+You need to filter the dashboard to show only escalated cases and cases that are marked as Request.
+Which filter should you use?
+Options:
+-	Timeframe
+-	Priority
+-	Global
+-	Visual
+
+Answer:
+-	Global
+
+Community Confirm: No
+
+
+Q21
+You are implementing Dynamics 365 Customer Service Insights.
+The product manager would like to see product sales trends by age group. The groupings are as follows:
+✑ Ages 18 and younger
+✑ Ages 19-25
+✑ Ages 26-40
+✑ Ages 41-55
+✑ Ages 56 and older
+You need to configure the system.
+What should you define?
+Options:
+-	activity
+-	measure
+-	segment
+-	member
+
+Answer:
+-	measure
+
+Community Confirm: No
+
+
+Q22
+You need to consider the underlined segment to establish whether it is accurate.
+When categorizing cases via queues, cases should be categorized as Products.
+Options:
+-	No adjustment required.
+-	Services
+-	Managed solutions
+-	Unmanaged solutions
+
+Answer:
+-	No adjustment required.
+
+Community Confirm: No
+
+
+Q23
+Which of the following statements is TRUE when designing a business process flow?
+Options:
+-	You can use up to 40 steps for each stage.
+-	Each branch can be no more than 10 levels deep.
+-	You can select an entity relationship when defining a process flow.
+-	You can use a minimum of 30 stages per process, as well as a minimum of 30 steps per stage.
+
+Answer:
+-	You can select an entity relationship when defining a process flow.
+
+Community Confirm: No
+
+
+Q24
+You are a customer service manager for a company using Dynamics 365 for Customer Service.
+You need to set up queues to manage support. You assign a team to each queue.
+What type of queue should you configure?
+Options:
+-	Personal
+-	Private
+-	Business unit
+-	Public
+
+Answer:
+-	Private
+
+Community Confirm: No
+
+
+Q25
+Customer service representatives are not able to manually add service-level agreements (SLAs) to a record.
+You need to enable on-demand SLAs.
+What should you do?
+Options:
+-	Configure the scope of the workflow
+-	Publish the on-demand SLA
+-	Activate the SLA
+-	Request an administrator to add the SLA field to the entity form
+
+Answer:
+-	Request an administrator to add the SLA field to the entity form
+
+Community Confirm: No
+
+Q26
+You need to consider the underlined segment to establish whether it is accurate.
+A customer service manager requires the Append access level to add new entitlement templates for customer service representatives.
+Options:
+-	No adjustment required.
+-	Organization
+-	Business unit
+-	Remove
+
+Answer:
+-	Organization
+
+Community Confirm: No
+
+Q27
+You make use of Dynamics 365 Customer Service. You have recently acquired Omnichannel for Customer Service.
+You want to make sure that the system automatically asks questions prior to the chat beginning.
+Which of the following actions should you take?
+Options:
+-	You should configure a pre-conversation survey.
+-	You should configure Customer Voice.
+-	You should configure a Teams channel.
+-	You should configure an SMS channel.
+
+Answer:
+-	You should configure a pre-conversation survey.
+
+Community Confirm: No
+
+Q28
+You make use of Dynamics 365 Customer Service. You have recently acquired Omnichannel for Customer Service.
+You want to make sure that an agent is unable to view a client’s credit card data in a live chat.
+Which of the following actions should you take?
+Options:
+-	You should configure a business rule.
+-	You should configure a data masking rule.
+-	You should configure data encryption.
+-	You should configure a routing rule.
+
+Answer:
+-	You should configure a data masking rule.
+
+Community Confirm: No
+
+Q29
+You are employed as an administrator for your company’s Dynamics 365 for Customer Service implementation.
+You are currently creating case dashboard. You want to make sure that the dashboard displays cases by priority.
+Which of the following actions should you take?
+Options:
+-	You should configure the use of a timeframe filter.
+-	You should configure the use of a priority filter.
+-	You should configure the use of a global filter.
+-	You should configure the use of a visual filter.
+
+Answer:
+-	You should configure the use of a visual filter.
+
+Community Confirm: No
+
+Q30
+You need to consider the underlined segment to establish whether it is accurate.
+To alter working intervals, you should configure fulfillment preferences.
+Options:
+-	service scheduling
+-	No adjustment required.
+-	resource scheduling
+-	requirement groups
+
+Answer:
+-	No adjustment required.
+
+Community Confirm: No
+
+Q31
+You need to consider the underlined segment to establish whether it is accurate.
+The status reason for a Cancelled case status will read Researching.
+Options:
+-	No adjustment required.
+-	Waiting for details
+-	Merged
+-	On hold
+
+Answer:
+-	Merged
+
+Community Confirm: No
+
+Q32
+Your company makes use of Dynamics 365 for Customer Service. You employed as a customer service representative.
+You have been given the task of managing several lists of cases.
+You want to create a list of cases that are open for a month.
+Which of the following actions should you take?
+Options:
+-	You should create a system view.
+-	You should create a public view.
+-	You should create a personal view.
+-	You should create a shared view.
+
+Answer:
+-	You should create a personal view.
+
+Community Confirm: No
+
+Q34
+You have been tasked with creating a phone call activity. You want to make sure that the activity appears on the case record timeline.
+Which of the following is the field that should be modified during the process?
+Options:
+-	Owner
+-	Regarding
+-	Attachments
+-	Notes
+
+Answer:
+-	Regarding
+
+Community Confirm: No
+
+Q35
+Your company makes use of Dynamics 365 for Customer Service.
+You mistakenly close a case that had assigned to you prior to your work being completed. You want to open the case to carry on working on it.
+Which of the following actions should you take?
+Options:
+-	You should create a new case based on the one that was accidentally closed.
+-	You should reactivate the closed case.
+-	You should reallocate the closed case
+-	You should create a new case and merge it with the closed case.
+
+Answer:
+-	You should reactivate the closed case.
+
+Community Confirm: No
+
+Q36
+You are employed as an administrator for your company’s Dynamics 365 for Customer Service implementation.
+You are preparing to merge duplicate cases.
+Which of the following is TRUE with regards to the state of the case and the status after these duplicate cases have been merged?
+Options:
+-	The state of the case will change to Resolved and the state will change to Canceled.
+-	The state of the case will change to Merged and the state will change to Merged.
+-	The state of the case will change to Deleted and the state will change to Resolved.
+-	The state of the case will change to Canceled and the state will change to Merged.
+
+Answer:
+-	The state of the case will change to Canceled and the state will change to Merged.
+
+Community Confirm: No
+
+Q37
+You are employed as an administrator for your company’s Dynamics 365 for Customer Service implementation.
+You have received articles that were created for a knowledge base from a reviewer.
+Which of the following actions should be taken for articles that are approved?
+Options:
+-	The approved article must be sent to the Manager.
+-	The approved article must be published.
+-	The approved article must be sent back for final edits.
+-	The approved article’s status must be changed to Active.
+
+Answer:
+-	The approved article must be published.
+
+Community Confirm: No
+
+Q38
+You are employed as a system administrator for your company’s Dynamics 365 for Customer Service implementation.
+You have been tasked with creating a service-level agreement (SLA) that allows for times and status of an SLA to be tracked.
+Which of the following is the type of SLA you should create?
+Options:
+-	Atypical
+-	KPI
+-	Enhanced
+-	Standard
+
+Answer:
+-	KPI
+
+Community Confirm: No
+
+Q39
+Your company makes use of Dynamics 365 for Customer Service. You are employed as a customer service manager.
+You want to make sure that a client only receives support for the products that they have procured.
+To which of the following should you add the products?
+What should you do?
+Options:
+-	The business rule
+-	The case
+-	The client’s entitlement
+-	The client’s profile
+
+Answer:
+-	The client’s entitlement
+
+Community Confirm: No
+
+Q40
+You need to consider the underlined segment to establish whether it is accurate.
+Routing rules must be used to automate the process of adding cases to a queue.
+Options:
+-	No adjustment required.
+-	Business rules
+-	Business process flow
+-	Similarity rules
+
+Answer:
+-	No adjustment required.
+
+Community Confirm: No
+
+Q41
+Your company makes use of Dynamics 365 for Customer Service. You are employed as an administrator.
+You are required to configure an entitlement template for a standard support contract that allows for 40 hours of email support, as well as Phone as a premium service in allotments of 20 incidents.
+Which of the following is TRUE with regards to the entitlement channel?
+Options:
+-	It should be set to Email only.
+-	It should be set to Phone only.
+-	It should be set to Email and Phone.
+-	It is an unnecessary setting.
+
+Answer:
+-	It should be set to Email only.
+
+Community Confirm: No
+
+Q42
+You work in customer support at you company.
+You have been tasked with generating the entitlements for your clients in Dynamics 365 for Customer Service.
+Which of the following actions should you take?
+Options:
+-	You should configure business rules.
+-	You should configure a business process flow.
+-	You should configure entitlement channels.
+-	You should configure routing rules.
+
+Answer:
+-	You should configure entitlement channels.
+
+Community Confirm: No
+
+Q43
+You need to consider the underlined segment to establish whether it is accurate.
+To make sure that a survey displays follow up questions based on answers from the preceding question, the Response routing feature should be used in the survey.
+Options:
+-	No adjustment required.
+-	Tagging
+-	List of ratings
+-	Basic
+
+Answer:
+-	No adjustment required.
+
+Community Confirm: No
+Q44
+You are responsible for creating surveys via Voice of the Customer (VoC).
+You want to make sure that an escalation is activated in support by VoC survey responses.
+Which of the following actions should you take?
+Options:
+-	You should make use of the VoC Process Survey Response workflow.
+-	You should make use of the VoC Close Survey Activity workflow.
+-	You should make use of the VoC Convert Response To Feedback Entity workflow.
+-	You should make use of the VoC Convert Survey Response To Campaign Response workflow.
+
+Answer:
+-	You should make use of the VoC Process Survey Response workflow.
+
+Community Confirm: No
+
+Q45
+You need to search for answers to customer claims.
+Which type of search should you perform?
+Options:
+-	Timeline
+-	Quick Find
+-	Related
+-	Detail
+-	Case Relationships
+
+Answer:
+-	Related
+
+Community Confirm: No
+
+Q46
+You need to ensure that claim disputes conform to the defined case life cycle.
+What should you configure?
+Options:
+-	Related cases
+-	Case Relationships
+-	Timeline
+-	Status Reason Transition
+-	Subject
+
+Answer:
+-	Status Reason Transition
+
+Community Confirm: No
+
+
+Q47
+A customer has three cases in process and two cases for the current calendar year.
+You need to determine how many cases the customer has left on their entitlement.
+How many cases are left?
+Options:
+-	20
+-	22
+-	23
+-	25
+
+Answer:
+-	23
+
+Community Confirm: No
+
+Q48
+You need to configure the system to notify managers about unhappy patients.
+What should you do?
+Options:
+-	Configure Omnichannel Insights.
+-	Set a routing rule for escalations.
+-	Change the value of the Monitor real-time customer sentiment option to Yes.
+
+Answer:
+-	Change the value of the Monitor real-time customer sentiment option to Yes.
+
+Community Confirm: No
+
+Categoría: Selección Múltiple: 2 Opciones
+
+Q1
+A company uses Dynamics 365 Customer Service.
+You are configuring the advanced similarity rules. You create a similarity rule on cases and put an exact match for the Modified On field in the Match Fields tab.
+You test the rule and discover that exact matches do not appear.
+You need to determine why the rule is not working.
+What are two possible reasons why the rule is not working? Each correct answer presents a complete solution.
+NOTE: Each correct selection is worth one point.
+Options:
+-	A Power Automate flow was not created.
+-	The similarity rule is deactivated.
+-	The security role is not set to run the similarity rule.
+-	The similarity rule was not published.
+-	The Modified On field is not set to searchable in the customization of the case entity in the solution.
+
+Answer:
+-	The similarity rule is deactivated.
+-	The Modified On field is not set to searchable in the customization of the case entity in the solution.
+
+Community Confirm: No
+
+Q2
+You are a help desk representative for an organization using Dynamics 365 Customer Service.
+Users need to search within the system for similar cases. None of the out-of-the-box settings have been changed.
+You need to determine which search features are available for use by default.
+Which two search features are available? Each correct answer presents a complete solution.
+NOTE: Each correct selection is worth one point.
+Options:
+-	Advanced Find
+-	Quick Find
+-	Relevance Search
+-	Full-text Quick Find
+
+Answer:
+-	Advanced Find
+-	Quick Find
+
+Community Confirm: No
+
+Q3
+You are a Dynamics 365 Customer Service administrator.
+You need to add a new status reason to the case entity.
+What are two possible ways to accomplish the goal? Each correct answer presents a complete solution.
+NOTE: Each correct selection is worth one point.
+Options:
+-	Navigate to Cases in the Customer Service Hub app. Open a record, edit the form, and then edit the Status reason field.
+-	Modify the existing solution and the case entity. Edit the status reason and add an additional status reason value.
+-	Create a new solution and add the existing Case entity. Select Status Reason and add a new value.
+-	Modify the existing solution. Add another entity named Status. Then, create a status reason field with additional options.
+
+Answer:
+-	Modify the existing solution and the case entity. Edit the status reason and add an additional status reason value.
+-	Create a new solution and add the existing Case entity. Select Status Reason and add a new value.
+
+Community Confirm: No
+
+Q4
+You set a default entitlement for a customer.
+You need to ensure that the default entitlement is automatically associated with a case.
+What are two possible ways to achieve this goal? Each correct answer presents a complete solution.
+NOTE: Each correct selection is worth one point.
+Options:
+-	Create a case.
+-	Update the customer, contact, or product field on an existing case.
+-	Update the description field on an existing case.
+-	Add an activity to an existing case.
+
+Answer:
+-	Create a case.
+-	Update the customer, contact, or product field on an existing case.
+
+Community Confirm: No
+
+Q5
+You are a Dynamics 365 for Customer Service administrator.
+You need to deactivate entitlements.
+When should you deactivate entitlements? Each correct answer presents a complete solution.
+NOTE: Each correct selection is worth one point.
+Options:
+-	A customer’s entitlement has ended and no more support is desired.
+-	A customer renews an entitlement for 100 more hours or one year.
+-	A customer calls and wants to know how many hours of support remain.
+-	The customer must change remaining support hours from all email support to one-half email support and one-half phone support.
+-	You need to add notes to the customer’s entitlement.
+
+Answer:
+-	The customer must change remaining support hours from all email support to one-half email support and one-half phone support.
+-	You need to add notes to the customer’s entitlement.
+
+Community Confirm: No
+
+Q6
+Your company makes use of Dynamics 365 for Customer Service.
+You have been tasked with configuring available working hours for help desk staff. The staff have different schedules.
+You are preparing to configure individual working hours.
+Which two of the following options should you configure?
+Options:
+-	Service management.
+-	Security settings.
+-	System settings
+-	All customer service calendars.
+
+Answer:
+-	Service management.
+-	All customer service calendars.
+
+Community Confirm: No
+
+Q7
+You are employed as an administrator for your company’s Dynamics 365 for Customer Service environment.
+You have been tasked with setting up Twilio SMS for the customer service division.
+Which of the following is required for this configuration? (Choose two.)
+Options:
+-	A Customer ID
+-	An Account ID
+-	An Auth Token
+-	An API Key
+
+Answer:
+-	An Account ID
+-	An Auth Token
+
+Community Confirm: No
+
+Q8
+You have been tasked with forwarding surveys to clients that opened cases in the last 30 days.
+You want to make sure that clients without a Dynamics 365 license still receives a summary of the survey results.
+Which two of the following are file formats that the summary can be sent in?
+Options:
+-	.xlsx
+-	.exe
+-	.pdf
+-	.txt
+
+Answer:
+-	.xlsx
+-	.pdf
+
+Community Confirm: No
+
+Q9
+You are a Dynamics 365 for Customer Service administrator.
+You have been tasked with making sure that cases are automatically created for emails received by clients in possession of a support contract.
+You have created an automatic record creation and update rule.
+Which two of the following actions should you take NEXT?
+Options:
+-	You should configure the rule to generate a case if a valid entitlement exists.
+-	You should configure the rule to send automatic email responses to customers when records are created. 
+-	You should set the source type to service activity.
+-	You should set the source type to email.
+
+Answer:
+-	You should configure the rule to generate a case if a valid entitlement exists.
+-	You should set the source type to email.
+
+Community Confirm: No
+
+Q10
+You need to configure the queue for telephone-based cases.
+What are two possible ways to achieve this goal? Each correct answer presents a complete solution.
+NOTE: Each correct selection is worth one point.
+Options:
+-	Create a case from email.
+-	Define an SLA and entitlements and set entitlement values for case numbers.
+-	Configure a status reason transition.
+-	Create a case routing rule.
+-	Automatically create or update records.
+Answer:
+-	Define an SLA and entitlements and set entitlement values for case numbers.
+-	Configure a status reason transition.
+
+Community Confirm: No
+
+Categoría: Selección Múltiple: 3 Opciones
+
+Q1
+You use Dynamics 365 for Customer Service.
+You need to create business process flows.
+Which three entities can you use? Each correct answer presents part of the solution.
+NOTE: Each correct selection is worth one point.
+Options:
+-	Goal
+-	Case
+-	Letter
+-	Social activity
+-	Rollup queries
+
+Answer:
+-	Case
+-	Letter
+-	Social activity
+
+Community Confirm: No
+
+Q2
+A customer service organization plans to implement knowledge management for a custom entity named Root Cause Analysis.
+Users must be able to search, link, and rate knowledge articles. Users must be provided with suggested knowledge articles.
+You need to configure Dynamics 365 for Customer Service.
+Which three actions should you perform? Each correct answer presents part of the solution.
+NOTE: Each correct selection is worth one point.
+Options:
+-	Navigate to the Knowledge Base Management Settings wizard. Then, navigate to Record types and select Root Cause Analysis.
+-	Add a lookup to the article entity.
+-	In Solution Explorer, expand the Root Cause Analysis entity and select Forms. Edit the main form and configure a knowledge base search control.
+-	In Solution Explorer, expand the Root Cause Analysis entity and select Forms. Edit the main form and configure a subgrid for knowledge articles.
+-	In Solution Explorer, select the Root Cause Analysis entity and then select Knowledge management.
+
+Answer:
+-	Navigate to the Knowledge Base Management Settings wizard. Then, navigate to Record types and select Root Cause Analysis.
+-	In Solution Explorer, expand the Root Cause Analysis entity and select Forms. Edit the main form and configure a knowledge base search control.
+-	In Solution Explorer, select the Root Cause Analysis entity and then select Knowledge management.
+
+Community Confirm: No
+
+Q3
+You need to create the SLAs.
+Which three SLAs should you create? Each correct answer presents part of the solution.
+NOTE: Each correct selection is worth one point.
+Options:
+-	SLA with 24 hours as the failure time and no warning
+-	SLA with 6 hours as the failure time and a one-hour warning
+-	SLA with 6 hours as the failure time and no warning
+-	SLA with one hour as the failure time and no warning
+-	SLA with 24 hours as the failure time and a two-hour warning
+
+Answer:
+-	SLA with 6 hours as the failure time and a one-hour warning
+-	SLA with one hour as the failure time and no warning
+-	SLA with 24 hours as the failure time and a two-hour warning
+
+Community Confirm: No
+
+
+
+
+
+
+
+Categoría: YES / NO
+
+Q1: Set the input parameter type as Option set for the action.
+You are configuring a business process flow for a case entity.
+All cases must be flagged for review.
+You need to complete configuration of the business process flow.
+Solution: Set the input parameter type as Option set for the action.
+Does the solution meet the goal?
+Options:
+-	Yes
+-	No
+
+Answer:
+-	No
+Community Confirm: Sí
+
+Q2: For a new action named Ready for review, disable the As a business process flow action step option.
+You are configuring a business process flow for a case entity.
+All cases must be flagged for review.
+You need to complete configuration of the business process flow.
+Solution: For a new action named Ready for review, disable the As a business process flow action step option.
+Does the solution meet the goal?
+Options:
+-	Yes
+-	No
+
+Answer:
+-	No
+
+Community Confirm: No
+
+Q3: Create an action that generates a task record that is assigned to the case reviewer and appends the text Ready for review to the case topic.
+You are configuring a business process flow for a case entity.
+All cases must be flagged for review.
+You need to complete configuration of the business process flow.
+Solution: Create an action that generates a task record that is assigned to the case reviewer and appends the text Ready for review to the case topic.
+Does the solution meet the goal?
+Options:
+-	Yes
+-	No
+
+Answer:
+-	Yes
+
+Community Confirm: No
+
+Q4: Configure Dynamics 365 to automatically send responses to customers when the record is created.
+You are a Dynamics 365 for Customer Service system administrator for Contoso, Ltd.
+You need to automatically create cases from emails sent to the support@contoso.com email address.
+Solution: Configure Dynamics 365 to automatically send responses to customers when the record is created.
+Does the solution meet the goal?
+Options:
+-	Yes
+-	No
+
+Answer:
+-	No
+
+Community Confirm: No
+
+Q5: Create an automatic record creation and update rule. Set the Source type to Email, and then select the queue. Configure autoresponse settings.
+You are a Dynamics 365 for Customer Service system administrator for Contoso, Ltd.
+You need to automatically create cases from emails sent to the support@contoso.com email address.
+Solution: Create an automatic record creation and update rule. Set the Source type to Email, and then select the queue. Configure autoresponse settings.
+Does the solution meet the goal?
+Options:
+-	Yes
+-	No
+
+Answer:
+-	Yes
+
+Community Confirm: No
+
+Q6: Create an automatic record creation and update rule. Set the Source type to Service activity, and then select the queue.
+You are a Dynamics 365 for Customer Service system administrator for Contoso, Ltd.
+You need to automatically create cases from emails sent to the support@contoso.com email address.
+Solution: Create an automatic record creation and update rule. Set the Source type to Service activity, and then select the queue.
+Does the solution meet the goal?
+Options:
+-	Yes
+-	No
+
+Answer:
+-	No
+
+Community Confirm: No
+
+
+Q7: Create an automatic record creation and update rule. Set the Source type to Email, and then select the queue. Configure conditions for record creation.
+You are a Dynamics 365 for Customer Service system administrator for Contoso, Ltd.
+You need to automatically create cases from emails sent to the support@contoso.com email address.
+Solution: Create an automatic record creation and update rule. Set the Source type to Email, and then select the queue. Configure conditions for record creation.
+Does the solution meet the goal?
+Options:
+-	Yes
+-	No
+
+Answer:
+-	Yes
+
+Community Confirm: No
+
+Q8: Set up each user queue to be private.
+You are implementing Dynamics 365 Customer Service for a call center. There are separate queues for level1 and level2.
+You need to set up the queues to meet the following requirements:
+-	Users must have their own queues that no one else can access.
+-	Users must not be able to view each other's queue.
+-	Users must be able to work from the support queue.
+Solution:
+-	Set up each user queue to be private.
+-	Set up level1 and level2 queues to be public and add applicable members.
+-	Set up the support queue to be public.
+Does the solution meet the goal?
+Options:
+-	Yes
+-	No
+
+Answer:
+-	No
+
+Community Confirm: No
+
+Q9: Set up each user queue to be private.
+You are implementing Dynamics 365 Customer Service for a call center. There are separate queues for level1 and level2.
+You need to set up the queues to meet the following requirements:
+-	Users must have their own queues that no one else can access.
+-	Users must not be able to view each other's queue.
+-	Users must be able to work from the support queue.
+Solution:
+-	Set up each user queue to be private.
+-	Set up level1 and level2 queues to be public and add applicable members.
+-	Set up the support queue to be private.
+Does the solution meet the goal?
+Options:
+-	Yes
+-	No
+
+Answer:
+-	Yes
+
+Community Confirm: No
+
+Q10: Set up each user queue to be public.
+You are implementing Dynamics 365 Customer Service for a call center. There are separate queues for level1 and level2.
+You need to set up the queues to meet the following requirements:
+-	Users must have their own queues that no one else can access.
+-	Users must not be able to view each other's queue.
+-	Users must be able to work from the support queue.
+Solution:
+-	Set up each user queue to be public.
+-	Set up level1 and level2 queues to be public and add applicable members.
+-	Set up the support queue to be public.
+
+Does the solution meet the goal?
+Options:
+-	Yes
+-	No
+
+Answer:
+-	No
+
+Community Confirm: No
+
+Categoría: YES it does / NO it does not
+
+Q1
+You are employed as an administrator for your company’s Dynamics 365 for Customer Service implementation.
+Your company has several business process flows for managing contracts.
+You want to specify the default process flow.
+You configure the order of the business process flows.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	Yes, it does
+
+Community Confirm: No
+
+Q2
+You are employed as an administrator for your company’s Dynamics 365 for Customer Service implementation.
+Your company has several business process flows for managing contracts.
+You want to specify the default process flow.
+You configure the steps of the business process flows.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	No, it does not
+
+Community Confirm: No
+
+Q3
+You are employed as an administrator for your company’s Dynamics 365 for Customer Service implementation.
+Your company has several business process flows for managing contracts.
+You want to specify the default process flow.
+You configure the stages of the business process flows.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	No, it does not
+
+Community Confirm: No
+
+Q4
+Your company makes use of Dynamics 365 for Customer Service.
+You have configured a customer service business unit as a parent of a call center, a digital response, and an escalation business unit. These business units all have their own queues. Customer service cases are directed to the correct parties via the queues. You have not amended any security roles.
+You have been tasked with making sure that a user in the customer service business unit is able to read queues in both the parent and child business units.
+You assign the user the Scheduler security role.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	No, it does not
+
+Community Confirm: No
+
+Q5
+Your company makes use of Dynamics 365 for Customer Service.
+You have configured a customer service business unit as a parent of a call center, a digital response, and an escalation business unit. These business units all have their own queues. Customer service cases are directed to the correct parties via the queues. You have not amended any security roles.
+You have been tasked with making sure that a user in the customer service business unit is able to read queues in both the parent and child business units.
+You assign the user the System customizer security role.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	No, it does not
+
+Community Confirm: No
+
+Q6
+Your company makes use of Dynamics 365 for Customer Service.
+You have configured a customer service business unit as a parent of a call center, a digital response, and an escalation business unit. These business units all have their own queues. Customer service cases are directed to the correct parties via the queues. You have not amended any security roles.
+You have been tasked with making sure that a user in the customer service business unit is able to read queues in both the parent and child business units.
+You assign the user the CSR Manager security role.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	Yes, it does
+
+Community Confirm: No
+
+Q7
+Your company makes use of Dynamics 365 for Customer Service. You employed as a customer service representative.
+You have been tasked with detecting and removing duplicate cases.
+You decide to make use of business rules to achieve your goal.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	Yes, it does
+
+Community Confirm: No
+
+Q8
+Your company makes use of Dynamics 365 for Customer Service. You employed as a customer service representative.
+You have been tasked with detecting and removing duplicate cases.
+You decide to make use of parent-child case relationships to achieve your goal.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	No, it does not
+
+Community Confirm: No
+
+Q9
+Your company makes use of Dynamics 365 for Customer Service. You employed as a customer service representative.
+You have been tasked with detecting and removing duplicate cases.
+You decide to merge cases to achieve your goal.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	No, it does not
+
+Community Confirm: No
+
+Q10
+Your company makes use of Dynamics 365 for Customer Service.
+You need to assign a case in the queue that is currently routed to you to a different user because you have booked time off work.
+You release the case.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	Yes, it does
+
+Community Confirm: No
+
+Q11
+Your company makes use of Dynamics 365 for Customer Service.
+You need to assign a case in the queue that is currently routed to you to a different user because you have booked time off work.
+You share the case.
+Does the action achieve your objective?
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	No, it does not
+
+Community Confirm: No
+
+Q12
+Your company makes use of Dynamics 365 for Customer Service.
+You need to assign a case in the queue that is currently routed to you to a different user because you have booked time off work.
+You delete the case.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	No, it does not
+
+Community Confirm: No
+
+Q13
+Your company makes use of Dynamics 365 Customer Service with the default settings unchanged.
+You want to find like cases in the system using a default search feature.
+You make use of Full-text Quick Find.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	Yes, it does
+
+Community Confirm: No
+
+Q14
+Your company makes use of Dynamics 365 Customer Service with the default settings unchanged.
+You want to find like cases in the system using a default search feature.
+You make use of Quick Find.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	Yes, it does
+
+Community Confirm: No
+
+Q15
+You are employed as a system administrator for your company’s Dynamics 365 for Customer Service implementation.
+You have been tasked with making sure that customer service representatives have the ability to add service-level agreements (SLAs) to a record manually.
+You add the SLA field to the entity form.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	Yes, it does
+
+Community Confirm: No
+
+Q16
+You are employed as a system administrator for your company’s Dynamics 365 for Customer Service implementation.
+You have been tasked with making sure that customer service representatives have the ability to add service-level agreements (SLAs) to a record manually.
+You activate the SLA.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	No, it does not
+
+Community Confirm: No
+
+Q17
+You are employed as a system administrator for your companyג€™s Dynamics 365 for Customer Service implementation.
+You have been tasked with making sure that customer service representatives have the ability to add service-level agreements (SLAs) to a record manually.
+You assign the customer service representatives the necessary permissions.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	No, it does not
+
+Community Confirm: No
+
+Q18
+You are a Dynamics 365 for Customer Service manager.
+You are preparing to configure queues for the purpose of managing support. After assigning teams respectively to a queue, you need to decide on the type of queue you are going to create.
+You decide to create a Private queue.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	Yes, it does
+
+Community Confirm: No
+
+Q19
+You are a Dynamics 365 for Customer Service manager.
+You are preparing to configure queues for the purpose of managing support. After assigning teams respectively to a queue, you need to decide on the type of queue you are going to create.
+You decide to create a Public queue.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	No, it does not
+
+Community Confirm: No
+
+Q20
+You are responsible for creating surveys via Voice of the Customer (VoC).
+You want to make sure that clients who currently receive surveys are able to unsubscribe when they no longer want to receive them.
+You set the Allow unsubscribe setting to Yes.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	Yes, it does
+
+Community Confirm: No
+
+Q21
+You are responsible for creating surveys via Voice of the Customer (VoC).
+You want to make sure that clients who currently receive surveys are able to unsubscribe when they no longer want to receive them.
+You add an unsubscribe link to the email message.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	Yes, it does
+
+Community Confirm: No
+
+Q22
+You are responsible for creating surveys via Voice of the Customer (VoC).
+You want to make sure that clients who currently receive surveys are able to unsubscribe when they no longer want to receive them.
+You add an Unsubscribe check box after every question.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	No, it does not
+
+Community Confirm: No
+
+Q23
+You are responsible for designing surveys via Voice of the Customer (VoC).
+You want to make sure that the design allows for questions to be shown or hidden according to answer selected.
+You include Client-side routing in the design.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	Yes, it does
+
+Community Confirm: No
+
+Q24
+You are responsible for designing surveys via Voice of the Customer (VoC).
+You want to make sure that the design allows for questions to be shown or hidden according to answer selected.
+You include the Tagging feature in the design.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	Yes, it does
+
+Community Confirm: No
+
+Q25
+You are responsible for designing surveys via Voice of the Customer (VoC).
+You want to make sure that the design allows for questions to be shown or hidden according to answer selected.
+You include the Piping feature in the design.
+Does the action achieve your objective?
+Options:
+-	Yes, it does
+-	No, it does not
+
+Answer:
+-	Yes, it does
+
+Community Confirm: No
+
+
+Categoría: HOTSPOT
+
+Q1
+You are a Dynamics 365 for Customer Service administrator.
+You need to manage business process flows.
+What should you configure? To answer, select the appropriate configuration in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q1]
+ 
+Community Confirm: No
+
+Q2
+You are implementing Dynamics 365 for Customer Service.
+You need to set up available working hours to help desk representatives who have varying schedules.
+What should you do? To answer, select the appropriate options in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q2]
+
+ 
+Community Confirm: No
+
+
+Q3
+You need to configure each escalation scenario.
+Which configuration should you use for each scenario? To answer, select the appropriate options in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q3]
+
+ 
+Community Confirm: No
+
+
+
+Q4
+You are using Dynamics 365 for Customer Service. You have existing routing rules.
+You need to create a routing rule for cases and bulk-import cases.
+Which actions should you perform? To answer, select the appropriate action in the dialog box in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area: 
+[C6_Q4]
+
+ 
+Community Confirm: No
+
+
+Q5
+A company implements Dynamics 365 for Customer Service.
+Which status reason is used for each case status? To answer, select the appropriate option in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q5]
+
+
+ 
+Community Confirm: No
+
+Q6
+You are a customer service representative working with cases in Dynamics 365 for Customer Service.
+You need to manage multiple lists of cases.
+Which actions should you perform? To answer, select the appropriate configuration in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q6]
+
+ 
+Community Confirm: No
+
+
+Q7
+A client plans to implement a case resolution process.
+Which field types does the Case Resolution form use? To answer, select the appropriate options in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q7]
+
+ 
+Community Confirm: No
+
+
+Q8
+You use Dynamics 365 for Customer Service.
+You need to merge cases.
+What is the outcome for the merge process? To answer, select the appropriate configuration in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q8]
+ 
+Community Confirm: No
+
+Q9
+You are a Dynamics 365 for Customer Service administrator. You enable full-text, relevance, and category search.
+You need to use the knowledge base search control to locate knowledge base articles that contain each of the following words anywhere in an article, regardless of which product an article refers to: 
+-	Elevator
+-	Motor
+-	Sizing
+How should you configure the search? To answer, select the appropriate options in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q9]
+
+ 
+Community Confirm: No
+
+Q10
+A company uses Dynamics 365 for Customer Service.
+You need to document the case resolution process.
+How are each of the cases resolved? To answer, select the appropriate options in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q10]
+ 
+Community Confirm: No
+
+
+Q11
+You are a Microsoft Dynamics 365 for Customer Service administrator. You create an article for a knowledge base. A reviewer selects articles for review.
+You approve some articles and revert some articles to draft status.
+For each action, what should you do next? To answer, select the appropriate options in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q11]
+ 
+Community Confirm: No
+
+
+
+Q12
+You are using Dynamics 365 Customer Service. You are viewing a knowledge base (KB) article from a case record. Knowledge management is set up to use an external portal.
+You need to link the article to the case and share the article with the customer.
+What is the solution for each requirement? To answer, select the appropriate options in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q12]
+
+ 
+Community Confirm: No
+
+
+
+Q13
+You are a Dynamics 365 Customer Service administrator.
+You must track issues submitted by customers.
+You need to configure case settings for the Service Management module.
+What should you configure? To answer, select the appropriate options in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q13]
+ 
+Community Confirm: No
+
+
+Q14
+You are a Dynamics 365 Customer Service administrator.
+Users inform you about situations in which child cases are not working correctly.
+You need to configure the system to correct the issues.
+What should you do in each situation? To answer, select the appropriate options in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q14]
+
+ 
+Community Confirm: No
+
+
+Q15
+You are a Dynamics 365 for Customer Service administrator.
+Members of the customer support staff must not be available on public holidays in the year 2021.
+You need to configure holiday schedules.
+Which actions should you perform? To answer, select the appropriate options in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q15]
+ 
+Community Confirm: No
+
+Q16
+You are a Dynamics 365 for Customer Service administrator.
+You need to categorize activities and cases by using queues.
+How should you categorize each record? To answer, select the appropriate options in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q16]
+
+ 
+Community Confirm: No
+
+Q17
+You are configuring a Dynamics 365 for Customer Service instance.
+Customer service manager cannot create new entitlements for customer service representatives.
+You need to ensure that customer service managers can add new entitlement templates and knowledge base records for customer service representatives.
+Which access levels should you apply? To answer, select the appropriate options in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q17]
+
+ 
+Community Confirm: No
+
+Q18
+You are a Dynamics 365 for Customer Service administrator.
+Your company is trying to determine whether it needs to use standard or enhanced service-level agreements (SLAs).
+You need to configure SLAs based on the requirements.
+Which type of SLAs should you use? To answer, select the appropriate option in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q18]
+
+
+ 
+Community Confirm: No
+
+Q19
+You are working as a functional consultant for Dynamics 365 Customer Service. No changes have been made to security roles.
+You need to ensure that customer service representatives can process cases that have service-level agreements (SLAs) and entitlements. You must grant only the minimum privileges required.
+How should you configure security? To answer, select the appropriate options in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q19]
+
+ 
+Community Confirm: No
+
+
+Q20
+A company uses Dynamics 365 Customer Service. The company purchases Omnichannel for Customer Service.
+The company wants the following requirements implemented without the need to license additional software:
+✑ The system must automatically ask questions before the chat begins.
+✑ Credit card information that a customer enters in a chat must not be visible to the agent.
+You need to configure the options to meet the requirements.
+Which options should you configure? To answer, select the appropriate options in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q20]
+
+
+ 
+Community Confirm: No
+
+Q21
+You must set up the following:
+✑ A work stream must be configured to use Twitter.
+✑ The cases must automatically go to the next available sales representative.
+✑ Any existing case that comes in must be assigned automatically to the sales representative who worked on the case originally.
+You need to choose the correct setting.
+Which setting should you use? To answer, select the appropriate options in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q21]
+
+
+
+
+ 
+Community Confirm: No
+
+
+Q22
+You are implementing Omnichannel for Customer Service for a hospital.
+Each customer service agent has a chat capacity of 200.
+The implementation requirements are as follows:
+Each agent can take no more than two chats at a time.
+A new conversation must auto assign to an available agent.
+You need to select the conversation options to meet the requirements.
+Which options should you configure?
+Hot Area:
+[C6_Q22]
+
+
+
+ 
+Community Confirm: No
+
+
+Q23
+You view the interactive dashboard in the Microsoft Dynamics 365 Customer Service Hub.
+[C6_Q23.1]
+ 
+Use the drop-down menus to select the answer choice that answers each question based on the information presented in the graphic.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q23.2]
+ 
+Community Confirm: No
+
+
+Q24
+A company is evaluating Dynamics 365 Customer Service Insights.
+The company decides to use the sample data environment to expedite the evaluation process.
+You need to recommend a dashboard.
+Which dashboard should you recommend? To answer, select the appropriate options in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q24]
+ 
+Community Confirm: No
+
+
+Q25
+You need to configure the options for the schedule.
+Which options should you configure? To answer, select the appropriate options in the answer area.
+NOTE: Each correct selection is worth one point.
+[C6_Q25]
+ 
+Community Confirm: No
+
+
+Q26
+You need to create and configure objects to support the requirements.
+How should you configure the system? To answer, select the appropriate options in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q26]
+
+ 
+Community Confirm: No
+
+
+Q27
+You need to configure the correct settings.
+Which settings should you configure? To answer, select the appropriate options in the answer area.
+NOTE: Each correct selection is worth one point.
+Hot Area:
+[C6_Q27]
+ 
+ 
+Community Confirm: No
