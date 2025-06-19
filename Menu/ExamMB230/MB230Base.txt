@@ -1841,3 +1841,230 @@ Hot Area:
  
  
 Community Confirm: No
+
+Categoría: Drag Drop
+
+Q1
+You are a Dynamics 365 for Customer Service administrator.
+Your company requires a new phone-to-case business process flow for customer service representatives to follow.
+The stages are as follows:
+1. Verification
+2. Acknowledgement and research
+3. Resolution
+Customer service representatives must send an email to the customer when a case enters the acknowledgement-and-research stage.
+You need to create the required business process flow and components.
+Which three actions should you perform in sequence? To answer, move the appropriate actions from the list of actions to the answer area and arrange them in the correct order.
+Select and Place:
+[C7_Q1]
+ 
+Community Confirm: No
+
+Q2
+You are a Dynamics 365 for Customer Service administrator.
+You need to import cases from a file without applying routing rules.
+Which three actions should you perform in sequence? To answer, move the appropriate actions from the list of actions to the answer area and arrange them in the correct order.
+Select and Place:
+[C7_Q2]
+ 
+
+Community Confirm: No
+
+Q3
+A customer uses Dynamics 365 for Customer Service.
+Customer service representatives must be able to create knowledge base articles.
+You need to ensure that all knowledge base articles are submitted for review and approval before they are made available to use.
+Which four actions must be performed in sequence to enable Knowledgebase articles to be available for all Customer service reps when searching the knowledgebase? To answer, move the appropriate actions from the list of actions to the answer area and arrange them in the correct order.
+Select and Place:
+[C7_Q3]
+
+ 
+Community Confirm: No
+
+
+Q4
+You make a phone call regarding an existing case record.
+You need to create a phone call activity that appears on the case record timeline.
+Which three actions should you perform in sequence? To answer, move the appropriate actions from the list of actions to the answer area and arrange them in the correct order.
+Select and Place:
+[C7_Q4]
+
+ 
+
+Community Confirm: No
+
+
+Q5
+You are a customer service representative using Dynamics 365 Customer Service Hub.
+You need to link the knowledge base records that relate to cases and send articles to customers.
+Which three actions should you perform in sequence? To answer, move the appropriate actions from the list of actions to the answer area and arrange them in them correct order.
+Select and Place:
+[C7_Q5] 
+
+Community Confirm: No
+
+Q6
+A Dynamics 365 Customer Service organization uses routing rules to escalate cases.
+Security roles have not been modified or created.
+You need to modify the routing rule set that is currently in use and enforce the principle of least privilege.
+Which five actions should you perform in sequence? To answer, move the appropriate actions from the list of actions to the answer area and arrange them in the correct order.
+Select and Place:
+[C7_Q6]
+
+ 
+Community Confirm: No
+
+Q7
+You are a Dynamics 365 for Customer Service administrator.
+You must track time against enhanced service-level agreements (SLAs).
+You need to add a timer.
+Which three actions should you perform in sequence? To answer, move the appropriate actions from the list of actions to the answer area and arrange them in the correct order.
+Select and Place:
+[C7_Q7]
+ 
+Community Confirm: No
+
+Q8
+You are a Dynamics 365 for Customer Service administrator.
+You need to implement queues to manage cases.
+Which queue types should you use? To answer, drag the appropriate queue types to the correct scenarios. Each queue type may be used once, more than once, or not at all. You may need to drag the split bar between panes or scroll to view content.
+NOTE: Each correct selection is worth one point.
+Select and Place:
+[C7_Q8]
+ 
+
+
+Community Confirm: No
+
+
+
+
+
+
+
+Q9
+You are a Dynamics 365 for Customer Service system administrator.
+You need to create service-level agreements (SLAs) to meet company requirements.
+What SLA types should you use? To answer, drag the appropriate SLA types to the correct requirements. Each SLA type may be used once, more than once, or not at all. You may need to drag the split bar between panes or scroll to view content.
+NOTE: Each correct selection is worth one point.
+Select and Place:
+[C7_Q9]
+
+ 
+Community Confirm: No
+
+Q10
+You are a Dynamics 365 for Customer Service administrator. Your company provides support between 9 a.m. and 5 p.m.
+You must add a warning to account records when service representatives do not contact an account within eight business hours of the account being verified.
+You need to enable service-level agreements (SLAs) for accounts.
+In which order should you perform the actions? To answer, move all actions from the list to the answer area and arrange them in the correct order.
+Select and Place:
+[C7_Q10]
+
+ 
+Community Confirm: No
+
+Q11
+A company uses Dynamics 365 Customer Service.
+You need to implement queues to meet company requirements.
+Which types of queues should you use? To answer, drag the appropriate queue types to the correct requirements. Each queue type may be used once, more than once, or not at all. You may need to drag the split bar between panes or scroll to view content.
+NOTE: Each correct selection is worth one point.
+Select and Place:
+[C7_Q11]
+ 
+Community Confirm: No
+
+
+
+Q12
+You manage Dynamics 365 for Customer Service.
+You need to create a list of holidays and ensure that existing service-level agreements (SLAs) observe those holidays.
+Which three actions should you perform in sequence? To answer, move the appropriate actions from the list of actions to the answer area and arrange them in the correct order.
+Select and Place:
+[C7_Q12]
+ 
+Community Confirm: No
+
+
+Q13
+You are customizing a Dynamics 365 Customer Service implementation for a call center.
+The call center wants to enable SMS as a channel for the customer service department.
+You need to complete the SMS channel configuration.
+Which account information should you use for each provider? To answer, drag the appropriate types of account information to the correct SMS channel provider.
+Each type of account information may be used once, more than once, or not at all. You may need to drag the split bar between panes or scroll to view content.
+NOTE: Each correct selection is worth one point.
+Select and Place:
+[C7_Q13]
+ 
+
+Community Confirm: No
+
+
+Q14
+You are an Omnichannel supervisor for a company.
+The company wants to deploy an Omnichannel Insights dashboard.
+You need to set up and monitor KPIs.
+In which section is each KPI located? To answer, drag the appropriate sections to the correct KPIs. Each section may be used once, more than once, of not at all.
+You may need to drag the split bar between panes or scroll to view content.
+NOTE: Each correct selection is worth one point.
+Select and Place:
+[C7_Q14]
+ 
+Community Confirm: No
+
+
+Q15
+You are customizing a Dynamics 365 for Customer Service implementation.
+The call center manager requires a visual representation that includes the number of resolved cases by month for each call center agent. The chart must be visible to all users within the service area.
+You need to create the chart.
+Which three actions should you perform in sequence? To answer, move the appropriate actions from the list of actions to the answer area and arrange them in the correct order.
+Select and Place:
+
+[C7_Q15]
+ 
+Community Confirm: No
+
+Q16
+You need to build a personal dashboard that displays the following charts and views:
+Charts:
+✑ Number of cases by owner and priority
+✑ Products with most cases opened
+Views:
+✑ Display the number of cases opened in a seven-day period
+✑ Display the number of escalated cases
+Which four actions should you perform in sequence? To answer, move the appropriate actions from the list of actions to the answer area and arrange them in the correct order.
+Select and Place:
+
+
+[C7_Q16]
+ 
+Community Confirm: No
+
+
+
+Q17
+You are a Dynamics 365 system administrator.
+Your customer service team must define goal metrics to track and measure all resolved cases.
+You need to create a goal metric with a rollup field.
+In which order should you perform the actions? To answer, move all actions from the list of actions to the answer area and arrange them in the correct order.
+Select and Place:
+[C7_Q17]
+ 
+Community Confirm: No
+
+
+Q18
+You need to configure the system to store answers about claims.
+Which four actions should you perform in sequence? To answer, move all actions from the list to the answer area and arrange them in the correct order.
+Select and Place:
+[C7_Q18]
+ 
+Community Confirm: No
+
+Q19
+You need to ensure that customers cannot open more cases than they are allowed.
+Which four actions should you perform in sequence? To answer, move the appropriate actions from the list of actions to the answer area and arrange them in the correct order.
+Select and Place:
+[C7_Q19]
+ 
+Community Confirm: No
+
