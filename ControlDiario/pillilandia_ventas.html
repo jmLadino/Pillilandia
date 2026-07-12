@@ -53,10 +53,11 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
       <label for="loginUser">Usuario</label>
       <select id="loginUser" required>
         <option value="">Selecciona tu nombre</option>
-        <option value="pilar">Pilar Huenulaf · Gerente</option>
-        <option value="ester">Ester Calvucura · Atención de mesa</option>
-        <option value="maria">Maria Escobar · Atención de mesa</option>
-        <option value="jose">José Ladino · Gerente</option>
+        <option value="pilar">Pilar Huenulaf</option>
+        <option value="ester">Ester Calvucura</option>
+		<option value="katy">Katy Butamanco</option>
+        <option value="maria">Maria Escobar</option>
+        <option value="jose">José Ladino</option>
       </select>
       <label for="loginPassword">Contraseña</label>
       <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Ingresa tu contraseña" required>
@@ -141,6 +142,7 @@ const SESSION_KEY='pillilandia_session_v1';
 const APP_USERS={
  pilar:{name:'Pilar Huenulaf',role:'manager',profile:'Gerente',password:'abc123'},
  ester:{name:'Ester Calvucura',role:'employee',profile:'Atención de mesa',password:'abc123'},
+ katy:{name:'Katy Butamanco',role:'employee',profile:'Atención de mesa',password:'abc123'},
  maria:{name:'Maria Escobar',role:'employee',profile:'Atención de mesa',password:'abc123'},
  jose:{name:'José Ladino',role:'manager',profile:'Gerente',password:'abc123'}
 };
@@ -149,7 +151,7 @@ function applyPermissions(){
  const isManager=currentUser?.role==='manager';
  document.querySelectorAll('.manager-only').forEach(el=>el.classList.toggle('role-hidden',!isManager));
  userArea.classList.toggle('hidden',!currentUser);
- currentUserChip.textContent=currentUser?`${currentUser.name} · ${currentUser.profile}`:'';
+ currentUserChip.textContent=currentUser?`${currentUser.name}`:'';
  if(!isManager&&['expenses','monthly','products'].includes(document.querySelector('section.active')?.id))switchTab('dashboard');
 }
 function startSession(userKey){currentUser={key:userKey,...APP_USERS[userKey]};sessionStorage.setItem(SESSION_KEY,userKey);loginOverlay.classList.add('hidden');applyPermissions();switchTab('dashboard')}
