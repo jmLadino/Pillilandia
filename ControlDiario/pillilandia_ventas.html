@@ -35,14 +35,40 @@ table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{text-align:left;
 .sale-panel .product span{color:#075f67}
 dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 24px);box-shadow:0 18px 60px rgba(0,0,0,.25)}dialog::backdrop{background:rgba(0,0,0,.45)}.dialog-body{padding:18px}.dialog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.x{border:0;background:#e7eff0;border-radius:50%;width:34px;height:34px;cursor:pointer}
 @media(max-width:850px){.header-inner{align-items:flex-start}.brand-logo{width:62px;height:62px;flex-basis:62px}.brand-text h1{font-size:1.2rem}.brand-text p{font-size:.8rem}.header-date{font-size:.78rem}.header-time{font-size:1.05rem}.cash-status{font-size:.72rem;padding:5px 8px}.span-8,.span-7,.span-6,.span-5,.span-4,.span-3{grid-column:span 12}.metrics{grid-template-columns:repeat(2,1fr)}.products{grid-template-columns:repeat(2,minmax(0,1fr))}.wrap{padding:9px}.card{padding:11px}.row{flex-wrap:wrap}.row>*{min-width:140px}}
+
+.user-area{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:3px}.user-chip{font-size:.76rem;font-weight:800;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.38);border-radius:999px;padding:5px 9px}.logout-btn{border:1px solid rgba(255,255,255,.55);background:transparent;color:#fff;border-radius:8px;padding:5px 9px;font-weight:800;cursor:pointer}.logout-btn:hover{background:rgba(255,255,255,.14)}
+.login-overlay{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#159eaa,#075f67);display:flex;align-items:center;justify-content:center;padding:18px}.login-card{width:min(440px,100%);background:#fff;border:3px solid #b7d9dc;border-radius:20px;padding:25px;box-shadow:0 24px 70px rgba(0,0,0,.34)}.login-brand{text-align:center;margin-bottom:20px}.login-logo{width:96px;height:96px;object-fit:cover;border-radius:50%;border:4px solid #159eaa;background:#fff}.login-brand h1{margin:10px 0 3px;color:#075f67}.login-brand p{margin:0;color:#415f63;font-weight:700}.login-card label{margin-top:12px}.login-card .btn{width:100%;margin-top:18px;padding:13px}.login-error{display:none;margin-top:12px;padding:10px;border-radius:9px;background:#fee4e2;color:#8b1a12;font-weight:750}.role-hidden{display:none!important}
 @media print{header,nav,.no-print{display:none!important}body{background:#fff}.card{box-shadow:none;border:0}.wrap{max-width:none}}
 </style>
 </head>
 <body>
+<div id="loginOverlay" class="login-overlay">
+  <div class="login-card">
+    <div class="login-brand">
+      <img src="images/logo.jpg" alt="Logo de Pillilandia" class="login-logo" onerror="this.style.display='none'">
+      <h1>Pillilandia</h1>
+      <p>Acceso al sistema del local</p>
+    </div>
+    <form id="loginForm">
+      <label for="loginUser">Usuario</label>
+      <select id="loginUser" required>
+        <option value="">Selecciona tu nombre</option>
+        <option value="pilar">Pilar Huenulaf · Gerente</option>
+        <option value="ester">Ester Calvucura · Atención de mesa</option>
+        <option value="maria">Maria Escobar · Atención de mesa</option>
+        <option value="jose">José Ladino · Gerente</option>
+      </select>
+      <label for="loginPassword">Contraseña</label>
+      <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Ingresa tu contraseña" required>
+      <button class="btn primary" type="submit">Ingresar</button>
+      <div id="loginError" class="login-error">Usuario o contraseña incorrectos.</div>
+    </form>
+  </div>
+</div>
 <header>
   <div class="header-inner">
     <div class="brand-block">
-      <img src="images/LogoBlanco.jpeg" alt="Logo de Pillilandia" class="brand-logo" onerror="this.style.display='none'">
+      <img src="images/logo.jpg" alt="Logo de Pillilandia" class="brand-logo" onerror="this.style.display='none'">
       <div class="brand-text">
         <h1>Pillilandia</h1>
         <p>Heladería &amp; Cafetería · Gestión del local</p>
@@ -51,7 +77,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
     <div class="header-status" aria-live="polite">
       <div id="headerDate" class="header-date"></div>
       <div id="headerTime" class="header-time"></div>
-      <div id="cashStatus" class="cash-status"><span class="status-dot"></span><span>Caja abierta</span></div>
+      <div id="cashStatus" class="cash-status"><span class="status-dot"></span><span>Caja abierta</span></div><div id="userArea" class="user-area hidden"><span id="currentUserChip" class="user-chip"></span><button id="logoutBtn" class="logout-btn" type="button">Salir</button></div>
     </div>
   </div>
 </header>
@@ -60,9 +86,9 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 <button class="tab active" data-tab="dashboard">Ventas del día</button>
 <button class="tab" data-tab="sale">Nueva venta</button>
 <button class="tab" data-tab="orders">Cuentas abiertas</button>
-<button class="tab" data-tab="expenses">Gastos</button>
-<button class="tab" data-tab="monthly">Gestión mensual</button>
-<button class="tab" data-tab="products">Productos / stock</button>
+<button class="tab manager-only" data-tab="expenses">Gastos</button>
+<button class="tab manager-only" data-tab="monthly">Gestión mensual</button>
+<button class="tab manager-only" data-tab="products">Productos / stock</button>
 <button class="tab" data-tab="backup">Cerrar Día</button>
 </nav>
 
@@ -100,8 +126,8 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 
 <section id="backup"><div class="grid">
 <div class="card span-12"><h2>Cerrar día</h2><p>Revisa el resumen de ventas y descarga una copia de seguridad de toda la información.</p><div id="closeDaySummary"></div><div class="notice">El cierre no elimina ni bloquea los datos. Genera un archivo JSON que puedes guardar en Google Drive, OneDrive o correo.</div><button class="btn primary" id="exportBtn">Cerrar día y descargar respaldo</button></div>
-<div class="card span-6"><h2>Restaurar respaldo</h2><p>Reemplaza los datos de este navegador con un archivo exportado anteriormente.</p><input id="importFile" type="file" accept="application/json,.json"><button class="btn danger" style="margin-top:10px" id="importBtn">Importar y reemplazar</button></div>
-<div class="card span-6"><h3>Administración de datos</h3><div id="storageInfo"></div><button class="btn danger" id="eraseBtn">Borrar todos los datos</button></div>
+<div class="card span-6 manager-only"><h2>Restaurar respaldo</h2><p>Reemplaza los datos de este navegador con un archivo exportado anteriormente.</p><input id="importFile" type="file" accept="application/json,.json"><button class="btn danger" style="margin-top:10px" id="importBtn">Importar y reemplazar</button></div>
+<div class="card span-6 manager-only"><h3>Administración de datos</h3><div id="storageInfo"></div><button class="btn danger" id="eraseBtn">Borrar todos los datos</button></div>
 </div></section>
 </div>
 
@@ -111,6 +137,26 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 
 <script>
 const KEY='pillilandia_app_v1';
+const SESSION_KEY='pillilandia_session_v1';
+const APP_USERS={
+ pilar:{name:'Pilar Huenulaf',role:'manager',profile:'Gerente',password:'abc123'},
+ ester:{name:'Ester Calvucura',role:'employee',profile:'Atención de mesa',password:'abc123'},
+ maria:{name:'Maria Escobar',role:'employee',profile:'Atención de mesa',password:'abc123'},
+ jose:{name:'José Ladino',role:'manager',profile:'Gerente',password:'abc123'}
+};
+let currentUser=null;
+function applyPermissions(){
+ const isManager=currentUser?.role==='manager';
+ document.querySelectorAll('.manager-only').forEach(el=>el.classList.toggle('role-hidden',!isManager));
+ userArea.classList.toggle('hidden',!currentUser);
+ currentUserChip.textContent=currentUser?`${currentUser.name} · ${currentUser.profile}`:'';
+ if(!isManager&&['expenses','monthly','products'].includes(document.querySelector('section.active')?.id))switchTab('dashboard');
+}
+function startSession(userKey){currentUser={key:userKey,...APP_USERS[userKey]};sessionStorage.setItem(SESSION_KEY,userKey);loginOverlay.classList.add('hidden');applyPermissions();switchTab('dashboard')}
+function endSession(){sessionStorage.removeItem(SESSION_KEY);currentUser=null;applyPermissions();loginPassword.value='';loginUser.value='';loginError.style.display='none';loginOverlay.classList.remove('hidden')}
+loginForm.addEventListener('submit',e=>{e.preventDefault();const key=loginUser.value,user=APP_USERS[key];if(!user||loginPassword.value!==user.password){loginError.style.display='block';return}loginError.style.display='none';startSession(key)});
+logoutBtn.onclick=endSession;
+
 const fmt=n=>new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(Number(n||0));
 const uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
 const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'America/Santiago'});
@@ -127,7 +173,7 @@ let db=load(),cart=[],paymentOrderId=null,selectedService={type:'meson',label:'V
 function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(!(x&&Array.isArray(x.products)))return fresh();x.settings=x.settings||{};x.settings.tableCount=6;x.settings.closedDates=Array.isArray(x.settings.closedDates)?x.settings.closedDates:[];const renames={'Helados artesanales, 1 sabor':'Artesanal 1 sabor','Helados artesanales, 2 sabores':'Artesanal 2 sabores','Helados artesanales, 3 sabores':'Artesanal 3 sabores'};x.products.forEach(p=>{if(renames[p.name])p.name=renames[p.name]});const ensureProduct=(name,price)=>{if(!x.products.some(p=>p.name===name))x.products.push({id:uid(),category:'Helados & Repostería',name,price,stock:0,trackStock:false,active:true})};ensureProduct('Helado Soft',1000);ensureProduct('Cono / Vaso extra',500);return x}catch{return fresh()}}
 function save(){db.updatedAt=new Date().toISOString();localStorage.setItem(KEY,JSON.stringify(db));renderAll()}
 function orderTotal(o){return o.items.reduce((s,i)=>s+i.price*i.qty,0)}function paidTotal(o){return(o.payments||[]).reduce((s,p)=>s+p.amount,0)}function balance(o){return Math.max(0,orderTotal(o)-paidTotal(o))}
-function switchTab(id){document.querySelectorAll('section').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));if(id==='orders')renderOrders();if(id==='dashboard')renderDashboard();if(id==='expenses')renderExpenses();if(id==='monthly')renderMonthly()}
+function switchTab(id){if(currentUser?.role!=='manager'&&['expenses','monthly','products'].includes(id))id='dashboard';document.querySelectorAll('section').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));if(id==='orders')renderOrders();if(id==='dashboard')renderDashboard();if(id==='expenses')renderExpenses();if(id==='monthly')renderMonthly()}
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
 function renderServiceButtons(){const count=6;db.settings=db.settings||{};db.settings.tableCount=6;let html=`<button type="button" class="service-button ${selectedService.type==='meson'?'active':''}" onclick="selectService('meson','Venta Directa')">Venta Directa</button>`;for(let i=1;i<=count;i++){const label='M'+i;html+=`<button type="button" class="service-button ${selectedService.type==='mesa'&&selectedService.label===label?'active':''}" onclick="selectService('mesa','${label}')">${label}</button>`}serviceButtons.innerHTML=html}
 function selectService(type,label){selectedService={type,label};renderServiceButtons()}
@@ -180,7 +226,7 @@ function updateHeaderClock(){
 }
 setInterval(updateHeaderClock,1000);
 function renderAll(){renderServiceButtons();renderProductButtons();renderCart();renderOrders();renderExpenses();renderProductTable();renderDashboard();renderMonthly();renderCloseDay();renderStorageInfo()}
-reportDate.value=today();expenseDate.value=today();expenseFilterDate.value=today();monthlyPeriod.value=today().slice(0,7);expenseCategory.innerHTML=expenseCats.map(x=>`<option>${x}</option>`).join('');renderAll();updateHeaderClock();
+reportDate.value=today();expenseDate.value=today();expenseFilterDate.value=today();monthlyPeriod.value=today().slice(0,7);expenseCategory.innerHTML=expenseCats.map(x=>`<option>${x}</option>`).join('');renderAll();updateHeaderClock();const savedUser=sessionStorage.getItem(SESSION_KEY);if(savedUser&&APP_USERS[savedUser])startSession(savedUser);else applyPermissions();
 </script>
 </body>
 </html>
