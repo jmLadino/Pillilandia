@@ -50,20 +50,26 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
       <p>Acceso al sistema del local</p>
     </div>
     <form id="loginForm">
-      <label for="loginUser">Usuario</label>
-      <select id="loginUser" required>
-        <option value="">Selecciona tu nombre</option>
-        <option value="pilar">Pilar Huenulaf</option>
-        <option value="ester">Ester Calvucura</option>
-		<option value="katy">Katy Butamanco</option>
-        <option value="maria">Maria Escobar</option>
-        <option value="jose">José Ladino</option>
+      <label for="loginAccount">Perfil de acceso</label>
+      <select id="loginAccount" required>
+        <option value="">Selecciona un perfil</option>
+        <option value="manager">Gerente</option>
+        <option value="sales">Ventas / atención de mesa</option>
       </select>
       <label for="loginPassword">Contraseña</label>
       <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Ingresa tu contraseña" required>
       <button class="btn primary" type="submit">Ingresar</button>
-      <div id="loginError" class="login-error">Usuario o contraseña incorrectos.</div>
+      <div id="loginError" class="login-error"></div>
     </form>
+    <div id="staffStep" class="hidden">
+      <label for="staffSelector">¿Quién está atendiendo?</label>
+      <select id="staffSelector">
+        <option value="">Selecciona tu nombre</option>
+      </select>
+      <button id="confirmStaffBtn" class="btn primary" type="button">Continuar</button>
+      <button id="cancelStaffBtn" class="btn secondary" type="button">Volver</button>
+      <div id="staffError" class="login-error"></div>
+    </div>
   </div>
 </div>
 <header>
@@ -136,33 +142,47 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 
 <dialog id="productDialog"><div class="dialog-body"><div class="dialog-head"><h2 id="productDialogTitle">Producto</h2><button class="x" onclick="productDialog.close()">×</button></div><input id="editProductId" type="hidden"><label>Nombre</label><input id="editProductName"><div class="row" style="margin-top:10px"><div><label>Categoría</label><input id="editProductCategory"></div><div><label>Precio</label><input id="editProductPrice" type="number" min="0"></div></div><div class="row" style="margin-top:10px"><div><label>Stock actual</label><input id="editProductStock" type="number" step="1"></div><div><label>Control de stock</label><select id="editProductTrack"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Activo</label><select id="editProductActive"><option value="true">Sí</option><option value="false">No</option></select></div></div><button class="btn primary" style="margin-top:12px" id="saveProductBtn">Guardar producto</button></div></dialog>
 
-<script>
-const KEY='pillilandia_app_v1';
-const SESSION_KEY='pillilandia_session_v1';
-const APP_USERS={
- pilar:{name:'Pilar Huenulaf',role:'manager',profile:'Gerente',password:'abc123'},
- ester:{name:'Ester Calvucura',role:'employee',profile:'Atención de mesa',password:'abc123'},
- katy:{name:'Katy Butamanco',role:'employee',profile:'Atención de mesa',password:'abc123'},
- maria:{name:'Maria Escobar',role:'employee',profile:'Atención de mesa',password:'abc123'},
- jose:{name:'José Ladino',role:'manager',profile:'Gerente',password:'abc123'}
-};
-let currentUser=null;
-function applyPermissions(){
- const isManager=currentUser?.role==='manager';
- document.querySelectorAll('.manager-only').forEach(el=>el.classList.toggle('role-hidden',!isManager));
- userArea.classList.toggle('hidden',!currentUser);
- currentUserChip.textContent=currentUser?`${currentUser.name}`:'';
- if(!isManager&&['expenses','monthly','products'].includes(document.querySelector('section.active')?.id))switchTab('dashboard');
-}
-function startSession(userKey){currentUser={key:userKey,...APP_USERS[userKey]};sessionStorage.setItem(SESSION_KEY,userKey);loginOverlay.classList.add('hidden');applyPermissions();switchTab('dashboard')}
-function endSession(){sessionStorage.removeItem(SESSION_KEY);currentUser=null;applyPermissions();loginPassword.value='';loginUser.value='';loginError.style.display='none';loginOverlay.classList.remove('hidden')}
-loginForm.addEventListener('submit',e=>{e.preventDefault();const key=loginUser.value,user=APP_USERS[key];if(!user||loginPassword.value!==user.password){loginError.style.display='block';return}loginError.style.display='none';startSession(key)});
-logoutBtn.onclick=endSession;
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import {
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged,
+  setPersistence, browserLocalPersistence
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import {
+  initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
+  collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc,
+  onSnapshot, query, where, writeBatch
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
-const fmt=n=>new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(Number(n||0));
-const uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
-const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'America/Santiago'});
-const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+const firebaseConfig = {
+  apiKey: "AIzaSyB7tJDP1ZtUwrERX1IN8Ab9brtSeWjUdFU",
+  authDomain: "pillilandia-pos.firebaseapp.com",
+  projectId: "pillilandia-pos",
+  storageBucket: "pillilandia-pos.firebasestorage.app",
+  messagingSenderId: "940089589607",
+  appId: "1:940089589607:web:883b3aea41e1251b13b9c2"
+};
+
+const ACCOUNT_EMAILS = {
+  manager: "josemiguel.ladino@gmail.com",
+  sales: "pillilandiaventas@gmail.com"
+};
+
+const app = initializeApp(firebaseConfig);
+const firestore = initializeFirestore(app, {
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+});
+const auth = getAuth(app);
+await setPersistence(auth, browserLocalPersistence);
+
+const $ = id => document.getElementById(id);
+const fmt = n => new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(Number(n||0));
+const uid = () => crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2);
+const today = () => new Date().toLocaleDateString('en-CA',{timeZone:'America/Santiago'});
+const esc = s => String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+const asDate = v => v?.toDate ? v.toDate() : new Date(v);
+const nowIso = () => new Date().toISOString();
+
 const defaults=[
 ['Bebidas Calientes','Té',1000],['Bebidas Calientes','Café Tradicional',1000],['Bebidas Calientes','Café en Grano',2000],['Bebidas Calientes','Affogato Negro',3500],['Bebidas Calientes','Affogato Blanco',3500],['Bebidas Calientes','Café de Máquina',1500],['Bebidas Calientes','Leche Caliente',1500],['Bebidas Calientes','Mate',2500],
 ['Bebidas Frías y Jugos','Jugos Naturales',2500],['Bebidas Frías y Jugos','Jugo de Naranja',2000],['Bebidas Frías y Jugos','Café Helado',4000],['Bebidas Frías y Jugos','Milkshake',4000],['Bebidas Frías y Jugos','Bebidas en lata',1500],['Bebidas Frías y Jugos','Agua mineral',1500],['Bebidas Frías y Jugos','Leche con Plátano',1500],
@@ -170,65 +190,211 @@ const defaults=[
 ['Helados & Repostería','Artesanal 1 sabor',2800],['Helados & Repostería','Artesanal 2 sabores',4000],['Helados & Repostería','Artesanal 3 sabores',5500],['Helados & Repostería','Helado Soft',1000],['Helados & Repostería','Cono / Vaso extra',500],['Helados & Repostería','Agregados Helados',200],['Helados & Repostería','Trozo de Torta',4500],['Helados & Repostería','Brownie',2800],['Helados & Repostería','Galletas',1500],['Helados & Repostería','Alfajores',600]
 ];
 const expenseCats=['Fresa','FrioCid','Suministros','Insumos de Aseo','Inmobiliario','Construcción','Municipalidad','SII','GetNet','Redelcom','Aportes JM','Arriendo','Servicios','Bencina','Otro'];
-function fresh(){return{version:2,business:'Pillilandia Heladería y Cafetería',settings:{tableCount:6,closedDates:[]},products:defaults.map(x=>({id:uid(),category:x[0],name:x[1],price:x[2],stock:0,trackStock:false,active:true})),orders:[],expenses:[],updatedAt:new Date().toISOString()}}
-let db=load(),cart=[],paymentOrderId=null,selectedService={type:'meson',label:'Venta Directa'};
-function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(!(x&&Array.isArray(x.products)))return fresh();x.settings=x.settings||{};x.settings.tableCount=6;x.settings.closedDates=Array.isArray(x.settings.closedDates)?x.settings.closedDates:[];const renames={'Helados artesanales, 1 sabor':'Artesanal 1 sabor','Helados artesanales, 2 sabores':'Artesanal 2 sabores','Helados artesanales, 3 sabores':'Artesanal 3 sabores'};x.products.forEach(p=>{if(renames[p.name])p.name=renames[p.name]});const ensureProduct=(name,price)=>{if(!x.products.some(p=>p.name===name))x.products.push({id:uid(),category:'Helados & Repostería',name,price,stock:0,trackStock:false,active:true})};ensureProduct('Helado Soft',1000);ensureProduct('Cono / Vaso extra',500);return x}catch{return fresh()}}
-function save(){db.updatedAt=new Date().toISOString();localStorage.setItem(KEY,JSON.stringify(db));renderAll()}
-function orderTotal(o){return o.items.reduce((s,i)=>s+i.price*i.qty,0)}function paidTotal(o){return(o.payments||[]).reduce((s,p)=>s+p.amount,0)}function balance(o){return Math.max(0,orderTotal(o)-paidTotal(o))}
-function switchTab(id){if(currentUser?.role!=='manager'&&['expenses','monthly','products'].includes(id))id='dashboard';document.querySelectorAll('section').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));if(id==='orders')renderOrders();if(id==='dashboard')renderDashboard();if(id==='expenses')renderExpenses();if(id==='monthly')renderMonthly()}
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
-function renderServiceButtons(){const count=6;db.settings=db.settings||{};db.settings.tableCount=6;let html=`<button type="button" class="service-button ${selectedService.type==='meson'?'active':''}" onclick="selectService('meson','Venta Directa')">Venta Directa</button>`;for(let i=1;i<=count;i++){const label='M'+i;html+=`<button type="button" class="service-button ${selectedService.type==='mesa'&&selectedService.label===label?'active':''}" onclick="selectService('mesa','${label}')">${label}</button>`}serviceButtons.innerHTML=html}
-function selectService(type,label){selectedService={type,label};renderServiceButtons()}
-function renderProductButtons(){const order=['Helados & Repostería','Bebidas Calientes','Desayunos & Sandwiches','Bebidas Frías y Jugos'];const active=db.products.filter(p=>p.active);let html='';for(const cat of order){const items=active.filter(p=>p.category===cat);if(!items.length)continue;html+=`<div class="category">${esc(cat)}</div>`;for(const p of items){const stockNote=p.trackStock?` · stock ${p.stock}`:'';html+=`<button class="product" onclick="addProduct('${p.id}')" ${p.trackStock&&p.stock<=0?'disabled':''}><b>${esc(p.name)}</b><span>${fmt(p.price)}${stockNote}</span></button>`}}const extraCats=[...new Set(active.map(p=>p.category).filter(c=>!order.includes(c)))].sort();for(const cat of extraCats){html+=`<div class="category">${esc(cat)}</div>`;for(const p of active.filter(x=>x.category===cat)){const stockNote=p.trackStock?` · stock ${p.stock}`:'';html+=`<button class="product" onclick="addProduct('${p.id}')" ${p.trackStock&&p.stock<=0?'disabled':''}><b>${esc(p.name)}</b><span>${fmt(p.price)}${stockNote}</span></button>`}}html+=`<div class="category">Otro</div><button class="product" onclick="addCustom()"><b>OTRO</b><span>Texto y monto libre</span></button>`;productButtons.innerHTML=html}
-function addProduct(id){const p=db.products.find(x=>x.id===id);if(!p)return;const line=cart.find(x=>x.productId===id);if(line)line.qty++;else cart.push({productId:id,name:p.name,price:p.price,qty:1});renderCart()}
-function addCustom(){const name=prompt('Nombre del producto o servicio:');if(!name)return;const price=Number(prompt('Monto unitario:'));if(!Number.isFinite(price)||price<0)return alert('Monto inválido');cart.push({productId:null,name,price,qty:1,custom:true});renderCart()}
-function changeQty(i,d){cart[i].qty+=d;if(cart[i].qty<=0)cart.splice(i,1);renderCart()}
-function renderCart(){cart.innerHTML='';const box=document.getElementById('cart');if(!cart.length)box.innerHTML='<div class="empty">Aún no hay productos</div>';else box.innerHTML=cart.map((x,i)=>`<div class="cart-line"><div><b>${esc(x.name)}</b><div class="muted tiny">${fmt(x.price)} c/u</div></div><div class="qty"><button onclick="changeQty(${i},-1)">−</button><b>${x.qty}</b><button onclick="changeQty(${i},1)">+</button></div><div class="money">${fmt(x.price*x.qty)}</div></div>`).join('');cartTotal.textContent=fmt(cart.reduce((s,x)=>s+x.price*x.qty,0))}
-function validateStock(items){for(const i of items){if(!i.productId)continue;const p=db.products.find(x=>x.id===i.productId);if(p?.trackStock&&p.stock<i.qty)return `No hay stock suficiente de ${p.name}. Disponible: ${p.stock}`;}return''}
-function deductStock(items){items.forEach(i=>{const p=db.products.find(x=>x.id===i.productId);if(p?.trackStock)p.stock-=i.qty})}
-function createOrder(shouldPay){if(!cart.length)return alert('Agrega al menos un producto.');const err=validateStock(cart);if(err)return alert(err);const extra=orderLabel.value.trim();const baseLabel=selectedService.label;const finalLabel=extra?`${baseLabel} · ${extra}`:baseLabel;const o={id:uid(),number:(Math.max(0,...db.orders.map(x=>x.number||0))+1),createdAt:new Date().toISOString(),businessDate:today(),serviceType:selectedService.type,label:finalLabel,notes:orderNotes.value.trim(),items:cart.map(x=>({...x})),payments:[],status:'open'};deductStock(o.items);db.orders.push(o);cart=[];orderLabel.value='';orderNotes.value='';selectedService={type:'meson',label:'Venta Directa'};save();renderCart();if(shouldPay)openPayment(o.id);else{switchTab('orders');alert('Pedido guardado como cuenta pendiente.')}}
-savePending.onclick=()=>createOrder(false);payNow.onclick=()=>createOrder(true);clearCart.onclick=()=>{if(confirm('¿Limpiar el pedido actual?')){cart=[];renderCart()}};
-function renderOrders(){const q=orderSearch.value.toLowerCase();const list=db.orders.filter(o=>o.status==='open'&&(!q||o.label.toLowerCase().includes(q))).sort((a,b)=>b.createdAt.localeCompare(a.createdAt));openOrders.innerHTML=list.length?list.map(o=>`<div class="order-card"><div class="order-head"><div><b>#${o.number} · ${esc(o.label)}</b><div class="muted tiny">${new Date(o.createdAt).toLocaleString('es-CL')} · ${o.serviceType==='mesa'?'Mesa':'Mesón'}</div></div><span class="badge open">Pendiente ${fmt(balance(o))}</span></div><div class="tiny" style="margin-top:8px">${o.items.map(i=>`${i.qty}× ${esc(i.name)}`).join(' · ')}</div><div class="total"><span>Total ${fmt(orderTotal(o))}</span><span>Pagado ${fmt(paidTotal(o))}</span></div><div class="actions"><button class="btn primary" onclick="openPayment('${o.id}')">Registrar pago</button><button class="btn secondary" onclick="addItemsToOrder('${o.id}')">Agregar productos</button><button class="btn danger" onclick="voidOrder('${o.id}')">Anular</button></div></div>`).join(''):'<div class="empty">No hay cuentas abiertas</div>'}
-orderSearch.oninput=renderOrders;
-function addItemsToOrder(id){const o=db.orders.find(x=>x.id===id);if(!o)return;cart=[];selectedService={type:o.serviceType,label:o.serviceType==='mesa'?(o.label.match(/^M\d+/)?.[0]||'M1'):'Venta Directa'};orderLabel.value=o.label.replace(/^M\d+\s*·?\s*|^Venta Directa\s*·?\s*/,'');orderNotes.value=`Agregar al pedido #${o.number}`;switchTab('sale');const oldSave=savePending.onclick,oldPay=payNow.onclick;const finish=(pay)=>{if(!cart.length)return alert('Agrega productos.');const err=validateStock(cart);if(err)return alert(err);deductStock(cart);o.items.push(...cart.map(x=>({...x})));cart=[];save();renderCart();savePending.onclick=oldSave;payNow.onclick=oldPay;if(pay)openPayment(id);else switchTab('orders')};savePending.onclick=()=>finish(false);payNow.onclick=()=>finish(true)}
-function voidOrder(id){const o=db.orders.find(x=>x.id===id);if(!o||!confirm('¿Anular esta cuenta? El stock controlado será devuelto.'))return;o.status='void';o.items.forEach(i=>{const p=db.products.find(x=>x.id===i.productId);if(p?.trackStock)p.stock+=i.qty});save()}
-function openPayment(id){paymentOrderId=id;const o=db.orders.find(x=>x.id===id);if(!o)return;paymentDialog.showModal();renderPaymentDialog()}
-function renderPaymentDialog(){const o=db.orders.find(x=>x.id===paymentOrderId);if(!o)return;paymentOrderInfo.innerHTML=`<div class="notice"><b>#${o.number} · ${esc(o.label)}</b><br>Total: ${fmt(orderTotal(o))} · Pagado: ${fmt(paidTotal(o))} · <b>Saldo: ${fmt(balance(o))}</b></div>`;paymentAmount.value=balance(o)||'';paymentsExisting.innerHTML=(o.payments||[]).length?`<h3 style="margin-top:16px">Pagos registrados</h3>`+o.payments.map(p=>`<div class="payment-line"><b>${esc(p.method)}</b> · ${fmt(p.amount)} <span class="muted tiny">${new Date(p.createdAt).toLocaleString('es-CL')}</span></div>`).join(''):''}
-addPaymentBtn.onclick=()=>{const o=db.orders.find(x=>x.id===paymentOrderId),amount=Number(paymentAmount.value);if(!o||!Number.isFinite(amount)||amount<=0)return alert('Ingresa un monto válido.');if(amount>balance(o))return alert(`El monto supera el saldo de ${fmt(balance(o))}.`);o.payments.push({id:uid(),method:paymentMethod.value,amount,createdAt:new Date().toISOString(),businessDate:today()});if(balance(o)===0){o.status='closed';o.closedAt=new Date().toISOString();save();paymentDialog.close();switchTab('orders');alert('Cuenta pagada y cerrada.')}else{save();renderPaymentDialog()}};
-function renderExpenses(){const f=expenseFilterDate.value;const xs=db.expenses.filter(x=>!f||x.date===f).sort((a,b)=>(b.date+b.createdAt).localeCompare(a.date+a.createdAt));expenseDayTotal.textContent=fmt(xs.reduce((s,x)=>s+x.amount,0));expenseDayCount.textContent=xs.length;expenseList.innerHTML=xs.length?xs.map(x=>`<div class="expense-line"><div class="order-head"><div><b>${esc(x.category)}</b><div class="muted tiny">${x.date}${x.description?' · '+esc(x.description):''}</div></div><div><span class="money">${fmt(x.amount)}</span> <button class="btn danger tiny" onclick="deleteExpense('${x.id}')">Eliminar</button></div></div></div>`).join(''):'<div class="empty">No hay gastos para el día seleccionado</div>'}
-expenseForm.onsubmit=e=>{e.preventDefault();db.expenses.push({id:uid(),date:expenseDate.value,category:expenseCategory.value,description:expenseDescription.value.trim(),amount:Number(expenseAmount.value),createdAt:new Date().toISOString()});expenseAmount.value='';expenseDescription.value='';expenseFilterDate.value=expenseDate.value;save();renderExpenses()};expenseFilterDate.onchange=renderExpenses;function deleteExpense(id){if(confirm('¿Eliminar este gasto?')){db.expenses=db.expenses.filter(x=>x.id!==id);save()}}
-function renderDashboard(){const d=reportDate.value;const orders=db.orders.filter(o=>o.status!=='void'&&o.businessDate===d);const payments=db.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate===d));const sales=payments.reduce((s,p)=>s+p.amount,0),pending=orders.filter(o=>o.status==='open').reduce((s,o)=>s+balance(o),0);mSales.textContent=fmt(sales);mPending.textContent=fmt(pending);mOrders.textContent=orders.length;mClosed.textContent=orders.filter(o=>o.status==='closed').length;const methods=['Efectivo','Débito','Crédito','Transferencia'];paymentSummary.innerHTML=methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(payments.filter(p=>p.method===m).reduce((s,p)=>s+p.amount,0))}</span></div>`).join('');activitySummary.innerHTML=`<div class="payment-line">Pedidos creados <b style="float:right">${orders.length}</b></div><div class="payment-line">Cuentas cerradas <b style="float:right">${orders.filter(o=>o.status==='closed').length}</b></div><div class="payment-line">Cuentas abiertas <b style="float:right">${orders.filter(o=>o.status==='open').length}</b></div><div class="payment-line">Saldo pendiente <b style="float:right">${fmt(pending)}</b></div>`;dailyOrders.innerHTML=orders.length?`<div style="overflow:auto"><table><thead><tr><th>N°</th><th>Referencia</th><th>Estado</th><th class="right">Total</th><th class="right">Pagado</th><th class="right">Saldo</th></tr></thead><tbody>${orders.map(o=>`<tr><td>#${o.number}</td><td>${esc(o.label)}</td><td><span class="badge ${o.status==='closed'?'closed':'open'}">${o.status==='closed'?'Pagada':'Abierta'}</span></td><td class="right">${fmt(orderTotal(o))}</td><td class="right">${fmt(paidTotal(o))}</td><td class="right">${fmt(balance(o))}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sin ventas registradas</div>'}
-reportDate.onchange=renderDashboard;
-function renderMonthly(){const period=monthlyPeriod.value;if(!period)return;const monthPayments=db.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate&&p.businessDate.startsWith(period)));const monthExpenses=db.expenses.filter(x=>x.date&&x.date.startsWith(period));const sales=monthPayments.reduce((s,p)=>s+p.amount,0),expenses=monthExpenses.reduce((s,x)=>s+x.amount,0),net=sales-expenses;margin=sales?Math.round((net/sales)*100):0;monthlySales.textContent=fmt(sales);monthlyExpenses.textContent=fmt(expenses);monthlyNet.textContent=fmt(net);monthlyMargin.textContent=margin+'%';const methods=['Efectivo','Débito','Crédito','Transferencia'];monthlyPaymentSummary.innerHTML=methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(monthPayments.filter(p=>p.method===m).reduce((s,p)=>s+p.amount,0))}</span></div>`).join('');const cats=[...new Set(monthExpenses.map(x=>x.category))].sort();monthlyExpenseSummary.innerHTML=cats.length?cats.map(c=>`<div class="payment-line"><span>${esc(c)}</span><span class="money" style="float:right">${fmt(monthExpenses.filter(x=>x.category===c).reduce((s,x)=>s+x.amount,0))}</span></div>`).join(''):'<div class="empty">Sin gastos en el mes</div>';const days=[...new Set([...monthPayments.map(p=>p.businessDate),...monthExpenses.map(x=>x.date)])].sort();monthlyDailySummary.innerHTML=days.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th class="right">Ventas</th><th class="right">Gastos</th><th class="right">Resultado</th></tr></thead><tbody>${days.map(d=>{const vs=monthPayments.filter(p=>p.businessDate===d).reduce((s,p)=>s+p.amount,0),gs=monthExpenses.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);return `<tr><td>${d}</td><td class="right">${fmt(vs)}</td><td class="right">${fmt(gs)}</td><td class="right"><b>${fmt(vs-gs)}</b></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Sin movimientos en el mes</div>'}
-monthlyPeriod.onchange=renderMonthly;
-function renderProductTable(){productTable.innerHTML=db.products.map(p=>`<tr><td>${esc(p.name)}</td><td>${esc(p.category)}</td><td class="right">${fmt(p.price)}</td><td class="right">${p.trackStock?p.stock:'—'}</td><td>${p.trackStock?'Sí':'No'}</td><td>${p.active?'Sí':'No'}</td><td><button class="btn secondary tiny" onclick="editProduct('${p.id}')">Editar</button></td></tr>`).join('')}
-function editProduct(id){const p=id?db.products.find(x=>x.id===id):{id:'',name:'',category:'Otro',price:0,stock:0,trackStock:false,active:true};editProductId.value=p.id;editProductName.value=p.name;editProductCategory.value=p.category;editProductPrice.value=p.price;editProductStock.value=p.stock;editProductTrack.value=String(p.trackStock);editProductActive.value=String(p.active);productDialogTitle.textContent=id?'Editar producto':'Nuevo producto';productDialog.showModal()}
-newProductBtn.onclick=()=>editProduct('');saveProductBtn.onclick=()=>{const id=editProductId.value;const data={name:editProductName.value.trim(),category:editProductCategory.value.trim()||'Otro',price:Number(editProductPrice.value),stock:Number(editProductStock.value)||0,trackStock:editProductTrack.value==='true',active:editProductActive.value==='true'};if(!data.name||data.price<0)return alert('Revisa nombre y precio.');if(id)Object.assign(db.products.find(x=>x.id===id),data);else db.products.push({id:uid(),...data});save();productDialog.close()};
-exportBtn.onclick=()=>{const d=today();const open=db.orders.filter(o=>o.status==='open');if(open.length&&!confirm(`Hay ${open.length} cuenta(s) abierta(s). ¿Deseas cerrar el día y descargar el respaldo de todas formas?`))return;db.settings=db.settings||{};db.settings.closedDates=Array.isArray(db.settings.closedDates)?db.settings.closedDates:[];if(!db.settings.closedDates.includes(d))db.settings.closedDates.push(d);db.updatedAt=new Date().toISOString();localStorage.setItem(KEY,JSON.stringify(db));updateHeaderClock();renderCloseDay();const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`pillilandia-cierre-${d}.json`;a.click();URL.revokeObjectURL(a.href)};
-importBtn.onclick=()=>{const f=importFile.files[0];if(!f)return alert('Selecciona un archivo JSON.');if(!confirm('Esto reemplazará todos los datos actuales. ¿Continuar?'))return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!Array.isArray(x.products)||!Array.isArray(x.orders)||!Array.isArray(x.expenses))throw Error();db=x;save();alert('Respaldo restaurado correctamente.')}catch{alert('El archivo no tiene un formato válido.')}};r.readAsText(f)};
-eraseBtn.onclick=()=>{if(confirm('¿Borrar definitivamente todos los datos de este navegador?')&&confirm('Confirma nuevamente: esta acción no se puede deshacer.')){db=fresh();save()}};
 
-function renderCloseDay(){
- const d=today();
- const orders=db.orders.filter(o=>o.status!=='void'&&o.businessDate===d);
- const payments=db.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate===d));
- const sales=payments.reduce((s,p)=>s+p.amount,0);
- const open=db.orders.filter(o=>o.status==='open');
- const methods=['Efectivo','Débito','Crédito','Transferencia'];
- closeDaySummary.innerHTML=`<div class="metrics" style="margin-bottom:12px"><div class="metric"><small>Total cobrado hoy</small><b>${fmt(sales)}</b></div><div class="metric"><small>Pedidos del día</small><b>${orders.length}</b></div><div class="metric"><small>Cuentas cerradas</small><b>${orders.filter(o=>o.status==='closed').length}</b></div><div class="metric"><small>Cuentas abiertas actuales</small><b>${open.length}</b></div></div><div class="card" style="box-shadow:none"><h3>Medios de pago</h3>${methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(payments.filter(p=>p.method===m).reduce((s,p)=>s+p.amount,0))}</span></div>`).join('')}</div>${open.length?`<div class="dangernotice" style="margin-top:12px"><b>Atención:</b> existen ${open.length} cuenta(s) abierta(s) por un saldo total de ${fmt(open.reduce((s,o)=>s+balance(o),0))}.</div>`:'<div class="oknotice" style="margin-top:12px">No existen cuentas abiertas.</div>'}`;
+let state={settings:{tableCount:6,businessName:'Pillilandia',businessSubtitle:'Heladería & Cafetería',currency:'CLP',timeZone:'America/Santiago'},products:[],orders:[],expenses:[],closures:[]};
+let currentUser=null, selectedStaff=null, cart=[], paymentOrderId=null, selectedService={type:'meson',label:'Venta Directa'};
+let unsubscribers=[];
+
+function roleIsManager(){return currentUser?.role==='gerente'||currentUser?.role==='manager'}
+function normalizeRole(r){r=String(r||'').toLowerCase();return r==='gerente'||r==='manager'?'gerente':'empleado'}
+function showError(el,msg){el.textContent=msg;el.style.display=msg?'block':'none'}
+function friendlyAuthError(code){
+  const map={
+    'auth/invalid-credential':'Correo o contraseña incorrectos.',
+    'auth/user-disabled':'Esta cuenta está deshabilitada.',
+    'auth/too-many-requests':'Demasiados intentos. Espera unos minutos e intenta nuevamente.',
+    'auth/network-request-failed':'No fue posible conectar con Firebase. Revisa Internet.'
+  };
+  return map[code]||'No fue posible iniciar sesión.';
 }
-function renderStorageInfo(){const bytes=new Blob([localStorage.getItem(KEY)||'']).size;storageInfo.innerHTML=`<p><b>Última modificación:</b> ${new Date(db.updatedAt).toLocaleString('es-CL')}</p><p><b>Tamaño aproximado:</b> ${(bytes/1024).toFixed(1)} KB</p><p class="muted">Este archivo HTML no envía datos a Internet. Cada navegador y dispositivo conserva su propia copia.</p>`}
-function updateHeaderClock(){
- const now=new Date();
- headerDate.textContent=now.toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase());
- headerTime.textContent=now.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
- const closed=Array.isArray(db.settings?.closedDates)&&db.settings.closedDates.includes(today());
- cashStatus.classList.toggle('closed-day',closed);
- cashStatus.querySelector('span:last-child').textContent=closed?'Caja cerrada':'Caja abierta';
+
+function applyPermissions(){
+  const manager=roleIsManager();
+  document.querySelectorAll('.manager-only').forEach(el=>el.classList.toggle('role-hidden',!manager));
+  $('userArea').classList.toggle('hidden',!currentUser);
+  $('currentUserChip').textContent=currentUser?(selectedStaff?.name||currentUser.name||currentUser.email||'Usuario'):'';
+  if(!manager&&['expenses','monthly','products'].includes(document.querySelector('section.active')?.id))switchTab('dashboard');
 }
+
+async function loadStaffForSales(){
+  const q=query(collection(firestore,'staff'),where('active','==',true),where('authAccount','==','ventas'));
+  const snap=await getDocs(q);
+  const rows=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.displayOrder??999)-(b.displayOrder??999));
+  $('staffSelector').innerHTML='<option value="">Selecciona tu nombre</option>'+rows.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
+  $('staffSelector').dataset.rows=JSON.stringify(rows);
+}
+
+$('loginForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  showError($('loginError'),'');
+  const account=$('loginAccount').value;
+  if(!account)return showError($('loginError'),'Selecciona un perfil.');
+  try{
+    await signInWithEmailAndPassword(auth,ACCOUNT_EMAILS[account],$('loginPassword').value);
+  }catch(err){showError($('loginError'),friendlyAuthError(err.code));}
+});
+$('logoutBtn').onclick=()=>signOut(auth);
+$('cancelStaffBtn').onclick=()=>signOut(auth);
+$('confirmStaffBtn').onclick=()=>{
+  const id=$('staffSelector').value;
+  const rows=JSON.parse($('staffSelector').dataset.rows||'[]');
+  const staff=rows.find(x=>x.id===id);
+  if(!staff)return showError($('staffError'),'Selecciona tu nombre.');
+  selectedStaff=staff;
+  sessionStorage.setItem('pillilandia_staff_id',staff.id);
+  $('staffStep').classList.add('hidden');
+  $('loginOverlay').classList.add('hidden');
+  applyPermissions();
+  startRealtime();
+};
+
+onAuthStateChanged(auth,async user=>{
+  stopRealtime();
+  currentUser=null;selectedStaff=null;
+  if(!user){
+    $('loginOverlay').classList.remove('hidden');$('loginForm').classList.remove('hidden');$('staffStep').classList.add('hidden');
+    $('loginPassword').value='';applyPermissions();return;
+  }
+  const userSnap=await getDoc(doc(firestore,'users',user.uid));
+  if(!userSnap.exists()||userSnap.data().active===false){
+    showError($('loginError'),'La cuenta no tiene un perfil activo en Firestore.');
+    await signOut(auth);return;
+  }
+  const profile=userSnap.data();
+  currentUser={uid:user.uid,email:user.email,name:profile.name||user.email,role:normalizeRole(profile.role)};
+  if(roleIsManager()){
+    selectedStaff={id:user.uid,name:profile.name||'Gerente',role:'gerente'};
+    $('loginOverlay').classList.add('hidden');
+    applyPermissions();
+    await seedProductsIfNeeded();
+    startRealtime();
+  }else{
+    $('loginForm').classList.add('hidden');$('staffStep').classList.remove('hidden');
+    try{
+      await loadStaffForSales();
+      const saved=sessionStorage.getItem('pillilandia_staff_id');
+      if(saved){$('staffSelector').value=saved;$('confirmStaffBtn').click();}
+    }catch(err){showError($('staffError'),'No fue posible cargar el personal: '+err.message);}
+  }
+});
+
+async function seedProductsIfNeeded(){
+  const snap=await getDocs(collection(firestore,'products'));
+  if(!snap.empty)return;
+  const batch=writeBatch(firestore);
+  defaults.forEach(([category,name,price],index)=>{
+    const ref=doc(collection(firestore,'products'));
+    batch.set(ref,{category,name,price,stock:0,trackStock:false,active:true,displayOrder:index+1,createdAt:nowIso(),updatedAt:nowIso()});
+  });
+  await batch.commit();
+}
+
+function stopRealtime(){unsubscribers.forEach(fn=>fn());unsubscribers=[]}
+function startRealtime(){
+  stopRealtime();
+  unsubscribers.push(onSnapshot(doc(firestore,'settings','general'),snap=>{
+    if(snap.exists())state.settings={...state.settings,...snap.data()};
+    renderAll();
+  },firebaseError));
+  unsubscribers.push(onSnapshot(collection(firestore,'products'),snap=>{
+    state.products=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.displayOrder??999)-(b.displayOrder??999));renderAll();
+  },firebaseError));
+  unsubscribers.push(onSnapshot(collection(firestore,'orders'),snap=>{
+    state.orders=snap.docs.map(d=>({id:d.id,...d.data()}));renderAll();
+  },firebaseError));
+  unsubscribers.push(onSnapshot(collection(firestore,'expenses'),snap=>{
+    state.expenses=snap.docs.map(d=>({id:d.id,...d.data()}));renderAll();
+  },firebaseError));
+  unsubscribers.push(onSnapshot(collection(firestore,'dailyClosures'),snap=>{
+    state.closures=snap.docs.map(d=>({id:d.id,...d.data()}));renderAll();
+  },firebaseError));
+}
+function firebaseError(err){console.error(err);alert('Error de Firestore: '+err.message)}
+
+function orderTotal(o){return (o.items||[]).reduce((s,i)=>s+Number(i.price)*Number(i.qty),0)}
+function paidTotal(o){return(o.payments||[]).reduce((s,p)=>s+Number(p.amount),0)}
+function balance(o){return Math.max(0,orderTotal(o)-paidTotal(o))}
+function auditFields(){return{updatedAt:nowIso(),updatedByUid:currentUser.uid,updatedByName:selectedStaff?.name||currentUser.name}}
+function actorFields(){return{createdByUid:currentUser.uid,createdByName:selectedStaff?.name||currentUser.name,staffId:selectedStaff?.id||null,staffName:selectedStaff?.name||null}}
+
+function switchTab(id){
+  if(!roleIsManager()&&['expenses','monthly','products'].includes(id))id='dashboard';
+  document.querySelectorAll('section').forEach(x=>x.classList.toggle('active',x.id===id));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));
+  renderAll();
+}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+
+function renderServiceButtons(){
+  const count=Number(state.settings.tableCount||6);
+  let html=`<button type="button" class="service-button ${selectedService.type==='meson'?'active':''}" onclick="selectService('meson','Venta Directa')">Venta Directa</button>`;
+  for(let i=1;i<=count;i++){const label='M'+i;html+=`<button type="button" class="service-button ${selectedService.type==='mesa'&&selectedService.label===label?'active':''}" onclick="selectService('mesa','${label}')">${label}</button>`}
+  $('serviceButtons').innerHTML=html;
+}
+window.selectService=(type,label)=>{selectedService={type,label};renderServiceButtons()};
+function renderProductButtons(){
+  const order=['Helados & Repostería','Bebidas Calientes','Desayunos & Sandwiches','Bebidas Frías y Jugos'];
+  const active=state.products.filter(p=>p.active!==false);let html='';
+  for(const cat of [...order,...new Set(active.map(p=>p.category).filter(c=>!order.includes(c)))]){
+    const items=active.filter(p=>p.category===cat);if(!items.length)continue;
+    html+=`<div class="category">${esc(cat)}</div>`;
+    items.forEach(p=>{const stockNote=p.trackStock?` · stock ${p.stock}`:'';html+=`<button class="product" onclick="addProduct('${p.id}')" ${p.trackStock&&p.stock<=0?'disabled':''}><b>${esc(p.name)}</b><span>${fmt(p.price)}${stockNote}</span></button>`});
+  }
+  html+=`<div class="category">Otro</div><button class="product" onclick="addCustom()"><b>OTRO</b><span>Texto y monto libre</span></button>`;
+  $('productButtons').innerHTML=html;
+}
+window.addProduct=id=>{const p=state.products.find(x=>x.id===id);if(!p)return;const line=cart.find(x=>x.productId===id);if(line)line.qty++;else cart.push({productId:id,name:p.name,price:Number(p.price),qty:1});renderCart()};
+window.addCustom=()=>{const name=prompt('Nombre del producto o servicio:');if(!name)return;const price=Number(prompt('Monto unitario:'));if(!Number.isFinite(price)||price<0)return alert('Monto inválido');cart.push({productId:null,name,price,qty:1,custom:true});renderCart()};
+window.changeQty=(i,d)=>{cart[i].qty+=d;if(cart[i].qty<=0)cart.splice(i,1);renderCart()};
+function renderCart(){const box=$('cart');box.innerHTML=!cart.length?'<div class="empty">Aún no hay productos</div>':cart.map((x,i)=>`<div class="cart-line"><div><b>${esc(x.name)}</b><div class="muted tiny">${fmt(x.price)} c/u</div></div><div class="qty"><button onclick="changeQty(${i},-1)">−</button><b>${x.qty}</b><button onclick="changeQty(${i},1)">+</button></div><div class="money">${fmt(x.price*x.qty)}</div></div>`).join('');$('cartTotal').textContent=fmt(cart.reduce((s,x)=>s+x.price*x.qty,0))}
+function validateStock(items){for(const i of items){if(!i.productId)continue;const p=state.products.find(x=>x.id===i.productId);if(p?.trackStock&&Number(p.stock)<i.qty)return `No hay stock suficiente de ${p.name}. Disponible: ${p.stock}`;}return''}
+async function createOrder(shouldPay){
+  if(!cart.length)return alert('Agrega al menos un producto.');const err=validateStock(cart);if(err)return alert(err);
+  const extra=$('orderLabel').value.trim(),baseLabel=selectedService.label,finalLabel=extra?`${baseLabel} · ${extra}`:baseLabel;
+  const number=Math.max(0,...state.orders.map(x=>Number(x.number)||0))+1;
+  const ref=doc(collection(firestore,'orders'));
+  const o={number,createdAt:nowIso(),businessDate:today(),serviceType:selectedService.type,label:finalLabel,notes:$('orderNotes').value.trim(),items:cart.map(x=>({...x})),payments:[],status:'open',...actorFields(),...auditFields()};
+  const batch=writeBatch(firestore);batch.set(ref,o);
+  for(const i of cart){const p=state.products.find(x=>x.id===i.productId);if(p?.trackStock)batch.update(doc(firestore,'products',p.id),{stock:Number(p.stock)-i.qty,...auditFields()})}
+  await batch.commit();cart=[];$('orderLabel').value='';$('orderNotes').value='';selectedService={type:'meson',label:'Venta Directa'};renderCart();
+  if(shouldPay)openPayment(ref.id);else{switchTab('orders');alert('Pedido guardado como cuenta pendiente.')}
+}
+$('savePending').onclick=()=>createOrder(false);$('payNow').onclick=()=>createOrder(true);$('clearCart').onclick=()=>{if(confirm('¿Limpiar el pedido actual?')){cart=[];renderCart()}};
+
+function renderOrders(){
+  const q=$('orderSearch').value.toLowerCase();
+  const list=state.orders.filter(o=>o.status==='open'&&(!q||String(o.label).toLowerCase().includes(q))).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+  $('openOrders').innerHTML=list.length?list.map(o=>`<div class="order-card"><div class="order-head"><div><b>#${o.number} · ${esc(o.label)}</b><div class="muted tiny">${asDate(o.createdAt).toLocaleString('es-CL')} · ${o.serviceType==='mesa'?'Mesa':'Mesón'} · ${esc(o.staffName||o.createdByName||'')}</div></div><span class="badge open">Pendiente ${fmt(balance(o))}</span></div><div class="tiny" style="margin-top:8px">${(o.items||[]).map(i=>`${i.qty}× ${esc(i.name)}`).join(' · ')}</div><div class="total"><span>Total ${fmt(orderTotal(o))}</span><span>Pagado ${fmt(paidTotal(o))}</span></div><div class="actions"><button class="btn primary" onclick="openPayment('${o.id}')">Registrar pago</button><button class="btn secondary" onclick="addItemsToOrder('${o.id}')">Agregar productos</button><button class="btn danger" onclick="voidOrder('${o.id}')">Anular</button></div></div>`).join(''):'<div class="empty">No hay cuentas abiertas</div>';
+}
+$('orderSearch').oninput=renderOrders;
+window.openPayment=id=>{paymentOrderId=id;$('paymentDialog').showModal();renderPaymentDialog()};
+function renderPaymentDialog(){const o=state.orders.find(x=>x.id===paymentOrderId);if(!o)return;$('paymentOrderInfo').innerHTML=`<div class="notice"><b>#${o.number} · ${esc(o.label)}</b><br>Total: ${fmt(orderTotal(o))} · Pagado: ${fmt(paidTotal(o))} · <b>Saldo: ${fmt(balance(o))}</b></div>`;$('paymentAmount').value=balance(o)||'';$('paymentsExisting').innerHTML=(o.payments||[]).length?`<h3 style="margin-top:16px">Pagos registrados</h3>`+o.payments.map(p=>`<div class="payment-line"><b>${esc(p.method)}</b> · ${fmt(p.amount)} <span class="muted tiny">${asDate(p.createdAt).toLocaleString('es-CL')}</span></div>`).join(''):''}
+$('addPaymentBtn').onclick=async()=>{const o=state.orders.find(x=>x.id===paymentOrderId),amount=Number($('paymentAmount').value);if(!o||!Number.isFinite(amount)||amount<=0)return alert('Ingresa un monto válido.');if(amount>balance(o))return alert(`El monto supera el saldo de ${fmt(balance(o))}.`);const payments=[...(o.payments||[]),{id:uid(),method:$('paymentMethod').value,amount,createdAt:nowIso(),businessDate:today(),staffId:selectedStaff?.id||null,staffName:selectedStaff?.name||null}];const newBalance=Math.max(0,orderTotal(o)-payments.reduce((s,p)=>s+Number(p.amount),0));await updateDoc(doc(firestore,'orders',o.id),{payments,status:newBalance===0?'closed':'open',closedAt:newBalance===0?nowIso():null,...auditFields()});if(newBalance===0){$('paymentDialog').close();switchTab('orders');alert('Cuenta pagada y cerrada.')}else renderPaymentDialog()};
+window.addItemsToOrder=id=>{const o=state.orders.find(x=>x.id===id);if(!o)return;cart=[];selectedService={type:o.serviceType,label:o.serviceType==='mesa'?(String(o.label).match(/^M\d+/)?.[0]||'M1'):'Venta Directa'};$('orderLabel').value=String(o.label).replace(/^M\d+\s*·?\s*|^Venta Directa\s*·?\s*/,'');$('orderNotes').value=`Agregar al pedido #${o.number}`;switchTab('sale');const oldSave=$('savePending').onclick,oldPay=$('payNow').onclick;const finish=async pay=>{if(!cart.length)return alert('Agrega productos.');const err=validateStock(cart);if(err)return alert(err);const batch=writeBatch(firestore);batch.update(doc(firestore,'orders',o.id),{items:[...(o.items||[]),...cart.map(x=>({...x}))],...auditFields()});for(const i of cart){const p=state.products.find(x=>x.id===i.productId);if(p?.trackStock)batch.update(doc(firestore,'products',p.id),{stock:Number(p.stock)-i.qty,...auditFields()})}await batch.commit();cart=[];renderCart();$('savePending').onclick=oldSave;$('payNow').onclick=oldPay;if(pay)openPayment(id);else switchTab('orders')};$('savePending').onclick=()=>finish(false);$('payNow').onclick=()=>finish(true)};
+window.voidOrder=async id=>{const o=state.orders.find(x=>x.id===id);if(!o||!confirm('¿Anular esta cuenta? El stock controlado será devuelto.'))return;const batch=writeBatch(firestore);batch.update(doc(firestore,'orders',id),{status:'void',voidedAt:nowIso(),...auditFields()});for(const i of o.items||[]){const p=state.products.find(x=>x.id===i.productId);if(p?.trackStock)batch.update(doc(firestore,'products',p.id),{stock:Number(p.stock)+Number(i.qty),...auditFields()})}await batch.commit()};
+
+function renderExpenses(){const f=$('expenseFilterDate').value;const xs=state.expenses.filter(x=>!f||x.date===f).sort((a,b)=>String(b.date+b.createdAt).localeCompare(String(a.date+a.createdAt)));$('expenseDayTotal').textContent=fmt(xs.reduce((s,x)=>s+Number(x.amount),0));$('expenseDayCount').textContent=xs.length;$('expenseList').innerHTML=xs.length?xs.map(x=>`<div class="expense-line"><div class="order-head"><div><b>${esc(x.category)}</b><div class="muted tiny">${x.date}${x.description?' · '+esc(x.description):''} · ${esc(x.createdByName||'')}</div></div><div><span class="money">${fmt(x.amount)}</span> <button class="btn danger tiny" onclick="deleteExpense('${x.id}')">Eliminar</button></div></div></div>`).join(''):'<div class="empty">No hay gastos para el día seleccionado</div>'}
+$('expenseForm').onsubmit=async e=>{e.preventDefault();await addDoc(collection(firestore,'expenses'),{date:$('expenseDate').value,category:$('expenseCategory').value,description:$('expenseDescription').value.trim(),amount:Number($('expenseAmount').value),createdAt:nowIso(),...actorFields(),...auditFields()});$('expenseAmount').value='';$('expenseDescription').value='';$('expenseFilterDate').value=$('expenseDate').value};$('expenseFilterDate').onchange=renderExpenses;window.deleteExpense=async id=>{if(confirm('¿Eliminar este gasto?'))await deleteDoc(doc(firestore,'expenses',id))};
+
+function renderDashboard(){const d=$('reportDate').value;const orders=state.orders.filter(o=>o.status!=='void'&&o.businessDate===d);const payments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate===d));const sales=payments.reduce((s,p)=>s+Number(p.amount),0),pending=orders.filter(o=>o.status==='open').reduce((s,o)=>s+balance(o),0);$('mSales').textContent=fmt(sales);$('mPending').textContent=fmt(pending);$('mOrders').textContent=orders.length;$('mClosed').textContent=orders.filter(o=>o.status==='closed').length;const methods=['Efectivo','Débito','Crédito','Transferencia'];$('paymentSummary').innerHTML=methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(payments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('');$('activitySummary').innerHTML=`<div class="payment-line">Pedidos creados <b style="float:right">${orders.length}</b></div><div class="payment-line">Cuentas cerradas <b style="float:right">${orders.filter(o=>o.status==='closed').length}</b></div><div class="payment-line">Cuentas abiertas <b style="float:right">${orders.filter(o=>o.status==='open').length}</b></div><div class="payment-line">Saldo pendiente <b style="float:right">${fmt(pending)}</b></div>`;$('dailyOrders').innerHTML=orders.length?`<div style="overflow:auto"><table><thead><tr><th>N°</th><th>Referencia</th><th>Atendido por</th><th>Estado</th><th class="right">Total</th><th class="right">Pagado</th><th class="right">Saldo</th></tr></thead><tbody>${orders.map(o=>`<tr><td>#${o.number}</td><td>${esc(o.label)}</td><td>${esc(o.staffName||o.createdByName||'')}</td><td><span class="badge ${o.status==='closed'?'closed':'open'}">${o.status==='closed'?'Pagada':'Abierta'}</span></td><td class="right">${fmt(orderTotal(o))}</td><td class="right">${fmt(paidTotal(o))}</td><td class="right">${fmt(balance(o))}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sin ventas registradas</div>'}
+$('reportDate').onchange=renderDashboard;
+function renderMonthly(){const period=$('monthlyPeriod').value;if(!period)return;const monthPayments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate&&p.businessDate.startsWith(period)));const monthExpenses=state.expenses.filter(x=>x.date&&x.date.startsWith(period));const sales=monthPayments.reduce((s,p)=>s+Number(p.amount),0),expenses=monthExpenses.reduce((s,x)=>s+Number(x.amount),0),net=sales-expenses,margin=sales?Math.round((net/sales)*100):0;$('monthlySales').textContent=fmt(sales);$('monthlyExpenses').textContent=fmt(expenses);$('monthlyNet').textContent=fmt(net);$('monthlyMargin').textContent=margin+'%';const methods=['Efectivo','Débito','Crédito','Transferencia'];$('monthlyPaymentSummary').innerHTML=methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(monthPayments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('');const cats=[...new Set(monthExpenses.map(x=>x.category))].sort();$('monthlyExpenseSummary').innerHTML=cats.length?cats.map(c=>`<div class="payment-line"><span>${esc(c)}</span><span class="money" style="float:right">${fmt(monthExpenses.filter(x=>x.category===c).reduce((s,x)=>s+Number(x.amount),0))}</span></div>`).join(''):'<div class="empty">Sin gastos en el mes</div>';const days=[...new Set([...monthPayments.map(p=>p.businessDate),...monthExpenses.map(x=>x.date)])].sort();$('monthlyDailySummary').innerHTML=days.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th class="right">Ventas</th><th class="right">Gastos</th><th class="right">Resultado</th></tr></thead><tbody>${days.map(d=>{const vs=monthPayments.filter(p=>p.businessDate===d).reduce((s,p)=>s+Number(p.amount),0),gs=monthExpenses.filter(x=>x.date===d).reduce((s,x)=>s+Number(x.amount),0);return `<tr><td>${d}</td><td class="right">${fmt(vs)}</td><td class="right">${fmt(gs)}</td><td class="right"><b>${fmt(vs-gs)}</b></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Sin movimientos en el mes</div>'}
+$('monthlyPeriod').onchange=renderMonthly;
+
+function renderProductTable(){$('productTable').innerHTML=state.products.map(p=>`<tr><td>${esc(p.name)}</td><td>${esc(p.category)}</td><td class="right">${fmt(p.price)}</td><td class="right">${p.trackStock?p.stock:'—'}</td><td>${p.trackStock?'Sí':'No'}</td><td>${p.active!==false?'Sí':'No'}</td><td><button class="btn secondary tiny" onclick="editProduct('${p.id}')">Editar</button></td></tr>`).join('')}
+window.editProduct=id=>{const p=id?state.products.find(x=>x.id===id):{id:'',name:'',category:'Otro',price:0,stock:0,trackStock:false,active:true};$('editProductId').value=p.id;$('editProductName').value=p.name;$('editProductCategory').value=p.category;$('editProductPrice').value=p.price;$('editProductStock').value=p.stock;$('editProductTrack').value=String(p.trackStock);$('editProductActive').value=String(p.active!==false);$('productDialogTitle').textContent=id?'Editar producto':'Nuevo producto';$('productDialog').showModal()};
+$('newProductBtn').onclick=()=>editProduct('');$('saveProductBtn').onclick=async()=>{const id=$('editProductId').value;const data={name:$('editProductName').value.trim(),category:$('editProductCategory').value.trim()||'Otro',price:Number($('editProductPrice').value),stock:Number($('editProductStock').value)||0,trackStock:$('editProductTrack').value==='true',active:$('editProductActive').value==='true',...auditFields()};if(!data.name||data.price<0)return alert('Revisa nombre y precio.');if(id)await updateDoc(doc(firestore,'products',id),data);else await addDoc(collection(firestore,'products'),{...data,createdAt:nowIso()});$('productDialog').close()};
+
+function renderCloseDay(){const d=today(),orders=state.orders.filter(o=>o.status!=='void'&&o.businessDate===d),payments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate===d)),sales=payments.reduce((s,p)=>s+Number(p.amount),0),open=state.orders.filter(o=>o.status==='open'),methods=['Efectivo','Débito','Crédito','Transferencia'];$('closeDaySummary').innerHTML=`<div class="metrics" style="margin-bottom:12px"><div class="metric"><small>Total cobrado hoy</small><b>${fmt(sales)}</b></div><div class="metric"><small>Pedidos del día</small><b>${orders.length}</b></div><div class="metric"><small>Cuentas cerradas</small><b>${orders.filter(o=>o.status==='closed').length}</b></div><div class="metric"><small>Cuentas abiertas actuales</small><b>${open.length}</b></div></div><div class="card" style="box-shadow:none"><h3>Medios de pago</h3>${methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(payments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('')}</div>${open.length?`<div class="dangernotice" style="margin-top:12px"><b>Atención:</b> existen ${open.length} cuenta(s) abierta(s) por ${fmt(open.reduce((s,o)=>s+balance(o),0))}.</div>`:'<div class="oknotice" style="margin-top:12px">No existen cuentas abiertas.</div>'}`}
+$('exportBtn').onclick=async()=>{const d=today(),open=state.orders.filter(o=>o.status==='open');if(open.length&&!confirm(`Hay ${open.length} cuenta(s) abierta(s). ¿Cerrar el día de todas formas?`))return;const payments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate===d));await setDoc(doc(firestore,'dailyClosures',d),{businessDate:d,closedAt:nowIso(),salesTotal:payments.reduce((s,p)=>s+Number(p.amount),0),openOrderCount:open.length,...actorFields(),...auditFields()},{merge:true});const data={exportedAt:nowIso(),settings:state.settings,products:state.products,orders:state.orders,expenses:state.expenses,dailyClosures:state.closures};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`pillilandia-cierre-${d}.json`;a.click();URL.revokeObjectURL(a.href)};
+$('importBtn').onclick=()=>alert('La restauración directa está deshabilitada en la versión online para evitar reemplazar accidentalmente Firestore. El archivo JSON queda disponible como respaldo para una restauración administrada.');
+$('eraseBtn').onclick=()=>alert('El borrado masivo está deshabilitado en la versión online por seguridad.');
+function renderStorageInfo(){$('storageInfo').innerHTML=`<p><b>Modo:</b> Firebase / Firestore</p><p><b>Sincronización:</b> automática entre dispositivos</p><p><b>Persistencia local:</b> activada para funcionamiento temporal sin Internet</p><p class="muted">Los cambios pendientes se sincronizan cuando vuelve la conexión.</p>`}
+function updateHeaderClock(){const now=new Date();$('headerDate').textContent=now.toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase());$('headerTime').textContent=now.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit'});const closed=state.closures.some(x=>x.id===today()||x.businessDate===today());$('cashStatus').classList.toggle('closed-day',closed);$('cashStatus').querySelector('span:last-child').textContent=closed?'Caja cerrada':'Caja abierta'}
 setInterval(updateHeaderClock,1000);
-function renderAll(){renderServiceButtons();renderProductButtons();renderCart();renderOrders();renderExpenses();renderProductTable();renderDashboard();renderMonthly();renderCloseDay();renderStorageInfo()}
-reportDate.value=today();expenseDate.value=today();expenseFilterDate.value=today();monthlyPeriod.value=today().slice(0,7);expenseCategory.innerHTML=expenseCats.map(x=>`<option>${x}</option>`).join('');renderAll();updateHeaderClock();const savedUser=sessionStorage.getItem(SESSION_KEY);if(savedUser&&APP_USERS[savedUser])startSession(savedUser);else applyPermissions();
+function renderAll(){renderServiceButtons();renderProductButtons();renderCart();renderOrders();renderExpenses();renderProductTable();renderDashboard();renderMonthly();renderCloseDay();renderStorageInfo();updateHeaderClock()}
+$('reportDate').value=today();$('expenseDate').value=today();$('expenseFilterDate').value=today();$('monthlyPeriod').value=today().slice(0,7);$('expenseCategory').innerHTML=expenseCats.map(x=>`<option>${x}</option>`).join('');renderAll();applyPermissions();
 </script>
+
 </body>
 </html>
