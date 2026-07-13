@@ -241,7 +241,6 @@ $('confirmStaffBtn').onclick=()=>{
   const staff=rows.find(x=>x.id===id);
   if(!staff)return showError($('staffError'),'Selecciona tu nombre.');
   selectedStaff=staff;
-  sessionStorage.setItem('pillilandia_staff_id',staff.id);
   $('staffStep').classList.add('hidden');
   $('loginOverlay').classList.add('hidden');
   applyPermissions();
@@ -253,7 +252,7 @@ onAuthStateChanged(auth,async user=>{
   currentUser=null;selectedStaff=null;
   if(!user){
     $('loginOverlay').classList.remove('hidden');$('loginForm').classList.remove('hidden');$('staffStep').classList.add('hidden');
-    $('loginPassword').value='';applyPermissions();return;
+    $('loginPassword').value='';$('staffSelector').value='';$('staffSelector').dataset.rows='[]';showError($('staffError'),'');applyPermissions();return;
   }
   const userSnap=await getDoc(doc(firestore,'users',user.uid));
   if(!userSnap.exists()||userSnap.data().active===false){
@@ -270,10 +269,11 @@ onAuthStateChanged(auth,async user=>{
     startRealtime();
   }else{
     $('loginForm').classList.add('hidden');$('staffStep').classList.remove('hidden');
+    $('staffSelector').value='';
+    showError($('staffError'),'');
     try{
       await loadStaffForSales();
-      const saved=sessionStorage.getItem('pillilandia_staff_id');
-      if(saved){$('staffSelector').value=saved;$('confirmStaffBtn').click();}
+      $('staffSelector').value='';
     }catch(err){showError($('staffError'),'No fue posible cargar el personal: '+err.message);}
   }
 });
