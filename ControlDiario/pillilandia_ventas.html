@@ -67,7 +67,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
       <div id="loginError" class="login-error"></div>
     </form>
     <div id="staffStep" class="hidden">
-      <label for="staffSelector">¿Quién está atendiendo?</label>
+      <label id="staffSelectorLabel" for="staffSelector">¿Quién está usando el sistema?</label>
       <select id="staffSelector">
         <option value="">Selecciona tu nombre</option>
       </select>
@@ -221,10 +221,17 @@ function applyPermissions(){
   if(!manager&&['expenses','monthly','products'].includes(document.querySelector('section.active')?.id))switchTab('dashboard');
 }
 
-async function loadStaffForSales(){
-  const q=query(collection(firestore,'staff'),where('active','==',true),where('authAccount','==','ventas'));
-  const snap=await getDocs(q);
-  const rows=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.displayOrder??999)-(b.displayOrder??999));
+async function loadStaffForCurrentRole(){
+  const snap=await getDocs(query(collection(firestore,'staff'),where('active','==',true)));
+  const manager=roleIsManager();
+  const rows=snap.docs
+    .map(d=>({id:d.id,...d.data()}))
+    .filter(x=>manager
+      ? normalizeRole(x.role)==='gerente'
+      : String(x.authAccount||'').toLowerCase()==='ventas' && normalizeRole(x.role)==='empleado')
+    .sort((a,b)=>(a.displayOrder??999)-(b.displayOrder??999));
+
+  $('staffSelectorLabel').textContent=manager?'¿Quién está ingresando como gerente?':'¿Quién está atendiendo?';
   $('staffSelector').innerHTML='<option value="">Selecciona tu nombre</option>'+rows.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
   $('staffSelector').dataset.rows=JSON.stringify(rows);
 }
@@ -249,6 +256,7 @@ $('confirmStaffBtn').onclick=()=>{
   $('staffStep').classList.add('hidden');
   $('loginOverlay').classList.add('hidden');
   applyPermissions();
+  if(roleIsManager()) seedProductsIfNeeded().catch(err=>alert('No fue posible verificar los productos iniciales: '+err.message));
   startRealtime();
 };
 
@@ -266,21 +274,19 @@ onAuthStateChanged(auth,async user=>{
   }
   const profile=userSnap.data();
   currentUser={uid:user.uid,email:user.email,name:profile.name||user.email,role:normalizeRole(profile.role)};
-  if(roleIsManager()){
-    selectedStaff={id:user.uid,name:profile.name||'Gerente',role:'gerente'};
-    $('loginOverlay').classList.add('hidden');
-    applyPermissions();
-    await seedProductsIfNeeded();
-    startRealtime();
-  }else{
-    $('loginForm').classList.add('hidden');$('staffStep').classList.remove('hidden');
+  $('loginForm').classList.add('hidden');
+  $('staffStep').classList.remove('hidden');
+  $('staffSelector').value='';
+  showError($('staffError'),'');
+  try{
+    await loadStaffForCurrentRole();
     $('staffSelector').value='';
-    showError($('staffError'),'');
-    try{
-      await loadStaffForSales();
-      $('staffSelector').value='';
-    }catch(err){showError($('staffError'),'No fue posible cargar el personal: '+err.message);}
-  }
+    if(!$('staffSelector').options.length || $('staffSelector').options.length===1){
+      showError($('staffError'),roleIsManager()
+        ? 'No hay gerentes activos configurados en la colección staff.'
+        : 'No hay personal de ventas activo configurado en la colección staff.');
+    }
+  }catch(err){showError($('staffError'),'No fue posible cargar el personal: '+err.message);}
 });
 
 async function seedProductsIfNeeded(){
