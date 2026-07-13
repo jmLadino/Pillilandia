@@ -55,26 +55,15 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
       <p>Acceso al sistema del local</p>
     </div>
     <form id="loginForm">
-      <label for="loginAccount">Perfil de acceso</label>
-      <select id="loginAccount" required>
-        <option value="">Selecciona un perfil</option>
-        <option value="manager">Gerente</option>
-        <option value="sales">Ventas / atención de mesa</option>
-      </select>
+      <label for="loginEmail">Correo electrónico</label>
+      <input id="loginEmail" type="email" autocomplete="username" placeholder="nombre@correo.cl" required>
       <label for="loginPassword">Contraseña</label>
       <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Ingresa tu contraseña" required>
       <button class="btn primary" type="submit">Ingresar</button>
+      <button id="forgotPasswordBtn" class="btn secondary" type="button">¿Olvidaste tu contraseña?</button>
       <div id="loginError" class="login-error"></div>
+      <div id="loginNotice" class="notice hidden" style="margin-top:12px"></div>
     </form>
-    <div id="staffStep" class="hidden">
-      <label id="staffSelectorLabel" for="staffSelector">¿Quién está usando el sistema?</label>
-      <select id="staffSelector">
-        <option value="">Selecciona tu nombre</option>
-      </select>
-      <button id="confirmStaffBtn" class="btn primary" type="button">Continuar</button>
-      <button id="cancelStaffBtn" class="btn secondary" type="button">Volver</button>
-      <div id="staffError" class="login-error"></div>
-    </div>
   </div>
 </div>
 <header>
@@ -151,7 +140,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import {
   getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged,
-  setPersistence, browserLocalPersistence
+  sendPasswordResetEmail, setPersistence, browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 import {
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
@@ -166,11 +155,6 @@ const firebaseConfig = {
   storageBucket: "pillilandia-pos.firebasestorage.app",
   messagingSenderId: "940089589607",
   appId: "1:940089589607:web:883b3aea41e1251b13b9c2"
-};
-
-const ACCOUNT_EMAILS = {
-  manager: "josemiguel.ladino@gmail.com",
-  sales: "pillilandiaventas@gmail.com"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -206,6 +190,8 @@ function showError(el,msg){el.textContent=msg;el.style.display=msg?'block':'none
 function friendlyAuthError(code){
   const map={
     'auth/invalid-credential':'Correo o contraseña incorrectos.',
+    'auth/invalid-email':'El correo electrónico no tiene un formato válido.',
+    'auth/user-not-found':'No existe una cuenta asociada a este correo.',
     'auth/user-disabled':'Esta cuenta está deshabilitada.',
     'auth/too-many-requests':'Demasiados intentos. Espera unos minutos e intenta nuevamente.',
     'auth/network-request-failed':'No fue posible conectar con Firebase. Revisa Internet.'
@@ -221,72 +207,66 @@ function applyPermissions(){
   if(!manager&&['expenses','monthly','products'].includes(document.querySelector('section.active')?.id))switchTab('dashboard');
 }
 
-async function loadStaffForCurrentRole(){
-  const snap=await getDocs(query(collection(firestore,'staff'),where('active','==',true)));
-  const manager=roleIsManager();
-  const rows=snap.docs
-    .map(d=>({id:d.id,...d.data()}))
-    .filter(x=>manager
-      ? normalizeRole(x.role)==='gerente'
-      : String(x.authAccount||'').toLowerCase()==='ventas' && normalizeRole(x.role)==='empleado')
-    .sort((a,b)=>(a.displayOrder??999)-(b.displayOrder??999));
-
-  $('staffSelectorLabel').textContent=manager?'¿Quién está ingresando como gerente?':'¿Quién está atendiendo?';
-  $('staffSelector').innerHTML='<option value="">Selecciona tu nombre</option>'+rows.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
-  $('staffSelector').dataset.rows=JSON.stringify(rows);
+async function resolveStaff(profile){
+  const staffId=String(profile.staffId||'').trim();
+  if(!staffId)return {id:null,name:profile.name||auth.currentUser?.email||'Usuario',role:normalizeRole(profile.role)};
+  const snap=await getDoc(doc(firestore,'staff',staffId));
+  if(!snap.exists())throw new Error(`No existe el documento staff/${staffId}.`);
+  const staff={id:snap.id,...snap.data()};
+  if(staff.active===false)throw new Error('El integrante de staff asociado está deshabilitado.');
+  return staff;
 }
 
 $('loginForm').addEventListener('submit',async e=>{
   e.preventDefault();
   showError($('loginError'),'');
-  const account=$('loginAccount').value;
-  if(!account)return showError($('loginError'),'Selecciona un perfil.');
+  $('loginNotice').classList.add('hidden');
+  const email=$('loginEmail').value.trim().toLowerCase();
+  if(!email)return showError($('loginError'),'Ingresa tu correo electrónico.');
   try{
-    await signInWithEmailAndPassword(auth,ACCOUNT_EMAILS[account],$('loginPassword').value);
+    await signInWithEmailAndPassword(auth,email,$('loginPassword').value);
   }catch(err){showError($('loginError'),friendlyAuthError(err.code));}
 });
-$('logoutBtn').onclick=()=>signOut(auth);
-$('cancelStaffBtn').onclick=()=>signOut(auth);
-$('confirmStaffBtn').onclick=()=>{
-  const id=$('staffSelector').value;
-  const rows=JSON.parse($('staffSelector').dataset.rows||'[]');
-  const staff=rows.find(x=>x.id===id);
-  if(!staff)return showError($('staffError'),'Selecciona tu nombre.');
-  selectedStaff=staff;
-  $('staffStep').classList.add('hidden');
-  $('loginOverlay').classList.add('hidden');
-  applyPermissions();
-  if(roleIsManager()) seedProductsIfNeeded().catch(err=>alert('No fue posible verificar los productos iniciales: '+err.message));
-  startRealtime();
+
+$('forgotPasswordBtn').onclick=async()=>{
+  showError($('loginError'),'');
+  const email=$('loginEmail').value.trim().toLowerCase();
+  if(!email)return showError($('loginError'),'Escribe tu correo y luego presiona “¿Olvidaste tu contraseña?”.');
+  try{
+    await sendPasswordResetEmail(auth,email);
+    $('loginNotice').textContent='Te enviamos un correo para restablecer tu contraseña. Revisa también la carpeta de spam.';
+    $('loginNotice').classList.remove('hidden');
+  }catch(err){showError($('loginError'),friendlyAuthError(err.code));}
 };
+
+$('logoutBtn').onclick=()=>signOut(auth);
 
 onAuthStateChanged(auth,async user=>{
   stopRealtime();
   currentUser=null;selectedStaff=null;
   if(!user){
-    $('loginOverlay').classList.remove('hidden');$('loginForm').classList.remove('hidden');$('staffStep').classList.add('hidden');
-    $('loginPassword').value='';$('staffSelector').value='';$('staffSelector').dataset.rows='[]';showError($('staffError'),'');applyPermissions();return;
+    $('loginOverlay').classList.remove('hidden');
+    $('loginForm').classList.remove('hidden');
+    $('loginPassword').value='';
+    $('loginNotice').classList.add('hidden');
+    showError($('loginError'),'');
+    applyPermissions();
+    return;
   }
-  const userSnap=await getDoc(doc(firestore,'users',user.uid));
-  if(!userSnap.exists()||userSnap.data().active===false){
-    showError($('loginError'),'La cuenta no tiene un perfil activo en Firestore.');
-    await signOut(auth);return;
-  }
-  const profile=userSnap.data();
-  currentUser={uid:user.uid,email:user.email,name:profile.name||user.email,role:normalizeRole(profile.role)};
-  $('loginForm').classList.add('hidden');
-  $('staffStep').classList.remove('hidden');
-  $('staffSelector').value='';
-  showError($('staffError'),'');
   try{
-    await loadStaffForCurrentRole();
-    $('staffSelector').value='';
-    if(!$('staffSelector').options.length || $('staffSelector').options.length===1){
-      showError($('staffError'),roleIsManager()
-        ? 'No hay gerentes activos configurados en la colección staff.'
-        : 'No hay personal de ventas activo configurado en la colección staff.');
-    }
-  }catch(err){showError($('staffError'),'No fue posible cargar el personal: '+err.message);}
+    const userSnap=await getDoc(doc(firestore,'users',user.uid));
+    if(!userSnap.exists()||userSnap.data().active===false)throw new Error('La cuenta no tiene un perfil activo en Firestore.');
+    const profile=userSnap.data();
+    currentUser={uid:user.uid,email:user.email,name:profile.name||user.email,role:normalizeRole(profile.role),staffId:profile.staffId||null};
+    selectedStaff=await resolveStaff(profile);
+    $('loginOverlay').classList.add('hidden');
+    applyPermissions();
+    if(roleIsManager())await seedProductsIfNeeded();
+    startRealtime();
+  }catch(err){
+    showError($('loginError'),err.message||'No fue posible cargar el perfil del usuario.');
+    await signOut(auth);
+  }
 });
 
 async function seedProductsIfNeeded(){
