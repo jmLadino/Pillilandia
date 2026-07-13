@@ -302,9 +302,13 @@ function startRealtime(){
   unsubscribers.push(onSnapshot(collection(firestore,'orders'),snap=>{
     state.orders=snap.docs.map(d=>({id:d.id,...d.data()}));renderAll();
   },firebaseError));
-  unsubscribers.push(onSnapshot(collection(firestore,'expenses'),snap=>{
-    state.expenses=snap.docs.map(d=>({id:d.id,...d.data()}));renderAll();
-  },firebaseError));
+  if(roleIsManager()){
+    unsubscribers.push(onSnapshot(collection(firestore,'expenses'),snap=>{
+      state.expenses=snap.docs.map(d=>({id:d.id,...d.data()}));renderAll();
+    },firebaseError));
+  }else{
+    state.expenses=[];
+  }
   unsubscribers.push(onSnapshot(collection(firestore,'dailyClosures'),snap=>{
     state.closures=snap.docs.map(d=>({id:d.id,...d.data()}));renderAll();
   },firebaseError));
