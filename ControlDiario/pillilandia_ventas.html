@@ -27,6 +27,11 @@ table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{text-align:left;
 .service-button{min-width:82px;min-height:50px;padding:10px 16px;border:2px solid var(--brand);border-radius:10px;background:#fff;color:var(--brand2);font-weight:850;cursor:pointer;box-shadow:0 2px 5px rgba(13,119,128,.09)}
 .service-button:hover{background:#e8f8f9;transform:translateY(-1px)}
 .service-button.active{background:var(--brand2);border-color:var(--brand2);color:#fff;box-shadow:0 4px 11px rgba(13,119,128,.28)}
+.service-button.occupied{background:#fff1d6;border-color:#d68100;color:#884d00;cursor:not-allowed;box-shadow:0 3px 10px rgba(136,77,0,.18)}
+.service-button.occupied:hover{background:#fff1d6;transform:none}
+.service-button.occupied.active{background:#d68100;border-color:#a85f00;color:#fff}
+.table-status-legend{width:100%;margin-top:8px;font-size:.8rem;font-weight:750;color:var(--muted)}
+.table-status-legend .legend-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#d68100;margin-right:5px;vertical-align:-1px}
 .table-config{display:flex;gap:8px;align-items:end;margin-top:12px;max-width:340px}
 .table-config input{background:#fff;border:2px solid #8bbfc4}
 .sale-panel .category{font-size:1rem;color:#12383c;background:#cfecef;border-left:5px solid var(--brand2);padding:9px 11px;border-radius:8px;margin-top:16px}
@@ -329,13 +334,39 @@ function switchTab(id){
 }
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
 
+function tableCodeFromOrder(o){
+  if(o?.serviceType!=='mesa')return null;
+  return String(o.label||'').match(/^M\d+/)?.[0]||null;
+}
+function getOpenOrderForTable(tableLabel){
+  return state.orders.find(o=>o.status==='open'&&tableCodeFromOrder(o)===tableLabel)||null;
+}
 function renderServiceButtons(){
   const count=Number(state.settings.tableCount||6);
   let html=`<button type="button" class="service-button ${selectedService.type==='meson'?'active':''}" onclick="selectService('meson','Venta Directa')">Venta Directa</button>`;
-  for(let i=1;i<=count;i++){const label='M'+i;html+=`<button type="button" class="service-button ${selectedService.type==='mesa'&&selectedService.label===label?'active':''}" onclick="selectService('mesa','${label}')">${label}</button>`}
+  for(let i=1;i<=count;i++){
+    const label='M'+i;
+    const openOrder=getOpenOrderForTable(label);
+    const isActive=selectedService.type==='mesa'&&selectedService.label===label;
+    const classes=['service-button',openOrder?'occupied':'',isActive?'active':''].filter(Boolean).join(' ');
+    const text=openOrder?`${label} · Pendiente`:label;
+    const title=openOrder?`Cuenta #${openOrder.number} pendiente por ${fmt(balance(openOrder))}`:`Seleccionar ${label}`;
+    html+=`<button type="button" class="${classes}" onclick="selectService('mesa','${label}')" title="${esc(title)}" aria-disabled="${openOrder?'true':'false'}">${esc(text)}</button>`;
+  }
+  html+=`<div class="table-status-legend"><span class="legend-dot"></span>Las mesas en color naranjo tienen una cuenta pendiente.</div>`;
   $('serviceButtons').innerHTML=html;
 }
-window.selectService=(type,label)=>{selectedService={type,label};renderServiceButtons()};
+window.selectService=(type,label)=>{
+  if(type==='mesa'){
+    const openOrder=getOpenOrderForTable(label);
+    if(openOrder){
+      alert(`${label} ya tiene la cuenta #${openOrder.number} abierta, con un saldo de ${fmt(balance(openOrder))}. Para agregar productos, utiliza "Cuentas abiertas".`);
+      return;
+    }
+  }
+  selectedService={type,label};
+  renderServiceButtons();
+};
 function renderProductButtons(){
   const order=['Helados & Repostería','Bebidas Calientes','Desayunos & Sandwiches','Bebidas Frías y Jugos'];
   const active=state.products.filter(p=>p.active!==false);let html='';
@@ -353,7 +384,15 @@ window.changeQty=(i,d)=>{cart[i].qty+=d;if(cart[i].qty<=0)cart.splice(i,1);rende
 function renderCart(){const box=$('cart');box.innerHTML=!cart.length?'<div class="empty">Aún no hay productos</div>':cart.map((x,i)=>`<div class="cart-line"><div><b>${esc(x.name)}</b><div class="muted tiny">${fmt(x.price)} c/u</div></div><div class="qty"><button onclick="changeQty(${i},-1)">−</button><b>${x.qty}</b><button onclick="changeQty(${i},1)">+</button></div><div class="money">${fmt(x.price*x.qty)}</div></div>`).join('');$('cartTotal').textContent=fmt(cart.reduce((s,x)=>s+x.price*x.qty,0))}
 function validateStock(items){for(const i of items){if(!i.productId)continue;const p=state.products.find(x=>x.id===i.productId);if(p?.trackStock&&Number(p.stock)<i.qty)return `No hay stock suficiente de ${p.name}. Disponible: ${p.stock}`;}return''}
 async function createOrder(shouldPay){
-  if(!cart.length)return alert('Agrega al menos un producto.');const err=validateStock(cart);if(err)return alert(err);
+  if(!cart.length)return alert('Agrega al menos un producto.');
+  const err=validateStock(cart);if(err)return alert(err);
+  if(selectedService.type==='mesa'){
+    const openOrder=getOpenOrderForTable(selectedService.label);
+    if(openOrder){
+      renderServiceButtons();
+      return alert(`${selectedService.label} ya tiene la cuenta #${openOrder.number} abierta, con un saldo de ${fmt(balance(openOrder))}. No se puede crear otra venta para la misma mesa. Utiliza "Cuentas abiertas" para agregar productos o cobrar.`);
+    }
+  }
   const extra=$('orderLabel').value.trim(),baseLabel=selectedService.label,finalLabel=extra?`${baseLabel} · ${extra}`:baseLabel;
   const number=Math.max(0,...state.orders.map(x=>Number(x.number)||0))+1;
   const ref=doc(collection(firestore,'orders'));
