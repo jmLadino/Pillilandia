@@ -46,7 +46,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 @media(max-width:850px){.header-inner{align-items:flex-start}.brand-logo{width:62px;height:62px;flex-basis:62px}.brand-text h1{font-size:1.2rem}.brand-text p{font-size:.8rem}.header-date{font-size:.78rem}.header-time{font-size:1.05rem}.cash-status{font-size:.72rem;padding:5px 8px}.span-8,.span-7,.span-6,.span-5,.span-4,.span-3{grid-column:span 12}.metrics{grid-template-columns:repeat(2,1fr)}.products{grid-template-columns:repeat(2,minmax(0,1fr))}.wrap{padding:9px}.card{padding:11px}.row{flex-wrap:wrap}.row>*{min-width:140px}}
 
 .user-area{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:3px}.user-chip{font-size:.76rem;font-weight:800;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.38);border-radius:999px;padding:5px 9px}.logout-btn{border:1px solid rgba(255,255,255,.55);background:transparent;color:#fff;border-radius:8px;padding:5px 9px;font-weight:800;cursor:pointer}.logout-btn:hover{background:rgba(255,255,255,.14)}
-.login-overlay{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#159eaa,#075f67);display:flex;align-items:center;justify-content:center;padding:18px}.login-card{width:min(440px,100%);background:#fff;border:3px solid #b7d9dc;border-radius:20px;padding:25px;box-shadow:0 24px 70px rgba(0,0,0,.34)}.login-brand{text-align:center;margin-bottom:20px}.login-logo{width:96px;height:96px;object-fit:cover;border-radius:50%;border:4px solid #159eaa;background:#fff}.login-brand h1{margin:10px 0 3px;color:#075f67}.login-brand p{margin:0;color:#415f63;font-weight:700}.login-card label{margin-top:12px}.login-card .btn{width:100%;margin-top:18px;padding:13px}.login-error{display:none;margin-top:12px;padding:10px;border-radius:9px;background:#fee4e2;color:#8b1a12;font-weight:750}.role-hidden{display:none!important}
+.login-overlay{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#159eaa,#075f67);display:flex;align-items:center;justify-content:center;padding:18px}.login-card{width:min(440px,100%);background:#fff;border:3px solid #b7d9dc;border-radius:20px;padding:25px;box-shadow:0 24px 70px rgba(0,0,0,.34)}.shift-lock-overlay{position:fixed;inset:0;z-index:10000;background:linear-gradient(135deg,#159eaa,#075f67);display:flex;align-items:center;justify-content:center;padding:18px}.shift-lock-card{width:min(480px,100%);background:#fff;border:3px solid #b7d9dc;border-radius:20px;padding:28px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.34)}.shift-lock-card h2{color:var(--brand2);margin:12px 0 8px}.shift-lock-icon{font-size:3rem;line-height:1}.shift-lock-detail{margin:16px 0;padding:12px;border-radius:10px;background:#fff5d9;color:#6d4700;font-weight:750}.shift-lock-card .btn{width:100%;margin-top:10px;padding:13px}.login-brand{text-align:center;margin-bottom:20px}.login-logo{width:96px;height:96px;object-fit:cover;border-radius:50%;border:4px solid #159eaa;background:#fff}.login-brand h1{margin:10px 0 3px;color:#075f67}.login-brand p{margin:0;color:#415f63;font-weight:700}.login-card label{margin-top:12px}.login-card .btn{width:100%;margin-top:18px;padding:13px}.login-error{display:none;margin-top:12px;padding:10px;border-radius:9px;background:#fee4e2;color:#8b1a12;font-weight:750}.role-hidden{display:none!important}
 
 .schedule-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.staff-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}.staff-check{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid var(--line);border-radius:9px;background:#f7fbfb}.staff-check input{width:auto}.operation-status{padding:14px;border-radius:12px;border:2px solid var(--line);background:#eef8f9;margin-bottom:12px}.operation-status.opened{background:#daf5e8;border-color:#65b98d}.operation-status.closed-day{background:#fee4e2;border-color:#d89a96}.operation-status.pending{background:#fff5d9;border-color:#dfbd6d}.restricted-tab{opacity:.5}.credit-box{margin-top:10px;padding:11px;border:2px solid #dfbd6d;border-radius:10px;background:#fff9e8}.credit-box label{display:flex;align-items:center;gap:8px;margin:0}.credit-box input[type=checkbox]{width:auto}.attendance-table input{min-width:110px;padding:7px}.attendance-table textarea{min-width:170px;padding:7px}.status-pill{display:inline-block;border-radius:999px;padding:4px 8px;font-size:.75rem;font-weight:800;background:#e5eff0}.status-pill.planned{background:#dff0f2}.status-pill.unplanned{background:#fff1d6;color:var(--warning)}
 .tip-picker{margin-top:12px;padding:12px;border:2px solid #9fc2c6;border-radius:11px;background:#f4fbfb}.tip-options{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.tip-btn{min-width:58px;border:2px solid #8db8bd;border-radius:9px;padding:9px 12px;background:#fff;color:#173c40;font-weight:850;cursor:pointer}.tip-btn:hover{background:#e4f4f5}.tip-btn.active{background:var(--brand2);border-color:var(--brand2);color:#fff}.tip-line{display:flex;justify-content:space-between;gap:12px;padding:7px 0}.tip-line.total-line{border-top:2px solid var(--line);margin-top:5px;padding-top:10px;font-size:1.05rem;font-weight:900}
@@ -73,6 +73,15 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
       <div id="loginError" class="login-error"></div>
       <div id="loginNotice" class="notice hidden" style="margin-top:12px"></div>
     </form>
+  </div>
+</div>
+<div id="shiftLockOverlay" class="shift-lock-overlay hidden">
+  <div class="shift-lock-card">
+    <div class="shift-lock-icon">🕒</div>
+    <h2>Acceso fuera de turno</h2>
+    <p id="shiftLockMessage">No estás dentro de tu turno habilitado.</p>
+    <div id="shiftLockDetail" class="shift-lock-detail"></div>
+    <button id="shiftLockLogoutBtn" class="btn primary" type="button">Cerrar sesión</button>
   </div>
 </div>
 <header>
@@ -157,7 +166,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 
 <dialog id="productDialog"><div class="dialog-body"><div class="dialog-head"><h2 id="productDialogTitle">Producto</h2><button class="x" onclick="productDialog.close()">×</button></div><input id="editProductId" type="hidden"><label>Nombre</label><input id="editProductName"><div class="row" style="margin-top:10px"><div><label>Categoría</label><input id="editProductCategory"></div><div><label>Precio</label><input id="editProductPrice" type="number" min="0"></div></div><div class="row" style="margin-top:10px"><div><label>Stock actual</label><input id="editProductStock" type="number" step="1"></div><div><label>Control de stock</label><select id="editProductTrack"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Activo</label><select id="editProductActive"><option value="true">Sí</option><option value="false">No</option></select></div></div><button class="btn primary" style="margin-top:12px" id="saveProductBtn">Guardar producto</button></div></dialog>
 
-<!-- Versión 3.16: propiedad y toma de control de cuentas con auditoría -->
+<!-- Versión 3.18: propiedad y toma de control de cuentas con auditoría -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import {
@@ -203,7 +212,7 @@ const defaults=[
 const expenseCats=['Fresa','FrioCid','Suministros','Insumos de Aseo','Inmobiliario','Construcción','Municipalidad','SII','GetNet','Redelcom','Aportes JM','Arriendo','Servicios','Bencina','Otro'];
 
 let state={settings:{tableCount:6,businessName:'Pillilandia',businessSubtitle:'Heladería & Cafetería',currency:'CLP',timeZone:'America/Santiago'},products:[],orders:[],expenses:[],closures:[],staff:[],schedules:[],attendance:[],operations:[]};
-let currentUser=null, selectedStaff=null, cart=[], paymentOrderId=null, creditOrderId=null, selectedTipPercent=10, selectedService={type:'meson',label:'Venta Directa'};
+let currentUser=null, selectedStaff=null, cart=[], paymentOrderId=null, creditOrderId=null, selectedTipPercent=10, selectedService={type:'meson',label:'Venta Directa'}, employeeAccessLocked=false;
 let unsubscribers=[];
 const pendingUnplannedByDate=new Map();
 const attendanceEditingRows=new Set();
@@ -226,6 +235,26 @@ function updateCloseButtonByRole(){
   btn.textContent=roleIsManager()?'Cerrar día y descargar respaldo':'Cerrar día';
 }
 function showError(el,msg){el.textContent=msg;el.style.display=msg?'block':'none'}
+function setEmployeeShiftLock(locked,message='',detail=''){
+  employeeAccessLocked=Boolean(locked);
+  $('shiftLockOverlay').classList.toggle('hidden',!employeeAccessLocked);
+  if(message)$('shiftLockMessage').textContent=message;
+  $('shiftLockDetail').textContent=detail||'';
+  $('shiftLockDetail').classList.toggle('hidden',!detail);
+}
+async function validateEmployeeShiftAccess(){
+  if(roleIsManager())return {allowed:true};
+  const staffId=selectedStaff?.id||currentUser?.staffId;
+  if(!staffId)return {allowed:false,message:'Tu usuario no tiene una persona de staff asociada.',detail:'Solicita a un gerente que revise la configuración de tu cuenta.'};
+  const date=today();
+  const snap=await getDoc(doc(firestore,'staffSchedules',`${date}_${staffId}`));
+  if(!snap.exists()||snap.data().active===false)return {allowed:false,message:'No tienes un turno planificado para hoy.',detail:`Fecha: ${date}`};
+  const schedule={id:snap.id,...snap.data()};
+  const start=timeToMinutes(schedule.startTime),end=timeToMinutes(schedule.endTime),now=minutesNow();
+  if(start===null||end===null)return {allowed:false,message:'Tu turno de hoy tiene un horario inválido.',detail:'Solicita a un gerente que corrija la planificación.'};
+  if(now<start-30||now>end+30)return {allowed:false,message:'No estás dentro del horario habilitado para usar el sistema.',detail:`Tu turno de hoy es ${schedule.startTime}–${schedule.endTime}. El acceso considera 30 minutos de tolerancia antes y después.`};
+  return {allowed:true,schedule};
+}
 function friendlyAuthError(code){
   const map={
     'auth/invalid-credential':'Correo o contraseña incorrectos.',
@@ -281,10 +310,12 @@ $('forgotPasswordBtn').onclick=async()=>{
 };
 
 $('logoutBtn').onclick=()=>signOut(auth);
+$('shiftLockLogoutBtn').onclick=()=>signOut(auth);
 
 onAuthStateChanged(auth,async user=>{
   stopRealtime();
   currentUser=null;selectedStaff=null;
+  setEmployeeShiftLock(false);
   if(!user){
     $('loginOverlay').classList.remove('hidden');
     $('loginForm').classList.remove('hidden');
@@ -303,6 +334,11 @@ onAuthStateChanged(auth,async user=>{
     if(!roleIsManager())clearEmployeeLocalData();
     $('loginOverlay').classList.add('hidden');
     applyPermissions();
+    const access=await validateEmployeeShiftAccess();
+    if(!access.allowed){
+      setEmployeeShiftLock(true,access.message,access.detail);
+      return;
+    }
     if(roleIsManager())await seedProductsIfNeeded();
     startRealtime();
   }catch(err){
