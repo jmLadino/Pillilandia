@@ -20,7 +20,7 @@ h2,h3{margin:0 0 12px}label{display:block;font-size:.84rem;color:var(--muted);fo
 button{font:inherit}.btn{border:0;border-radius:9px;padding:10px 14px;font-weight:750;cursor:pointer}.primary{background:var(--brand2);color:#fff}.secondary{background:#d2e8ea;color:#12383c;border:1px solid #8db8bd}.danger{background:#fee4e2;color:var(--danger)}.success{background:#d9f6e8;color:var(--ok)}.outline{background:#fff;border:2px solid #8db8bd;color:#173c40}.btn:disabled{opacity:.45;cursor:not-allowed}
 .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.metric{padding:14px;border:2px solid #a3c8cc;border-radius:12px;background:#dff0f2}.metric b{display:block;font-size:1.4rem;margin-top:4px}.metric small{color:var(--muted)}
 .products{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.product{min-height:72px;text-align:left;border:2px solid #9fc2c6;background:#fff;border-radius:10px;padding:10px;cursor:pointer;box-shadow:0 2px 7px rgba(12,67,73,.08)}.product:hover{border-color:var(--brand)}.product b,.product span{display:block}.product span{color:var(--brand2);font-weight:700;margin-top:5px}.category{grid-column:1/-1;font-size:.95rem;color:#12383c;font-weight:900;margin-top:8px;background:#d4ecee;border-left:5px solid var(--brand2);padding:8px 10px;border-radius:8px}
-.cart-line,.order-card,.expense-line,.payment-line{border-bottom:1px solid var(--line);padding:10px 0}.cart-line:last-child,.expense-line:last-child,.payment-line:last-child{border-bottom:0}.cart-line{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}.qty{display:flex;align-items:center;gap:5px}.qty button{width:30px;height:30px;border:0;border-radius:7px;background:#e5eff0;font-weight:800}.money{font-weight:800;white-space:nowrap}.muted{color:var(--muted)}.tiny{font-size:.8rem}.total{font-size:1.25rem;font-weight:900;display:flex;justify-content:space-between;padding:12px 0}.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:.75rem;font-weight:800}.open{background:#fff1d6;color:var(--warning)}.closed{background:#d9f6e8;color:var(--ok)}.void{background:#fee4e2;color:var(--danger)}
+.cart-line,.order-card,.expense-line,.payment-line{border-bottom:1px solid var(--line);padding:10px 0}.cart-line:last-child,.expense-line:last-child,.payment-line:last-child{border-bottom:0}.cart-line{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}.qty{display:flex;align-items:center;gap:5px}.qty button{width:30px;height:30px;border:0;border-radius:7px;background:#e5eff0;font-weight:800}.money{font-weight:800;white-space:nowrap}.muted{color:var(--muted)}.tiny{font-size:.8rem}.total{font-size:1.25rem;font-weight:900;display:flex;justify-content:space-between;padding:12px 0}.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:.75rem;font-weight:800}.open{background:#fff1d6;color:var(--warning)}.closed{background:#d9f6e8;color:var(--ok)}.void{background:#fee4e2;color:var(--danger)}.badge.today{background:#dff0f2;color:var(--brand2)}.badge.success{background:#d9f6e8;color:var(--ok);box-shadow:0 0 0 2px rgba(5,102,58,.12)}
 .order-card{padding:13px;border:2px solid #a3c8cc;border-radius:12px;margin-bottom:10px;background:#fff;box-shadow:0 3px 10px rgba(12,67,73,.08)}.order-head{display:flex;justify-content:space-between;gap:10px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.empty{text-align:center;color:var(--muted);padding:25px}.notice{padding:10px 12px;border-radius:9px;background:#fff5d9;color:#6d4700;margin-bottom:10px}.oknotice{background:#daf5e8;color:#075d38}.dangernotice{background:#fee4e2;color:#8b1a12}
 table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{text-align:left;padding:9px;border-bottom:1px solid var(--line)}th{color:#173c40;background:#dff0f2;font-weight:850}.right{text-align:right}.hidden{display:none!important}
 
@@ -146,12 +146,10 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 <section id="products"><div class="card"><div class="notice">El stock de esta primera versión es por producto vendido (unidades). Para controlar ingredientes —leche, café, helado por sabor, vasos— se necesitará definir recetas y unidades de medida en una segunda etapa.</div><div class="row"><div><h2>Productos y stock simple</h2></div><div><button class="btn primary" id="newProductBtn">Agregar producto</button></div></div><div style="overflow:auto"><table><thead><tr><th>Producto</th><th>Categoría</th><th class="right">Precio</th><th class="right">Stock</th><th>Controla stock</th><th>Activo</th><th></th></tr></thead><tbody id="productTable"></tbody></table></div></div></section>
 
 <section id="backup"><div class="grid">
-<div class="card span-12"><h2>Apertura / Cierre del día</h2><div id="operationStatus"></div><div id="operationEligibility"></div><div class="actions"><button class="btn success" id="openDayBtn">Abrir día</button><button class="btn primary" id="exportBtn">Cerrar día y compartir respaldo</button></div></div>
+<div class="card span-12"><h2>Apertura / Cierre del día</h2><div id="operationStatus"></div><div id="operationEligibility"></div><div class="actions"><button class="btn success" id="openDayBtn">Abrir día</button><button class="btn primary" id="exportBtn">Cerrar día y descargar respaldo</button></div></div>
 <div class="card span-12"><h3>Resumen para el cierre</h3><div id="closeDaySummary"></div><div id="closeCreditNotice" class="notice hidden">Las cuentas pendientes validadas como fiado no impiden el cierre del día. Las cuentas abiertas normales deben cobrarse, anularse o ser autorizadas por un gerente como fiado.</div></div>
 </div></section>
 </div>
-
-<dialog id="closeBackupDialog"><div class="dialog-body"><div class="dialog-head"><h2 id="closeBackupTitle">Respaldo del cierre</h2><button class="x" id="closeBackupX" type="button">×</button></div><div id="closeBackupMessage" class="notice"></div><div id="closeBackupActions" class="actions"></div></div></dialog>
 
 <dialog id="paymentDialog"><div class="dialog-body"><div class="dialog-head"><h2>Registrar pago</h2><button class="x" onclick="paymentDialog.close()">×</button></div><div id="paymentOrderInfo"></div><div id="tipPicker" class="tip-picker"><label>Propina sugerida</label><div class="tip-options"><button type="button" class="tip-btn" data-tip="0">Sin propina</button><button type="button" class="tip-btn" data-tip="5">5%</button><button type="button" class="tip-btn" data-tip="10">10%</button><button type="button" class="tip-btn" data-tip="15">15%</button><button type="button" class="tip-btn" data-tip="20">20%</button></div><div id="tipHelp" class="muted tiny" style="margin-top:8px"></div></div><div class="row" style="margin-top:12px"><div><label>Medio de pago</label><select id="paymentMethod"><option>Efectivo</option><option>Débito</option><option>Crédito</option><option>Transferencia</option></select></div><div><label>Monto</label><input id="paymentAmount" type="number" min="1" step="1"></div></div><div class="actions"><button class="btn primary" id="addPaymentBtn">Agregar pago</button><button class="btn secondary" onclick="paymentDialog.close()">Cerrar</button></div><div id="paymentsExisting"></div></div></dialog>
 
@@ -561,19 +559,35 @@ function renderScheduleStaffChecks(){
   $('scheduleStaff').innerHTML=`<option value="">Seleccionar persona</option>`+state.staff.map(p=>`<option value="${esc(p.id)}">${esc(p.name)} · ${normalizeRole(p.role)==='gerente'?'Gerente':'Empleado'}</option>`).join('');
   if(state.staff.some(p=>p.id===currentValue))$('scheduleStaff').value=currentValue;
 }
+function scheduleDisplayState(schedule,currentDate,currentMinutes){
+  const date=String(schedule.date||'');
+  if(date<currentDate)return {key:'past',label:'Transcurrido',css:'closed',priority:3};
+  if(date>currentDate)return {key:'pending',label:'Pendiente',css:'open',priority:2};
+  const start=timeToMinutes(schedule.startTime),end=timeToMinutes(schedule.endTime);
+  if(start!==null&&end!==null&&currentMinutes>=start&&currentMinutes<=end)return {key:'active',label:'En turno',css:'success',priority:0};
+  return {key:'today',label:'Hoy',css:'today',priority:1};
+}
 function renderScheduleList(){
   if(!$('scheduleList'))return;
-  const month=$('scheduleMonth').value,currentDate=today();
+  const month=$('scheduleMonth').value,currentDate=today(),currentMinutes=minutesNow();
   const xs=state.schedules
     .filter(x=>x.month===month||String(x.date||'').startsWith(month))
+    .map(x=>({...x,_displayState:scheduleDisplayState(x,currentDate,currentMinutes)}))
     .sort((a,b)=>{
-      const aPending=String(a.date||'')>=currentDate,bPending=String(b.date||'')>=currentDate;
-      if(aPending!==bPending)return aPending?-1:1;
-      if(aPending)return (a.date+a.startTime+a.staffName).localeCompare(b.date+b.startTime+b.staffName);
-      return (b.date+b.startTime+b.staffName).localeCompare(a.date+a.startTime+a.staffName);
+      if(a._displayState.priority!==b._displayState.priority)return a._displayState.priority-b._displayState.priority;
+      if(a._displayState.key==='past')return (b.date+b.startTime+b.staffName).localeCompare(a.date+a.startTime+a.staffName);
+      return (a.date+a.startTime+a.staffName).localeCompare(b.date+b.startTime+b.staffName);
     });
-  const pendingCount=xs.filter(x=>String(x.date||'')>=currentDate).length;
-  $('scheduleList').innerHTML=xs.length?`<div class="tiny muted" style="margin-bottom:8px"><b>${pendingCount}</b> turno(s) pendiente(s) · <b>${xs.length-pendingCount}</b> turno(s) transcurrido(s)</div><div style="overflow:auto"><table><thead><tr><th>Estado</th><th>Fecha</th><th>Persona</th><th>Rol</th><th>Horario</th><th></th></tr></thead><tbody>${xs.map(x=>{const pending=String(x.date||'')>=currentDate;return `<tr><td><span class="badge ${pending?'open':'closed'}">${pending?'Pendiente':'Transcurrido'}</span></td><td>${esc(x.date)}</td><td>${esc(x.staffName)}</td><td>${normalizeRole(x.role)==='gerente'?'Gerente':'Empleado'}</td><td>${esc(x.startTime)}–${esc(x.endTime)}</td><td><button class="btn danger tiny" onclick="deleteSchedule('${x.id}')">Eliminar</button></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Sin turnos planificados para este mes</div>';
+  const activeCount=xs.filter(x=>x._displayState.key==='active').length;
+  const todayCount=xs.filter(x=>x._displayState.key==='today').length;
+  const pendingCount=xs.filter(x=>['active','today','pending'].includes(x._displayState.key)).length;
+  const summary=[
+    activeCount?`<b>${activeCount}</b> en turno`:null,
+    todayCount?`<b>${todayCount}</b> de hoy`:null,
+    `<b>${pendingCount}</b> pendiente(s)`,
+    `<b>${xs.length-pendingCount}</b> transcurrido(s)`
+  ].filter(Boolean).join(' · ');
+  $('scheduleList').innerHTML=xs.length?`<div class="tiny muted" style="margin-bottom:8px">${summary}</div><div style="overflow:auto"><table><thead><tr><th>Estado</th><th>Fecha</th><th>Persona</th><th>Rol</th><th>Horario</th><th></th></tr></thead><tbody>${xs.map(x=>`<tr><td><span class="badge ${x._displayState.css}">${x._displayState.label}</span></td><td>${esc(x.date)}</td><td>${esc(x.staffName)}</td><td>${normalizeRole(x.role)==='gerente'?'Gerente':'Empleado'}</td><td>${esc(x.startTime)}–${esc(x.endTime)}</td><td><button class="btn danger tiny" onclick="deleteSchedule('${x.id}')">Eliminar</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sin turnos planificados para este mes</div>';
 }
 window.deleteSchedule=async id=>{if(!roleIsManager()||!confirm('¿Eliminar este turno planificado?'))return;await deleteDoc(doc(firestore,'staffSchedules',id))};
 function datesInRangeSkippingSaturdays(fromDate,toDate){
@@ -720,150 +734,13 @@ function renderOperation(){
   $('openDayBtn').disabled=op?.status==='open'||op?.status==='closed'||!eligible;$('exportBtn').disabled=op?.status!=='open'||!eligible;updateAccessState();
 }
 $('openDayBtn').onclick=async()=>{if(getTodayOperation()?.status)return alert('El día ya fue abierto o cerrado.');if(!employeeWithinSchedule())return alert('No estás dentro del horario habilitado para realizar la apertura.');await setDoc(doc(firestore,'dailyOperations',today()),{businessDate:today(),status:'open',openedAt:nowIso(),openedByUid:currentUser.uid,openedByName:selectedStaff?.name||currentUser.name,openedByStaffId:selectedStaff?.id||currentUser.staffId||null,...auditFields()},{merge:true});switchTab('sale')};
-let pendingCloseBackup=null;
-function closeBackupFileName(date){
-  const stamp=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:state.settings.timeZone||'America/Santiago'}).replace(':','-');
-  return `Pillilandia_Respaldo_${date}_${stamp}.json.txt`;
-}
-function buildCloseBackup(date){
-  const generatedAt=nowIso();
-  const payload={
-    metadata:{version:'3.12.3',system:'Pillilandia POS',business:state.settings.businessName||'Pillilandia',businessDate:date,generatedAt,closedBy:selectedStaff?.name||currentUser.name||currentUser.email,firebaseProject:'pillilandia-pos'},
-    settings:state.settings,
-    products:state.products,
-    orders:state.orders,
-    expenses:state.expenses,
-    dailyClosures:state.closures,
-    dailyOperations:state.operations
-  };
-  const file=new File([JSON.stringify(payload,null,2)],closeBackupFileName(date),{type:'text/plain;charset=utf-8'});
-  return {date,generatedAt,payload,file};
-}
-function downloadCloseBackup(file){
-  const url=URL.createObjectURL(file),a=document.createElement('a');
-  a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
-}
-function showCloseBackupDialog(title,message,actions){
-  $('closeBackupTitle').textContent=title;
-  $('closeBackupMessage').innerHTML=message;
-  $('closeBackupActions').innerHTML=actions.map((a,i)=>`<button type="button" class="btn ${a.className||'secondary'}" data-close-action="${i}">${esc(a.label)}</button>`).join('');
-  $('closeBackupActions').querySelectorAll('[data-close-action]').forEach((btn,i)=>btn.onclick=actions[i].onClick);
-  $('closeBackupDialog').showModal();
-}
-async function finalizeCloseDay(){
-  if(!pendingCloseBackup)return;
-  const {date,generatedAt}=pendingCloseBackup;
-  const open=state.orders.filter(o=>o.status==='open'&&!o.onCredit);
-  if(open.length){$('closeBackupDialog').close();return alert('Aparecieron cuentas abiertas antes de finalizar. Revisa nuevamente el cierre.');}
-  const payments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate===date));
-  const batch=writeBatch(firestore);
-  batch.set(doc(firestore,'dailyOperations',date),{businessDate:date,status:'closed',closedAt:generatedAt,closedByUid:currentUser.uid,closedByName:selectedStaff?.name||currentUser.name,closedByStaffId:selectedStaff?.id||currentUser.staffId||null,...auditFields()},{merge:true});
-  batch.set(doc(firestore,'dailyClosures',date),{businessDate:date,closedAt:generatedAt,salesTotal:payments.reduce((s,p)=>s+Number(p.amount),0),openOrderCount:0,creditOrderCount:state.orders.filter(o=>(o.status==='credit'||o.onCredit===true)&&o.status!=='closed'&&o.status!=='void').length,backupFileName:pendingCloseBackup.file.name,backupMethod:pendingCloseBackup.method,...actorFields(),...auditFields()},{merge:true});
-  await batch.commit();
-  pendingCloseBackup=null;$('closeBackupDialog').close();switchTab('dashboard');alert('Día cerrado correctamente.');
-}
-function freshBackupFile(backup){
-  return new File([JSON.stringify(backup.payload,null,2)],backup.file.name,{type:'text/plain;charset=utf-8'});
-}
-function cancelCloseBackup(){
-  if($('closeBackupDialog').open)$('closeBackupDialog').close();
-  pendingCloseBackup=null;
-}
-function canShareBackupFile(backup){
-  try{
-    const file=freshBackupFile(backup);
-    return typeof navigator.share==='function'&&typeof navigator.canShare==='function'&&navigator.canShare({files:[file]});
-  }catch(err){
-    console.warn('No fue posible validar Web Share:',err);
-    return false;
-  }
-}
-function showBackupReadyDialog(){
-  if(!pendingCloseBackup)return;
-  const backup=pendingCloseBackup;
-  if(canShareBackupFile(backup)){
-    showCloseBackupDialog('Respaldo listo','El respaldo ya fue preparado en un formato compatible con Android.<br><br>El archivo conserva contenido JSON y se comparte como texto para evitar el bloqueo de Chrome. Presiona <b>Compartir respaldo</b> y selecciona WhatsApp u otra aplicación.',[
-      {label:'Compartir respaldo',className:'primary',onClick:sharePreparedBackupDirect},
-      {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
-    ]);
-  }else{
-    backup.method='download';
-    showCloseBackupDialog('Compartir no disponible','Este navegador no permite compartir archivos directamente. La descarga se habilita únicamente como alternativa.',[
-      {label:'Descargar respaldo',className:'primary',onClick:downloadPreparedBackup},
-      {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
-    ]);
-  }
-}
-function downloadPreparedBackup(){
-  if(!pendingCloseBackup)return;
-  pendingCloseBackup.method='download';
-  downloadCloseBackup(freshBackupFile(pendingCloseBackup));
-  showCloseBackupDialog('Respaldo descargado','¿Confirmas que el archivo quedó guardado correctamente?',[
-    {label:'Finalizar cierre',className:'primary',onClick:finalizeCloseDay},
-    {label:'Descargar nuevamente',className:'secondary',onClick:downloadPreparedBackup},
-    {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
-  ]);
-}
-function sharePreparedBackupDirect(){
-  // Esta función se ejecuta directamente desde el clic del usuario.
-  if(!pendingCloseBackup)return;
-  const backup=pendingCloseBackup;
-  const file=freshBackupFile(backup);
-  if(!canShareBackupFile(backup)){
-    showBackupReadyDialog();
-    return;
-  }
-  // Cerrar el diálogo antes de abrir el selector nativo evita interferencias en Chrome Android.
-  if($('closeBackupDialog').open)$('closeBackupDialog').close();
-  navigator.share({
-    title:`Cierre Pillilandia ${backup.date}`,
-    text:`Respaldo del cierre de Pillilandia correspondiente al ${backup.date}.`,
-    files:[file]
-  }).then(()=>{
-    backup.method='shared';
-    showCloseBackupDialog('Confirmar cierre','El selector de compartir terminó correctamente.<br><br><b>¿Confirmas que el respaldo fue compartido?</b>',[
-      {label:'Sí, finalizar cierre',className:'primary',onClick:finalizeCloseDay},
-      {label:'Compartir nuevamente',className:'secondary',onClick:sharePreparedBackupDirect},
-      {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
-    ]);
-  }).catch(err=>{
-    console.error('Error al compartir respaldo:',err);
-    if(err?.name==='AbortError'){
-      showCloseBackupDialog('Compartir cancelado','No se cerró el día. Puedes volver a abrir el selector de compartir.',[
-        {label:'Compartir respaldo',className:'primary',onClick:sharePreparedBackupDirect},
-        {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
-      ]);
-      return;
-    }
-    if(['NotSupportedError','TypeError','NotAllowedError'].includes(err?.name)){
-      backup.method='download';
-      showCloseBackupDialog('Compartir no disponible',`Chrome rechazó el envío del archivo (${esc(err?.name||'Error')}). La descarga se habilita únicamente como alternativa.`,[
-        {label:'Descargar respaldo',className:'primary',onClick:downloadPreparedBackup},
-        {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
-      ]);
-      return;
-    }
-    showCloseBackupDialog('No fue posible compartir',`Chrome informó: <b>${esc(err?.name||'Error')}</b><br><span class="tiny muted">${esc(err?.message||'Sin detalle adicional')}</span>`,[
-      {label:'Reintentar compartir',className:'primary',onClick:sharePreparedBackupDirect},
-      {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
-    ]);
-  });
-}
-$('closeBackupX').onclick=cancelCloseBackup;
-$('exportBtn').onclick=()=>{
-  if(!isDayOpen())return alert('El día no está abierto.');
-  if(!employeeWithinSchedule())return alert('No estás dentro del horario habilitado para realizar el cierre.');
-  const d=today(),open=state.orders.filter(o=>o.status==='open'&&!o.onCredit);
-  if(open.length)return alert(`No se puede cerrar el día. Existen ${open.length} cuenta(s) abierta(s) normal(es). Debes cobrarlas, anularlas o solicitar a un gerente que las autorice como fiado.`);
-  pendingCloseBackup=buildCloseBackup(d);
-  showBackupReadyDialog();
-};
+$('exportBtn').onclick=async()=>{if(!isDayOpen())return alert('El día no está abierto.');if(!employeeWithinSchedule())return alert('No estás dentro del horario habilitado para realizar el cierre.');const d=today(),open=state.orders.filter(o=>o.status==='open'&&!o.onCredit);if(open.length)return alert(`No se puede cerrar el día. Existen ${open.length} cuenta(s) abierta(s) normal(es). Debes cobrarlas, anularlas o solicitar a un gerente que las autorice como fiado.`);const payments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate===d));const batch=writeBatch(firestore);batch.set(doc(firestore,'dailyOperations',d),{businessDate:d,status:'closed',closedAt:nowIso(),closedByUid:currentUser.uid,closedByName:selectedStaff?.name||currentUser.name,closedByStaffId:selectedStaff?.id||currentUser.staffId||null,...auditFields()},{merge:true});batch.set(doc(firestore,'dailyClosures',d),{businessDate:d,closedAt:nowIso(),salesTotal:payments.reduce((s,p)=>s+Number(p.amount),0),openOrderCount:open.length,creditOrderCount:state.orders.filter(o=>(o.status==='credit'||o.onCredit===true)&&o.status!=='closed'&&o.status!=='void').length,...actorFields(),...auditFields()},{merge:true});await batch.commit();const data={exportedAt:nowIso(),settings:state.settings,products:state.products,orders:state.orders,expenses:state.expenses,dailyClosures:state.closures,dailyOperations:state.operations,staffSchedules:state.schedules,attendance:state.attendance};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`pillilandia-cierre-${d}.json`;a.click();URL.revokeObjectURL(a.href);switchTab('dashboard')};
 if($('importBtn'))$('importBtn').onclick=()=>alert('La restauración directa está deshabilitada en la versión online para evitar reemplazar accidentalmente Firestore. El archivo JSON queda disponible como respaldo para una restauración administrada.');
 if($('eraseBtn'))$('eraseBtn').onclick=()=>alert('El borrado masivo está deshabilitado en la versión online por seguridad.');
 function renderStorageInfo(){$('storageInfo').innerHTML=`<p><b>Modo:</b> Firebase / Firestore</p><p><b>Sincronización:</b> automática entre dispositivos</p><p><b>Persistencia local:</b> activada para funcionamiento temporal sin Internet</p><p class="muted">Los cambios pendientes se sincronizan cuando vuelve la conexión.</p>`}
 function updateHeaderClock(){const now=new Date();$('headerDate').textContent=now.toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase());$('headerTime').textContent=now.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});const op=getTodayOperation();const closed=op?.status==='closed',opened=op?.status==='open';$('cashStatus').classList.toggle('closed-day',closed||!opened);$('cashStatus').querySelector('span:last-child').textContent=closed?'Día cerrado':opened?'Día abierto':'Día sin abrir'}
 setInterval(updateHeaderClock,1000);
+setInterval(()=>{if(document.querySelector('section#calendar.active'))renderScheduleList()},60000);
 function renderAll(){renderServiceButtons();renderProductButtons();renderCart();renderOrders();renderExpenses();renderProductTable();renderDashboard();renderMonthly();renderCloseDay();renderScheduleStaffChecks();renderScheduleList();renderAttendance();renderOperation();renderStorageInfo();updateAccessState();updateHeaderClock()}
 $('reportDate').value=today();$('expenseDate').value=today();$('expenseFilterDate').value=today();$('monthlyPeriod').value=today().slice(0,7);$('scheduleMonth').value=today().slice(0,7);$('scheduleDateFrom').value=today();$('scheduleDateTo').value=today();$('attendanceDate').value=today();$('expenseCategory').innerHTML=expenseCats.map(x=>`<option>${x}</option>`).join('');renderAll();applyPermissions();
 </script>
