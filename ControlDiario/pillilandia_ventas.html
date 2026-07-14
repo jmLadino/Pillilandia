@@ -723,12 +723,12 @@ $('openDayBtn').onclick=async()=>{if(getTodayOperation()?.status)return alert('E
 let pendingCloseBackup=null;
 function closeBackupFileName(date){
   const stamp=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:state.settings.timeZone||'America/Santiago'}).replace(':','-');
-  return `Pillilandia_Respaldo_${date}_${stamp}.json`;
+  return `Pillilandia_Respaldo_${date}_${stamp}.json.txt`;
 }
 function buildCloseBackup(date){
   const generatedAt=nowIso();
   const payload={
-    metadata:{version:'3.12.2',system:'Pillilandia POS',business:state.settings.businessName||'Pillilandia',businessDate:date,generatedAt,closedBy:selectedStaff?.name||currentUser.name||currentUser.email,firebaseProject:'pillilandia-pos'},
+    metadata:{version:'3.12.3',system:'Pillilandia POS',business:state.settings.businessName||'Pillilandia',businessDate:date,generatedAt,closedBy:selectedStaff?.name||currentUser.name||currentUser.email,firebaseProject:'pillilandia-pos'},
     settings:state.settings,
     products:state.products,
     orders:state.orders,
@@ -736,7 +736,7 @@ function buildCloseBackup(date){
     dailyClosures:state.closures,
     dailyOperations:state.operations
   };
-  const file=new File([JSON.stringify(payload,null,2)],closeBackupFileName(date),{type:'application/json'});
+  const file=new File([JSON.stringify(payload,null,2)],closeBackupFileName(date),{type:'text/plain;charset=utf-8'});
   return {date,generatedAt,payload,file};
 }
 function downloadCloseBackup(file){
@@ -764,7 +764,7 @@ async function finalizeCloseDay(){
   pendingCloseBackup=null;$('closeBackupDialog').close();switchTab('dashboard');alert('Día cerrado correctamente.');
 }
 function freshBackupFile(backup){
-  return new File([JSON.stringify(backup.payload,null,2)],backup.file.name,{type:'application/json'});
+  return new File([JSON.stringify(backup.payload,null,2)],backup.file.name,{type:'text/plain;charset=utf-8'});
 }
 function cancelCloseBackup(){
   if($('closeBackupDialog').open)$('closeBackupDialog').close();
@@ -783,7 +783,7 @@ function showBackupReadyDialog(){
   if(!pendingCloseBackup)return;
   const backup=pendingCloseBackup;
   if(canShareBackupFile(backup)){
-    showCloseBackupDialog('Respaldo listo','El respaldo ya fue preparado.<br><br>Presiona <b>Compartir respaldo</b> y selecciona WhatsApp u otra aplicación.',[
+    showCloseBackupDialog('Respaldo listo','El respaldo ya fue preparado en un formato compatible con Android.<br><br>El archivo conserva contenido JSON y se comparte como texto para evitar el bloqueo de Chrome. Presiona <b>Compartir respaldo</b> y selecciona WhatsApp u otra aplicación.',[
       {label:'Compartir respaldo',className:'primary',onClick:sharePreparedBackupDirect},
       {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
     ]);
@@ -836,9 +836,9 @@ function sharePreparedBackupDirect(){
       ]);
       return;
     }
-    if(['NotSupportedError','TypeError'].includes(err?.name)){
+    if(['NotSupportedError','TypeError','NotAllowedError'].includes(err?.name)){
       backup.method='download';
-      showCloseBackupDialog('Compartir no disponible','El navegador rechazó el envío de este tipo de archivo. La descarga se habilita como alternativa.',[
+      showCloseBackupDialog('Compartir no disponible',`Chrome rechazó el envío del archivo (${esc(err?.name||'Error')}). La descarga se habilita únicamente como alternativa.`,[
         {label:'Descargar respaldo',className:'primary',onClick:downloadPreparedBackup},
         {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
       ]);
