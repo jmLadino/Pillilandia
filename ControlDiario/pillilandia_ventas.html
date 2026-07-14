@@ -157,6 +157,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 
 <dialog id="productDialog"><div class="dialog-body"><div class="dialog-head"><h2 id="productDialogTitle">Producto</h2><button class="x" onclick="productDialog.close()">×</button></div><input id="editProductId" type="hidden"><label>Nombre</label><input id="editProductName"><div class="row" style="margin-top:10px"><div><label>Categoría</label><input id="editProductCategory"></div><div><label>Precio</label><input id="editProductPrice" type="number" min="0"></div></div><div class="row" style="margin-top:10px"><div><label>Stock actual</label><input id="editProductStock" type="number" step="1"></div><div><label>Control de stock</label><select id="editProductTrack"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Activo</label><select id="editProductActive"><option value="true">Sí</option><option value="false">No</option></select></div></div><button class="btn primary" style="margin-top:12px" id="saveProductBtn">Guardar producto</button></div></dialog>
 
+<!-- Versión 3.13: cierre diferenciado por rol y limpieza local para empleados -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import {
@@ -209,6 +210,20 @@ let attendanceNoticeTimer=null;
 
 function roleIsManager(){return currentUser?.role==='gerente'||currentUser?.role==='manager'}
 function normalizeRole(r){r=String(r||'').toLowerCase();return r==='gerente'||r==='manager'?'gerente':'empleado'}
+function clearEmployeeLocalData(){
+  try{localStorage.clear();}catch(err){console.warn('No fue posible limpiar localStorage:',err);}
+  try{sessionStorage.clear();}catch(err){console.warn('No fue posible limpiar sessionStorage:',err);}
+  cart=[];
+  paymentOrderId=null;
+  creditOrderId=null;
+  selectedTipPercent=10;
+  selectedService={type:'meson',label:'Venta Directa'};
+}
+function updateCloseButtonByRole(){
+  const btn=$('exportBtn');
+  if(!btn)return;
+  btn.textContent=roleIsManager()?'Cerrar día y descargar respaldo':'Cerrar día';
+}
 function showError(el,msg){el.textContent=msg;el.style.display=msg?'block':'none'}
 function friendlyAuthError(code){
   const map={
@@ -227,6 +242,7 @@ function applyPermissions(){
   document.querySelectorAll('.manager-only').forEach(el=>el.classList.toggle('role-hidden',!manager));
   $('userArea').classList.toggle('hidden',!currentUser);
   $('currentUserChip').textContent=currentUser?(selectedStaff?.name||currentUser.name||currentUser.email||'Usuario'):'';
+  updateCloseButtonByRole();
   if(!manager&&['calendar','expenses','monthly','products'].includes(document.querySelector('section.active')?.id))switchTab(isDayOpen()?'sale':'backup');
   updateAccessState();
 }
@@ -283,6 +299,7 @@ onAuthStateChanged(auth,async user=>{
     const profile=userSnap.data();
     currentUser={uid:user.uid,email:user.email,name:profile.name||user.email,role:normalizeRole(profile.role),staffId:profile.staffId||null};
     selectedStaff=await resolveStaff(profile);
+    if(!roleIsManager())clearEmployeeLocalData();
     $('loginOverlay').classList.add('hidden');
     applyPermissions();
     if(roleIsManager())await seedProductsIfNeeded();
@@ -734,10 +751,72 @@ function renderOperation(){
   $('openDayBtn').disabled=op?.status==='open'||op?.status==='closed'||!eligible;$('exportBtn').disabled=op?.status!=='open'||!eligible;updateAccessState();
 }
 $('openDayBtn').onclick=async()=>{if(getTodayOperation()?.status)return alert('El día ya fue abierto o cerrado.');if(!employeeWithinSchedule())return alert('No estás dentro del horario habilitado para realizar la apertura.');await setDoc(doc(firestore,'dailyOperations',today()),{businessDate:today(),status:'open',openedAt:nowIso(),openedByUid:currentUser.uid,openedByName:selectedStaff?.name||currentUser.name,openedByStaffId:selectedStaff?.id||currentUser.staffId||null,...auditFields()},{merge:true});switchTab('sale')};
-$('exportBtn').onclick=async()=>{if(!isDayOpen())return alert('El día no está abierto.');if(!employeeWithinSchedule())return alert('No estás dentro del horario habilitado para realizar el cierre.');const d=today(),open=state.orders.filter(o=>o.status==='open'&&!o.onCredit);if(open.length)return alert(`No se puede cerrar el día. Existen ${open.length} cuenta(s) abierta(s) normal(es). Debes cobrarlas, anularlas o solicitar a un gerente que las autorice como fiado.`);const payments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate===d));const batch=writeBatch(firestore);batch.set(doc(firestore,'dailyOperations',d),{businessDate:d,status:'closed',closedAt:nowIso(),closedByUid:currentUser.uid,closedByName:selectedStaff?.name||currentUser.name,closedByStaffId:selectedStaff?.id||currentUser.staffId||null,...auditFields()},{merge:true});batch.set(doc(firestore,'dailyClosures',d),{businessDate:d,closedAt:nowIso(),salesTotal:payments.reduce((s,p)=>s+Number(p.amount),0),openOrderCount:open.length,creditOrderCount:state.orders.filter(o=>(o.status==='credit'||o.onCredit===true)&&o.status!=='closed'&&o.status!=='void').length,...actorFields(),...auditFields()},{merge:true});await batch.commit();const data={exportedAt:nowIso(),settings:state.settings,products:state.products,orders:state.orders,expenses:state.expenses,dailyClosures:state.closures,dailyOperations:state.operations,staffSchedules:state.schedules,attendance:state.attendance};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`pillilandia-cierre-${d}.json`;a.click();URL.revokeObjectURL(a.href);switchTab('dashboard')};
+$('exportBtn').onclick=async()=>{
+  if(!isDayOpen())return alert('El día no está abierto.');
+  if(!employeeWithinSchedule())return alert('No estás dentro del horario habilitado para realizar el cierre.');
+  const d=today();
+  const open=state.orders.filter(o=>o.status==='open'&&!o.onCredit);
+  if(open.length)return alert(`No se puede cerrar el día. Existen ${open.length} cuenta(s) abierta(s) normal(es). Debes cobrarlas, anularlas o solicitar a un gerente que las autorice como fiado.`);
+  const payments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate===d));
+  const closureData={
+    businessDate:d,
+    closedAt:nowIso(),
+    salesTotal:payments.reduce((s,p)=>s+Number(p.amount),0),
+    openOrderCount:open.length,
+    creditOrderCount:state.orders.filter(o=>(o.status==='credit'||o.onCredit===true)&&o.status!=='closed'&&o.status!=='void').length,
+    closedByRole:roleIsManager()?'gerente':'empleado',
+    backupExported:roleIsManager(),
+    ...actorFields(),
+    ...auditFields()
+  };
+  const batch=writeBatch(firestore);
+  batch.set(doc(firestore,'dailyOperations',d),{
+    businessDate:d,
+    status:'closed',
+    closedAt:closureData.closedAt,
+    closedByUid:currentUser.uid,
+    closedByName:selectedStaff?.name||currentUser.name,
+    closedByStaffId:selectedStaff?.id||currentUser.staffId||null,
+    closedByRole:closureData.closedByRole,
+    ...auditFields()
+  },{merge:true});
+  batch.set(doc(firestore,'dailyClosures',d),closureData,{merge:true});
+  await batch.commit();
+
+  if(roleIsManager()){
+    const data={
+      exportedAt:nowIso(),
+      settings:state.settings,
+      products:state.products,
+      orders:state.orders,
+      expenses:state.expenses,
+      dailyClosures:state.closures,
+      dailyOperations:state.operations,
+      staffSchedules:state.schedules,
+      attendance:state.attendance
+    };
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`pillilandia-cierre-${d}.json`;
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    alert('Día cerrado correctamente. Se descargó el respaldo JSON.');
+  }else{
+    clearEmployeeLocalData();
+    renderCart();
+    alert('Día cerrado correctamente.');
+  }
+  switchTab('dashboard');
+};
 if($('importBtn'))$('importBtn').onclick=()=>alert('La restauración directa está deshabilitada en la versión online para evitar reemplazar accidentalmente Firestore. El archivo JSON queda disponible como respaldo para una restauración administrada.');
 if($('eraseBtn'))$('eraseBtn').onclick=()=>alert('El borrado masivo está deshabilitado en la versión online por seguridad.');
-function renderStorageInfo(){$('storageInfo').innerHTML=`<p><b>Modo:</b> Firebase / Firestore</p><p><b>Sincronización:</b> automática entre dispositivos</p><p><b>Persistencia local:</b> activada para funcionamiento temporal sin Internet</p><p class="muted">Los cambios pendientes se sincronizan cuando vuelve la conexión.</p>`}
+function renderStorageInfo(){
+  if(!$('storageInfo'))return;
+  $('storageInfo').innerHTML=roleIsManager()
+    ?`<p><b>Modo:</b> Firebase / Firestore</p><p><b>Respaldo JSON:</b> disponible para gerentes al cerrar el día</p>`
+    :`<p><b>Modo:</b> Firebase / Firestore</p><p><b>Respaldo JSON:</b> no disponible para empleados</p><p class="muted">Los datos locales de sesión se limpian al ingresar y al cerrar el día.</p>`;
+}
 function updateHeaderClock(){const now=new Date();$('headerDate').textContent=now.toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase());$('headerTime').textContent=now.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});const op=getTodayOperation();const closed=op?.status==='closed',opened=op?.status==='open';$('cashStatus').classList.toggle('closed-day',closed||!opened);$('cashStatus').querySelector('span:last-child').textContent=closed?'Día cerrado':opened?'Día abierto':'Día sin abrir'}
 setInterval(updateHeaderClock,1000);
 setInterval(()=>{if(document.querySelector('section#calendar.active'))renderScheduleList()},60000);
