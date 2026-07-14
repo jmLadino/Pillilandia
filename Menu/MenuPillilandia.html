@@ -130,7 +130,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB7tJDP1ZtUwrERX1IN8Ab9brtSeWjUdFU",
@@ -178,8 +178,7 @@
       lastUpdate.textContent=latest?`Menú actualizado: ${latest.toLocaleDateString('es-CL')}`:'Menú sincronizado con Pillilandia';
     }
 
-    const productsQuery=query(collection(db,'products'),orderBy('displayOrder','asc'));
-    onSnapshot(productsQuery,snapshot=>{
+    onSnapshot(collection(db,'products'),snapshot=>{
       renderMenu(snapshot.docs.map(doc=>({id:doc.id,...doc.data()})));
     },error=>{
       console.error(error);
