@@ -728,7 +728,7 @@ function closeBackupFileName(date){
 function buildCloseBackup(date){
   const generatedAt=nowIso();
   const payload={
-    metadata:{version:'3.12',system:'Pillilandia POS',business:state.settings.businessName||'Pillilandia',businessDate:date,generatedAt,closedBy:selectedStaff?.name||currentUser.name||currentUser.email,firebaseProject:'pillilandia-pos'},
+    metadata:{version:'3.12.1',system:'Pillilandia POS',business:state.settings.businessName||'Pillilandia',businessDate:date,generatedAt,closedBy:selectedStaff?.name||currentUser.name||currentUser.email,firebaseProject:'pillilandia-pos'},
     settings:state.settings,
     products:state.products,
     orders:state.orders,
@@ -763,50 +763,78 @@ async function finalizeCloseDay(){
   await batch.commit();
   pendingCloseBackup=null;$('closeBackupDialog').close();switchTab('dashboard');alert('Día cerrado correctamente.');
 }
-async function retryShareBackup(){
-  $('closeBackupDialog').close();
-  await shareOrDownloadCloseBackup(pendingCloseBackup);
+function freshBackupFile(backup){
+  return new File([JSON.stringify(backup.payload,null,2)],backup.file.name,{type:'application/json'});
 }
-async function shareOrDownloadCloseBackup(backup){
+function cancelCloseBackup(){
+  if($('closeBackupDialog').open)$('closeBackupDialog').close();
+  pendingCloseBackup=null;
+}
+function showShareCancelled(){
+  showCloseBackupDialog('Respaldo no compartido','El cierre sigue abierto porque no se confirmó el envío del respaldo.',[
+    {label:'Volver a compartir',className:'primary',onClick:retryShareBackup},
+    {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
+  ]);
+}
+function retryShareBackup(){
+  // Debe ejecutarse directamente desde el clic para conservar la activación del usuario en Chrome Android.
+  if(!pendingCloseBackup)return;
+  shareBackupNow(pendingCloseBackup);
+}
+function shareBackupNow(backup){
   pendingCloseBackup=backup;
-  const shareSupported=typeof navigator.share==='function'&&typeof navigator.canShare==='function'&&navigator.canShare({files:[backup.file]});
-  if(shareSupported){
-    try{
-      await navigator.share({title:`Cierre Pillilandia ${backup.date}`,text:`Respaldo del cierre de Pillilandia correspondiente al ${backup.date}.`,files:[backup.file]});
+  const file=freshBackupFile(backup);
+  let shareSupported=false;
+  try{
+    shareSupported=typeof navigator.share==='function'&&typeof navigator.canShare==='function'&&navigator.canShare({files:[file]});
+  }catch(err){console.warn('No fue posible validar Web Share:',err)}
+  if(!shareSupported){
+    backup.method='download';
+    downloadCloseBackup(file);
+    showCloseBackupDialog('Respaldo descargado','Este dispositivo no permite compartir archivos directamente, por lo que se descargó el respaldo como alternativa.<br><br><b>¿Confirmas que el archivo quedó guardado?</b>',[
+      {label:'Finalizar cierre',className:'primary',onClick:finalizeCloseDay},
+      {label:'Descargar nuevamente',className:'secondary',onClick:()=>downloadCloseBackup(freshBackupFile(backup))},
+      {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
+    ]);
+    return;
+  }
+  navigator.share({title:`Cierre Pillilandia ${backup.date}`,text:`Respaldo del cierre de Pillilandia correspondiente al ${backup.date}.`,files:[file]})
+    .then(()=>{
       backup.method='shared';
       showCloseBackupDialog('Confirmar cierre','El menú de compartir se ejecutó correctamente.<br><br><b>¿Confirmas que el respaldo fue compartido?</b>',[
         {label:'Sí, finalizar cierre',className:'primary',onClick:finalizeCloseDay},
         {label:'Volver a compartir',className:'secondary',onClick:retryShareBackup},
-        {label:'Cancelar cierre',className:'danger',onClick:()=>{$('closeBackupDialog').close();pendingCloseBackup=null;}}
+        {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
       ]);
-      return;
-    }catch(err){
+    })
+    .catch(err=>{
       if(err?.name==='AbortError'||err?.name==='NotAllowedError'){
-        showCloseBackupDialog('Respaldo no compartido','El cierre sigue abierto porque no se confirmó el envío del respaldo.',[
-          {label:'Volver a compartir',className:'primary',onClick:retryShareBackup},
-          {label:'Cancelar cierre',className:'danger',onClick:()=>{$('closeBackupDialog').close();pendingCloseBackup=null;}}
+        showShareCancelled();
+        return;
+      }
+      if(['NotSupportedError','TypeError'].includes(err?.name)){
+        backup.method='download';
+        const fallbackFile=freshBackupFile(backup);
+        downloadCloseBackup(fallbackFile);
+        showCloseBackupDialog('Respaldo descargado','No fue posible compartir archivos desde este navegador, por lo que se descargó el respaldo como alternativa.<br><br><b>¿Confirmas que el archivo quedó guardado?</b>',[
+          {label:'Finalizar cierre',className:'primary',onClick:finalizeCloseDay},
+          {label:'Descargar nuevamente',className:'secondary',onClick:()=>downloadCloseBackup(freshBackupFile(backup))},
+          {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
         ]);
         return;
       }
-      if(!['NotSupportedError','TypeError'].includes(err?.name)){
-        console.error(err);
-        showCloseBackupDialog('No fue posible compartir','Ocurrió un error al abrir el menú de compartir. El cierre continúa abierto.',[
-          {label:'Reintentar',className:'primary',onClick:retryShareBackup},
-          {label:'Cancelar cierre',className:'danger',onClick:()=>{$('closeBackupDialog').close();pendingCloseBackup=null;}}
-        ]);
-        return;
-      }
-    }
-  }
-  backup.method='download';
-  downloadCloseBackup(backup.file);
-  showCloseBackupDialog('Respaldo descargado','Este dispositivo no permite compartir archivos directamente, por lo que se descargó el respaldo como alternativa.<br><br><b>¿Confirmas que el archivo quedó guardado?</b>',[
-    {label:'Finalizar cierre',className:'primary',onClick:finalizeCloseDay},
-    {label:'Descargar nuevamente',className:'secondary',onClick:()=>downloadCloseBackup(backup.file)},
-    {label:'Cancelar cierre',className:'danger',onClick:()=>{$('closeBackupDialog').close();pendingCloseBackup=null;}}
-  ]);
+      console.error(err);
+      showCloseBackupDialog('No fue posible compartir',`Ocurrió un error al abrir el menú de compartir.<br><span class="tiny muted">${esc(err?.message||err?.name||'Error desconocido')}</span>`,[
+        {label:'Reintentar',className:'primary',onClick:retryShareBackup},
+        {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
+      ]);
+    });
 }
-$('closeBackupX').onclick=()=>{$('closeBackupDialog').close();pendingCloseBackup=null;};
+function shareOrDownloadCloseBackup(backup){
+  pendingCloseBackup=backup;
+  shareBackupNow(backup);
+}
+$('closeBackupX').onclick=cancelCloseBackup;
 $('exportBtn').onclick=async()=>{
   if(!isDayOpen())return alert('El día no está abierto.');
   if(!employeeWithinSchedule())return alert('No estás dentro del horario habilitado para realizar el cierre.');
