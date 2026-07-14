@@ -198,6 +198,8 @@ const expenseCats=['Fresa','FrioCid','Suministros','Insumos de Aseo','Inmobiliar
 let state={settings:{tableCount:6,businessName:'Pillilandia',businessSubtitle:'Heladería & Cafetería',currency:'CLP',timeZone:'America/Santiago'},products:[],orders:[],expenses:[],closures:[],staff:[],schedules:[],attendance:[],operations:[]};
 let currentUser=null, selectedStaff=null, cart=[], paymentOrderId=null, selectedService={type:'meson',label:'Venta Directa'};
 let unsubscribers=[];
+const pendingUnplannedByDate=new Map();
+let attendanceNoticeTimer=null;
 
 function roleIsManager(){return currentUser?.role==='gerente'||currentUser?.role==='manager'}
 function normalizeRole(r){r=String(r||'').toLowerCase();return r==='gerente'||r==='manager'?'gerente':'empleado'}
@@ -520,22 +522,64 @@ $('saveScheduleBtn').onclick=async()=>{
   alert(`Planificación guardada correctamente: ${dates.length} jornada(s) para ${p.name}.`);
 };
 $('scheduleMonth').onchange=renderScheduleList;
-function attendanceRowsForDate(date){const planned=state.schedules.filter(x=>x.date===date&&x.active!==false);const map=new Map();for(const sc of planned)map.set(sc.staffId,{staffId:sc.staffId,staffName:sc.staffName,role:sc.role,planned:true,startTime:sc.startTime,endTime:sc.endTime});for(const a of state.attendance.filter(x=>x.date===date)){map.set(a.staffId,{...map.get(a.staffId),...a,planned:a.planned!==false})}return [...map.values()].sort((a,b)=>String(a.staffName).localeCompare(String(b.staffName),'es'))}
+function attendanceRowsForDate(date){
+  const planned=state.schedules.filter(x=>x.date===date&&x.active!==false);
+  const map=new Map();
+  for(const sc of planned)map.set(sc.staffId,{staffId:sc.staffId,staffName:sc.staffName,role:sc.role,planned:true,startTime:sc.startTime,endTime:sc.endTime});
+  for(const sid of pendingUnplannedByDate.get(date)||[]){
+    const p=state.staff.find(x=>x.id===sid);
+    if(p&&!map.has(sid))map.set(sid,{staffId:p.id,staffName:p.name,role:p.role,planned:false,startTime:'',endTime:''});
+  }
+  return [...map.values()].sort((a,b)=>{
+    const roleOrder=normalizeRole(a.role)==='gerente'?0:1;
+    const otherRoleOrder=normalizeRole(b.role)==='gerente'?0:1;
+    return roleOrder-otherRoleOrder||String(a.staffName).localeCompare(String(b.staffName),'es');
+  });
+}
+function showAttendanceNotice(message){
+  clearTimeout(attendanceNoticeTimer);
+  $('attendanceSaveNotice').textContent=message;
+  $('attendanceSaveNotice').classList.remove('hidden');
+  attendanceNoticeTimer=setTimeout(()=>$('attendanceSaveNotice').classList.add('hidden'),3000);
+}
+function attendanceUpdatedLabel(a){
+  const raw=a.updatedAt||a.createdAt;
+  if(!raw)return esc(a.updatedByName||a.createdByName||'—');
+  const d=asDate(raw);
+  const when=Number.isNaN(d.getTime())?'':d.toLocaleString('es-CL',{dateStyle:'short',timeStyle:'short'});
+  return `${esc(a.updatedByName||a.createdByName||'—')}${when?` · ${esc(when)}`:''}`;
+}
 function renderAttendance(){
   if(!$('attendanceList'))return;
   const date=$('attendanceDate').value;
-  const rows=attendanceRowsForDate(date);
+  const allCandidates=attendanceRowsForDate(date);
+  const confirmed=state.attendance.filter(a=>a.date===date);
+  const confirmedIds=new Set(confirmed.map(a=>a.staffId));
+  const pendingRows=allCandidates.filter(r=>!confirmedIds.has(r.staffId));
   const op=state.operations.find(x=>x.id===date||x.businessDate===date);
-  const options=state.staff.filter(p=>!rows.some(r=>r.staffId===p.id));
-  let html=rows.length?`<div style="overflow:auto"><table class="attendance-table"><thead><tr><th>Persona</th><th>Tipo</th><th>Estado</th><th>Entrada real</th><th>Salida real</th><th>Observación</th><th></th></tr></thead><tbody>${rows.map(r=>{const saved=state.attendance.find(a=>a.date===date&&a.staffId===r.staffId);const start=saved?.actualStart||r.startTime||localTimeFromIso(op?.openedAt);const end=saved?.actualEnd||r.endTime||localTimeFromIso(op?.closedAt);return `<tr><td><b>${esc(r.staffName)}</b></td><td><span class="status-pill ${r.planned?'planned':'unplanned'}">${r.planned?'Planificado':'No planificado'}</span></td><td>${saved?'<span class="badge closed">Registrada</span>':'<span class="badge open">Pendiente</span>'}</td><td><input id="att-start-${r.staffId}" type="time" value="${esc(start||'')}"></td><td><input id="att-end-${r.staffId}" type="time" value="${esc(end||'')}"></td><td><textarea id="att-notes-${r.staffId}" rows="1">${esc(saved?.notes||'')}</textarea></td><td><button class="btn primary tiny" onclick="saveAttendance('${r.staffId}')">Guardar asistencia real</button></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">No hay personal planificado ni asistencia registrada para esta fecha</div>';
-  html+=`<div class="row" style="margin-top:14px"><div><label>Agregar persona no planificada</label><select id="unplannedStaff"><option value="">Seleccionar persona</option>${options.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('')}</select></div><div><button class="btn secondary" id="addUnplannedBtn">Agregar</button></div></div>`;
-  $('attendanceList').innerHTML=html;
+  const unavailableIds=new Set([...allCandidates.map(r=>r.staffId),...confirmedIds]);
+  const options=state.staff.filter(p=>!unavailableIds.has(p.id));
 
-  const savedRows=state.attendance.filter(a=>a.date===date).sort((a,b)=>String(a.staffName).localeCompare(String(b.staffName),'es'));
-  $('attendanceSummary').innerHTML=savedRows.length?`<h3>Resumen de asistencia registrada</h3><div style="overflow:auto"><table><thead><tr><th>Persona</th><th>Tipo</th><th>Entrada</th><th>Salida</th><th>Observación</th><th>Última modificación</th></tr></thead><tbody>${savedRows.map(a=>`<tr><td><b>${esc(a.staffName)}</b></td><td>${a.planned!==false?'Planificada':'No planificada'}</td><td>${esc(a.actualStart||'—')}</td><td>${esc(a.actualEnd||'—')}</td><td>${esc(a.notes||'—')}</td><td>${esc(a.updatedByName||a.createdByName||'—')}</td></tr>`).join('')}</tbody></table></div>`:'<h3>Resumen de asistencia registrada</h3><div class="empty">Aún no se ha guardado asistencia real para esta fecha.</div>';
+  let pendingHtml=`<div class="row" style="margin-bottom:12px"><div><h3 style="margin:0">Pendientes: ${pendingRows.length}</h3></div><div><h3 style="margin:0;text-align:right">Confirmadas: ${confirmed.length}</h3></div></div>`;
+  pendingHtml+=pendingRows.length?`<div style="overflow:auto"><table class="attendance-table"><thead><tr><th>Persona</th><th>Tipo</th><th>Entrada real</th><th>Salida real</th><th>Observación</th><th></th></tr></thead><tbody>${pendingRows.map(r=>{const start=r.startTime||localTimeFromIso(op?.openedAt);const end=r.endTime||localTimeFromIso(op?.closedAt);return `<tr><td><b>${esc(r.staffName)}</b><div class="muted tiny">${normalizeRole(r.role)==='gerente'?'Gerente':'Empleado'}</div></td><td><span class="status-pill ${r.planned?'planned':'unplanned'}">${r.planned?'Planificado':'No planificado'}</span></td><td><input id="att-start-${r.staffId}" type="time" value="${esc(start||'')}"></td><td><input id="att-end-${r.staffId}" type="time" value="${esc(end||'')}"></td><td><textarea id="att-notes-${r.staffId}" rows="1"></textarea></td><td><button class="btn primary tiny" onclick="saveAttendance('${r.staffId}')">Guardar asistencia</button></td></tr>`}).join('')}</tbody></table></div>`:'<div class="oknotice"><b>✓ Todas las asistencias de esta fecha ya fueron confirmadas.</b></div>';
+  pendingHtml+=`<div class="row" style="margin-top:14px"><div><label>Agregar persona no planificada</label><select id="unplannedStaff"><option value="">Seleccionar persona</option>${options.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('')}</select></div><div><button class="btn secondary" id="addUnplannedBtn" ${options.length?'':'disabled'}>Agregar</button></div></div>`;
+  $('attendanceList').innerHTML=pendingHtml;
+
+  const savedRows=[...confirmed].sort((a,b)=>{
+    const roleOrder=normalizeRole(a.role)==='gerente'?0:1;
+    const otherRoleOrder=normalizeRole(b.role)==='gerente'?0:1;
+    return roleOrder-otherRoleOrder||String(a.staffName).localeCompare(String(b.staffName),'es');
+  });
+  $('attendanceSummary').innerHTML=savedRows.length?`<h3>Asistencias confirmadas (${savedRows.length})</h3><div style="overflow:auto"><table class="attendance-table"><thead><tr><th>Persona</th><th>Tipo</th><th>Entrada</th><th>Salida</th><th>Observación</th><th>Última modificación</th><th></th></tr></thead><tbody>${savedRows.map(a=>`<tr><td><b>${esc(a.staffName)}</b><div class="muted tiny">${normalizeRole(a.role)==='gerente'?'Gerente':'Empleado'}</div></td><td>${a.planned!==false?'Planificada':'No planificada'}</td><td><input id="confirmed-start-${a.staffId}" type="time" value="${esc(a.actualStart||'')}"></td><td><input id="confirmed-end-${a.staffId}" type="time" value="${esc(a.actualEnd||'')}"></td><td><textarea id="confirmed-notes-${a.staffId}" rows="1">${esc(a.notes||'')}</textarea></td><td>${attendanceUpdatedLabel(a)}</td><td><div class="actions" style="margin-top:0"><button class="btn secondary tiny" onclick="updateConfirmedAttendance('${a.staffId}')">Editar</button><button class="btn danger tiny" onclick="cancelAttendance('${a.staffId}')">Anular</button></div></td></tr>`).join('')}</tbody></table></div>`:'<h3>Asistencias confirmadas (0)</h3><div class="empty">Aún no se ha confirmado asistencia para esta fecha.</div>';
 
   const btn=$('addUnplannedBtn');
-  if(btn)btn.onclick=async()=>{const sid=$('unplannedStaff').value,p=state.staff.find(x=>x.id===sid);if(!p)return alert('Selecciona una persona.');await setDoc(doc(firestore,'attendance',`${date}_${sid}`),{date,staffId:sid,staffName:p.name,role:normalizeRole(p.role),planned:false,actualStart:localTimeFromIso(op?.openedAt),actualEnd:localTimeFromIso(op?.closedAt),notes:'',createdByUid:currentUser.uid,createdByName:selectedStaff?.name||currentUser.name,createdAt:nowIso(),...auditFields()},{merge:true})};
+  if(btn)btn.onclick=()=>{
+    const sid=$('unplannedStaff').value;
+    if(!sid)return alert('Selecciona una persona.');
+    const set=pendingUnplannedByDate.get(date)||new Set();
+    set.add(sid);pendingUnplannedByDate.set(date,set);
+    renderAttendance();
+  };
 }
 window.saveAttendance=async(staffId)=>{
   if(!roleIsManager())return;
@@ -545,17 +589,41 @@ window.saveAttendance=async(staffId)=>{
   const actualStart=$(`att-start-${staffId}`).value,actualEnd=$(`att-end-${staffId}`).value,notes=$(`att-notes-${staffId}`).value.trim();
   if(!actualStart&&!actualEnd)return alert('Ingresa al menos la hora de entrada o de salida.');
   if(actualStart&&actualEnd&&timeToMinutes(actualEnd)<timeToMinutes(actualStart))return alert('La salida no puede ser anterior a la entrada.');
-  const existing=state.attendance.find(a=>a.date===date&&a.staffId===staffId);
-  const data={date,staffId,staffName:row.staffName,role:normalizeRole(row.role),planned:row.planned!==false,actualStart,actualEnd,notes,createdByUid:existing?.createdByUid||currentUser.uid,createdByName:existing?.createdByName||(selectedStaff?.name||currentUser.name),createdAt:existing?.createdAt||nowIso(),...auditFields()};
+  const data={date,staffId,staffName:row.staffName,role:normalizeRole(row.role),planned:row.planned!==false,actualStart,actualEnd,notes,createdByUid:currentUser.uid,createdByName:selectedStaff?.name||currentUser.name,createdAt:nowIso(),...auditFields()};
   await setDoc(doc(firestore,'attendance',`${date}_${staffId}`),data,{merge:true});
   const index=state.attendance.findIndex(a=>a.date===date&&a.staffId===staffId);
-  const optimistic={id:`${date}_${staffId}`,...existing,...data};
+  const optimistic={id:`${date}_${staffId}`,...data};
   if(index>=0)state.attendance[index]=optimistic;else state.attendance.push(optimistic);
+  const set=pendingUnplannedByDate.get(date);if(set){set.delete(staffId);if(!set.size)pendingUnplannedByDate.delete(date)}
   renderAttendance();
-  $('attendanceSaveNotice').textContent=`Asistencia real de ${row.staffName} guardada correctamente para el ${date}.`;
-  $('attendanceSaveNotice').classList.remove('hidden');
+  showAttendanceNotice(`✓ Asistencia de ${row.staffName} registrada correctamente.`);
 };
-$('attendanceDate').onchange=()=>{$('attendanceSaveNotice').classList.add('hidden');renderAttendance()};
+window.updateConfirmedAttendance=async(staffId)=>{
+  if(!roleIsManager())return;
+  const date=$('attendanceDate').value;
+  const existing=state.attendance.find(a=>a.date===date&&a.staffId===staffId);
+  if(!existing)return alert('No fue posible encontrar la asistencia confirmada.');
+  const actualStart=$(`confirmed-start-${staffId}`).value,actualEnd=$(`confirmed-end-${staffId}`).value,notes=$(`confirmed-notes-${staffId}`).value.trim();
+  if(!actualStart&&!actualEnd)return alert('Ingresa al menos la hora de entrada o de salida.');
+  if(actualStart&&actualEnd&&timeToMinutes(actualEnd)<timeToMinutes(actualStart))return alert('La salida no puede ser anterior a la entrada.');
+  const changes={actualStart,actualEnd,notes,...auditFields()};
+  await updateDoc(doc(firestore,'attendance',`${date}_${staffId}`),changes);
+  Object.assign(existing,changes);
+  renderAttendance();
+  showAttendanceNotice(`✓ Asistencia de ${existing.staffName} actualizada correctamente.`);
+};
+window.cancelAttendance=async(staffId)=>{
+  if(!roleIsManager())return;
+  const date=$('attendanceDate').value;
+  const existing=state.attendance.find(a=>a.date===date&&a.staffId===staffId);
+  if(!existing||!confirm(`¿Anular la asistencia confirmada de ${existing.staffName}?`))return;
+  await deleteDoc(doc(firestore,'attendance',`${date}_${staffId}`));
+  state.attendance=state.attendance.filter(a=>!(a.date===date&&a.staffId===staffId));
+  if(existing.planned===false){const set=pendingUnplannedByDate.get(date)||new Set();set.add(staffId);pendingUnplannedByDate.set(date,set)}
+  renderAttendance();
+  showAttendanceNotice(`Asistencia de ${existing.staffName} anulada. Volvió a pendientes.`);
+};
+$('attendanceDate').onchange=()=>{clearTimeout(attendanceNoticeTimer);$('attendanceSaveNotice').classList.add('hidden');renderAttendance()};
 function renderOperation(){
   if(!$('operationStatus'))return;const op=getTodayOperation();let cls='pending',text='<b>Día sin abrir.</b> Aún no se ha habilitado la atención.';if(op?.status==='open'){cls='opened';text=`<b>Día abierto.</b><br>Abierto por ${esc(op.openedByName||'Usuario')} a las ${esc(localTimeFromIso(op.openedAt))}.`}else if(op?.status==='closed'){cls='closed-day';text=`<b>Día cerrado.</b><br>Cerrado por ${esc(op.closedByName||'Usuario')} a las ${esc(localTimeFromIso(op.closedAt))}.`}$('operationStatus').className=`operation-status ${cls}`;$('operationStatus').innerHTML=text;
   const sc=ownTodaySchedule(),eligible=employeeWithinSchedule();$('operationEligibility').innerHTML=roleIsManager()?'<div class="oknotice">Los gerentes pueden abrir o cerrar el día sin restricción horaria.</div>':sc?`<div class="notice">Tu turno planificado es ${esc(sc.startTime)}–${esc(sc.endTime)}. Puedes operar entre ${String(Math.floor((timeToMinutes(sc.startTime)-30+1440)%1440/60)).padStart(2,'0')}:${String((timeToMinutes(sc.startTime)-30+1440)%60).padStart(2,'0')} y ${String(Math.floor((timeToMinutes(sc.endTime)+30)%1440/60)).padStart(2,'0')}:${String((timeToMinutes(sc.endTime)+30)%60).padStart(2,'0')}.</div>`:'<div class="dangernotice">No tienes un turno planificado para hoy.</div>';
