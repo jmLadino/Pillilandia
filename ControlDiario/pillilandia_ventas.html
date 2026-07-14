@@ -728,7 +728,7 @@ function closeBackupFileName(date){
 function buildCloseBackup(date){
   const generatedAt=nowIso();
   const payload={
-    metadata:{version:'3.12.1',system:'Pillilandia POS',business:state.settings.businessName||'Pillilandia',businessDate:date,generatedAt,closedBy:selectedStaff?.name||currentUser.name||currentUser.email,firebaseProject:'pillilandia-pos'},
+    metadata:{version:'3.12.2',system:'Pillilandia POS',business:state.settings.businessName||'Pillilandia',businessDate:date,generatedAt,closedBy:selectedStaff?.name||currentUser.name||currentUser.email,firebaseProject:'pillilandia-pos'},
     settings:state.settings,
     products:state.products,
     orders:state.orders,
@@ -770,78 +770,94 @@ function cancelCloseBackup(){
   if($('closeBackupDialog').open)$('closeBackupDialog').close();
   pendingCloseBackup=null;
 }
-function showShareCancelled(){
-  showCloseBackupDialog('Respaldo no compartido','El cierre sigue abierto porque no se confirmó el envío del respaldo.',[
-    {label:'Volver a compartir',className:'primary',onClick:retryShareBackup},
+function canShareBackupFile(backup){
+  try{
+    const file=freshBackupFile(backup);
+    return typeof navigator.share==='function'&&typeof navigator.canShare==='function'&&navigator.canShare({files:[file]});
+  }catch(err){
+    console.warn('No fue posible validar Web Share:',err);
+    return false;
+  }
+}
+function showBackupReadyDialog(){
+  if(!pendingCloseBackup)return;
+  const backup=pendingCloseBackup;
+  if(canShareBackupFile(backup)){
+    showCloseBackupDialog('Respaldo listo','El respaldo ya fue preparado.<br><br>Presiona <b>Compartir respaldo</b> y selecciona WhatsApp u otra aplicación.',[
+      {label:'Compartir respaldo',className:'primary',onClick:sharePreparedBackupDirect},
+      {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
+    ]);
+  }else{
+    backup.method='download';
+    showCloseBackupDialog('Compartir no disponible','Este navegador no permite compartir archivos directamente. La descarga se habilita únicamente como alternativa.',[
+      {label:'Descargar respaldo',className:'primary',onClick:downloadPreparedBackup},
+      {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
+    ]);
+  }
+}
+function downloadPreparedBackup(){
+  if(!pendingCloseBackup)return;
+  pendingCloseBackup.method='download';
+  downloadCloseBackup(freshBackupFile(pendingCloseBackup));
+  showCloseBackupDialog('Respaldo descargado','¿Confirmas que el archivo quedó guardado correctamente?',[
+    {label:'Finalizar cierre',className:'primary',onClick:finalizeCloseDay},
+    {label:'Descargar nuevamente',className:'secondary',onClick:downloadPreparedBackup},
     {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
   ]);
 }
-function retryShareBackup(){
-  // Debe ejecutarse directamente desde el clic para conservar la activación del usuario en Chrome Android.
+function sharePreparedBackupDirect(){
+  // Esta función se ejecuta directamente desde el clic del usuario.
   if(!pendingCloseBackup)return;
-  shareBackupNow(pendingCloseBackup);
-}
-function shareBackupNow(backup){
-  pendingCloseBackup=backup;
+  const backup=pendingCloseBackup;
   const file=freshBackupFile(backup);
-  let shareSupported=false;
-  try{
-    shareSupported=typeof navigator.share==='function'&&typeof navigator.canShare==='function'&&navigator.canShare({files:[file]});
-  }catch(err){console.warn('No fue posible validar Web Share:',err)}
-  if(!shareSupported){
-    backup.method='download';
-    downloadCloseBackup(file);
-    showCloseBackupDialog('Respaldo descargado','Este dispositivo no permite compartir archivos directamente, por lo que se descargó el respaldo como alternativa.<br><br><b>¿Confirmas que el archivo quedó guardado?</b>',[
-      {label:'Finalizar cierre',className:'primary',onClick:finalizeCloseDay},
-      {label:'Descargar nuevamente',className:'secondary',onClick:()=>downloadCloseBackup(freshBackupFile(backup))},
-      {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
-    ]);
+  if(!canShareBackupFile(backup)){
+    showBackupReadyDialog();
     return;
   }
-  navigator.share({title:`Cierre Pillilandia ${backup.date}`,text:`Respaldo del cierre de Pillilandia correspondiente al ${backup.date}.`,files:[file]})
-    .then(()=>{
-      backup.method='shared';
-      showCloseBackupDialog('Confirmar cierre','El menú de compartir se ejecutó correctamente.<br><br><b>¿Confirmas que el respaldo fue compartido?</b>',[
-        {label:'Sí, finalizar cierre',className:'primary',onClick:finalizeCloseDay},
-        {label:'Volver a compartir',className:'secondary',onClick:retryShareBackup},
+  // Cerrar el diálogo antes de abrir el selector nativo evita interferencias en Chrome Android.
+  if($('closeBackupDialog').open)$('closeBackupDialog').close();
+  navigator.share({
+    title:`Cierre Pillilandia ${backup.date}`,
+    text:`Respaldo del cierre de Pillilandia correspondiente al ${backup.date}.`,
+    files:[file]
+  }).then(()=>{
+    backup.method='shared';
+    showCloseBackupDialog('Confirmar cierre','El selector de compartir terminó correctamente.<br><br><b>¿Confirmas que el respaldo fue compartido?</b>',[
+      {label:'Sí, finalizar cierre',className:'primary',onClick:finalizeCloseDay},
+      {label:'Compartir nuevamente',className:'secondary',onClick:sharePreparedBackupDirect},
+      {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
+    ]);
+  }).catch(err=>{
+    console.error('Error al compartir respaldo:',err);
+    if(err?.name==='AbortError'){
+      showCloseBackupDialog('Compartir cancelado','No se cerró el día. Puedes volver a abrir el selector de compartir.',[
+        {label:'Compartir respaldo',className:'primary',onClick:sharePreparedBackupDirect},
         {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
       ]);
-    })
-    .catch(err=>{
-      if(err?.name==='AbortError'||err?.name==='NotAllowedError'){
-        showShareCancelled();
-        return;
-      }
-      if(['NotSupportedError','TypeError'].includes(err?.name)){
-        backup.method='download';
-        const fallbackFile=freshBackupFile(backup);
-        downloadCloseBackup(fallbackFile);
-        showCloseBackupDialog('Respaldo descargado','No fue posible compartir archivos desde este navegador, por lo que se descargó el respaldo como alternativa.<br><br><b>¿Confirmas que el archivo quedó guardado?</b>',[
-          {label:'Finalizar cierre',className:'primary',onClick:finalizeCloseDay},
-          {label:'Descargar nuevamente',className:'secondary',onClick:()=>downloadCloseBackup(freshBackupFile(backup))},
-          {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
-        ]);
-        return;
-      }
-      console.error(err);
-      showCloseBackupDialog('No fue posible compartir',`Ocurrió un error al abrir el menú de compartir.<br><span class="tiny muted">${esc(err?.message||err?.name||'Error desconocido')}</span>`,[
-        {label:'Reintentar',className:'primary',onClick:retryShareBackup},
+      return;
+    }
+    if(['NotSupportedError','TypeError'].includes(err?.name)){
+      backup.method='download';
+      showCloseBackupDialog('Compartir no disponible','El navegador rechazó el envío de este tipo de archivo. La descarga se habilita como alternativa.',[
+        {label:'Descargar respaldo',className:'primary',onClick:downloadPreparedBackup},
         {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
       ]);
-    });
-}
-function shareOrDownloadCloseBackup(backup){
-  pendingCloseBackup=backup;
-  shareBackupNow(backup);
+      return;
+    }
+    showCloseBackupDialog('No fue posible compartir',`Chrome informó: <b>${esc(err?.name||'Error')}</b><br><span class="tiny muted">${esc(err?.message||'Sin detalle adicional')}</span>`,[
+      {label:'Reintentar compartir',className:'primary',onClick:sharePreparedBackupDirect},
+      {label:'Cancelar cierre',className:'danger',onClick:cancelCloseBackup}
+    ]);
+  });
 }
 $('closeBackupX').onclick=cancelCloseBackup;
-$('exportBtn').onclick=async()=>{
+$('exportBtn').onclick=()=>{
   if(!isDayOpen())return alert('El día no está abierto.');
   if(!employeeWithinSchedule())return alert('No estás dentro del horario habilitado para realizar el cierre.');
   const d=today(),open=state.orders.filter(o=>o.status==='open'&&!o.onCredit);
   if(open.length)return alert(`No se puede cerrar el día. Existen ${open.length} cuenta(s) abierta(s) normal(es). Debes cobrarlas, anularlas o solicitar a un gerente que las autorice como fiado.`);
-  const btn=$('exportBtn');btn.disabled=true;
-  try{await shareOrDownloadCloseBackup(buildCloseBackup(d));}finally{btn.disabled=false;}
+  pendingCloseBackup=buildCloseBackup(d);
+  showBackupReadyDialog();
 };
 if($('importBtn'))$('importBtn').onclick=()=>alert('La restauración directa está deshabilitada en la versión online para evitar reemplazar accidentalmente Firestore. El archivo JSON queda disponible como respaldo para una restauración administrada.');
 if($('eraseBtn'))$('eraseBtn').onclick=()=>alert('El borrado masivo está deshabilitado en la versión online por seguridad.');
