@@ -134,7 +134,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 </div></section>
 
 <section id="calendar"><div class="grid">
-<div class="card span-12"><div class="row"><div><h2>Asistencia real</h2></div><div><label>Fecha</label><input id="attendanceDate" type="date"></div></div><div class="notice">La asistencia se completa inicialmente con el horario planificado. El gerente puede corregir las horas o registrar personas no planificadas.</div><div id="attendanceSaveNotice" class="oknotice hidden" style="margin-bottom:12px"></div><div id="attendanceList"></div><div id="attendanceSummary" class="hidden"></div></div>
+<div class="card span-12"><div class="row"><div><h2>Asistencia real</h2></div><div><label>Fecha</label><input id="attendanceDate" type="date"></div></div><div class="notice">La entrada y la salida se guardan por separado. Puedes registrar primero la entrada y completar la salida más tarde, incluso después del cierre del día.</div><div id="attendanceSaveNotice" class="oknotice hidden" style="margin-bottom:12px"></div><div id="attendanceList"></div><div id="attendanceSummary" class="hidden"></div></div>
 <div class="card span-5"><h3>Planificar turno</h3><div class="schedule-grid"><div><label>Fecha desde</label><input id="scheduleDateFrom" type="date"></div><div><label>Fecha hasta</label><input id="scheduleDateTo" type="date"></div><div><label>Horario de inicio</label><input id="scheduleStart" type="time" value="10:00"></div><div><label>Horario de término</label><input id="scheduleEnd" type="time" value="20:00"></div></div><label style="margin-top:12px">Persona</label><select id="scheduleStaff"><option value="">Seleccionar persona</option></select><div class="notice" style="margin-top:12px">Se creará un turno por cada día del rango. Los sábados se omitirán automáticamente. Los empleados podrán abrir o cerrar el local dentro de su turno, considerando 30 minutos de tolerancia antes y después.</div><button id="saveScheduleBtn" class="btn primary" style="margin-top:12px">Guardar planificación</button></div>
 <div class="card span-7"><div class="row"><div><h3>Planificación del mes</h3></div><div><label>Mes</label><input id="scheduleMonth" type="month"></div></div><div class="notice">Los días pendientes del mes se muestran primero. Los días ya transcurridos quedan al final.</div><div id="scheduleList"></div></div>
 </div></section>
@@ -157,7 +157,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 
 <dialog id="productDialog"><div class="dialog-body"><div class="dialog-head"><h2 id="productDialogTitle">Producto</h2><button class="x" onclick="productDialog.close()">×</button></div><input id="editProductId" type="hidden"><label>Nombre</label><input id="editProductName"><div class="row" style="margin-top:10px"><div><label>Categoría</label><input id="editProductCategory"></div><div><label>Precio</label><input id="editProductPrice" type="number" min="0"></div></div><div class="row" style="margin-top:10px"><div><label>Stock actual</label><input id="editProductStock" type="number" step="1"></div><div><label>Control de stock</label><select id="editProductTrack"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Activo</label><select id="editProductActive"><option value="true">Sí</option><option value="false">No</option></select></div></div><button class="btn primary" style="margin-top:12px" id="saveProductBtn">Guardar producto</button></div></dialog>
 
-<!-- Versión 3.14: asistencia en grilla única y cierre diferenciado por rol -->
+<!-- Versión 3.15: entrada y salida de asistencia guardadas por separado -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import {
@@ -679,177 +679,35 @@ function renderAttendance(){
   const confirmedByStaff=new Map(confirmed.map(a=>[a.staffId,a]));
   const candidateByStaff=new Map(allCandidates.map(r=>[r.staffId,r]));
   const op=state.operations.find(x=>x.id===date||x.businessDate===date);
-
   const rows=[...allCandidates];
-  for(const a of confirmed){
-    if(!candidateByStaff.has(a.staffId)){
-      rows.push({
-        staffId:a.staffId,
-        staffName:a.staffName,
-        role:a.role,
-        planned:a.planned!==false,
-        startTime:'',
-        endTime:''
-      });
-    }
-  }
-
-  rows.sort((a,b)=>{
-    const aConfirmed=confirmedByStaff.has(a.staffId)?1:0;
-    const bConfirmed=confirmedByStaff.has(b.staffId)?1:0;
-    if(aConfirmed!==bConfirmed)return aConfirmed-bConfirmed;
-    const roleOrder=normalizeRole(a.role)==='gerente'?0:1;
-    const otherRoleOrder=normalizeRole(b.role)==='gerente'?0:1;
-    return roleOrder-otherRoleOrder||String(a.staffName).localeCompare(String(b.staffName),'es');
-  });
-
+  for(const a of confirmed){if(!candidateByStaff.has(a.staffId))rows.push({staffId:a.staffId,staffName:a.staffName,role:a.role,planned:a.planned!==false,startTime:'',endTime:''});}
+  rows.sort((a,b)=>{const aa=confirmedByStaff.get(a.staffId),bb=confirmedByStaff.get(b.staffId);const ac=Boolean(aa?.actualStart&&aa?.actualEnd),bc=Boolean(bb?.actualStart&&bb?.actualEnd);if(ac!==bc)return Number(ac)-Number(bc);const ar=normalizeRole(a.role)==='gerente'?0:1,br=normalizeRole(b.role)==='gerente'?0:1;return ar-br||String(a.staffName).localeCompare(String(b.staffName),'es');});
   const unavailableIds=new Set(rows.map(r=>r.staffId));
   const options=state.staff.filter(p=>!unavailableIds.has(p.id));
-  const pendingCount=rows.filter(r=>!confirmedByStaff.has(r.staffId)).length;
-
+  const completeCount=confirmed.filter(a=>a.actualStart&&a.actualEnd).length;
+  const partialCount=confirmed.filter(a=>(a.actualStart||a.actualEnd)&&!(a.actualStart&&a.actualEnd)).length;
+  const pendingCount=rows.length-completeCount-partialCount;
   const tableRows=rows.map(r=>{
-    const saved=confirmedByStaff.get(r.staffId);
-    const isConfirmed=Boolean(saved);
-    const editKey=`${date}_${r.staffId}`;
-    const isEditing=isConfirmed&&attendanceEditingRows.has(editKey);
-    const roleLabel=normalizeRole(r.role)==='gerente'?'Gerente':'Empleado';
-    const typeLabel=(saved?.planned!==false&&r.planned!==false)?'Planificada':'No planificada';
-
-    if(!isConfirmed){
-      const start=r.startTime||localTimeFromIso(op?.openedAt);
-      const finish=r.endTime||localTimeFromIso(op?.closedAt);
-      return `<tr>
-        <td><b>${esc(r.staffName)}</b><div class="muted tiny">${roleLabel}</div></td>
-        <td><span class="status-pill ${r.planned?'planned':'unplanned'}">${r.planned?'Planificada':'No planificada'}</span></td>
-        <td><span class="badge open">Pendiente</span></td>
-        <td><input id="att-start-${r.staffId}" type="time" value="${esc(start||'')}"></td>
-        <td><input id="att-end-${r.staffId}" type="time" value="${esc(finish||'')}"></td>
-        <td><textarea id="att-notes-${r.staffId}" rows="1"></textarea></td>
-        <td>—</td>
-        <td><button class="btn primary tiny" onclick="saveAttendance('${r.staffId}')">Guardar asistencia</button></td>
-      </tr>`;
-    }
-
-    if(isEditing){
-      return `<tr>
-        <td><b>${esc(saved.staffName||r.staffName)}</b><div class="muted tiny">${roleLabel}</div></td>
-        <td><span class="status-pill ${saved.planned!==false?'planned':'unplanned'}">${typeLabel}</span></td>
-        <td><span class="badge today">Modificando</span></td>
-        <td><input id="confirmed-start-${r.staffId}" type="time" value="${esc(saved.actualStart||'')}"></td>
-        <td><input id="confirmed-end-${r.staffId}" type="time" value="${esc(saved.actualEnd||'')}"></td>
-        <td><textarea id="confirmed-notes-${r.staffId}" rows="1">${esc(saved.notes||'')}</textarea></td>
-        <td>${attendanceUpdatedLabel(saved)}</td>
-        <td><div class="actions" style="margin-top:0">
-          <button class="btn primary tiny" onclick="updateConfirmedAttendance('${r.staffId}')">Guardar cambios</button>
-          <button class="btn secondary tiny" onclick="cancelAttendanceEdit('${r.staffId}')">Cancelar</button>
-        </div></td>
-      </tr>`;
-    }
-
-    return `<tr>
-      <td><b>${esc(saved.staffName||r.staffName)}</b><div class="muted tiny">${roleLabel}</div></td>
-      <td><span class="status-pill ${saved.planned!==false?'planned':'unplanned'}">${typeLabel}</span></td>
-      <td><span class="badge closed">Confirmada</span></td>
-      <td><b>${esc(saved.actualStart||'—')}</b></td>
-      <td><b>${esc(saved.actualEnd||'—')}</b></td>
-      <td>${saved.notes?esc(saved.notes):'<span class="muted">Sin observación</span>'}</td>
-      <td>${attendanceUpdatedLabel(saved)}</td>
-      <td><div class="actions" style="margin-top:0">
-        <button class="btn secondary tiny" onclick="beginAttendanceEdit('${r.staffId}')">Editar</button>
-        <button class="btn danger tiny" onclick="cancelAttendance('${r.staffId}')">Anular</button>
-      </div></td>
-    </tr>`;
+    const saved=confirmedByStaff.get(r.staffId),roleLabel=normalizeRole(r.role)==='gerente'?'Gerente':'Empleado',typeLabel=(saved?.planned!==false&&r.planned!==false)?'Planificada':'No planificada';
+    const defaultStart=saved?.actualStart||r.startTime||localTimeFromIso(op?.openedAt)||'',defaultEnd=saved?.actualEnd||r.endTime||localTimeFromIso(op?.closedAt)||'';
+    const hasStart=Boolean(saved?.actualStart),hasEnd=Boolean(saved?.actualEnd),stateLabel=hasStart&&hasEnd?'Completa':(hasStart||hasEnd?'Parcial':'Pendiente'),stateClass=hasStart&&hasEnd?'closed':(hasStart||hasEnd?'today':'open');
+    const startCell=hasStart?`<div><b>${esc(saved.actualStart)}</b><button class="btn secondary tiny" style="margin-top:6px" onclick="editAttendancePart('${r.staffId}','start')">Modificar entrada</button></div>`:`<div><input id="att-start-${r.staffId}" type="time" value="${esc(defaultStart)}"><button class="btn primary tiny" style="margin-top:6px;width:100%" onclick="saveAttendancePart('${r.staffId}','start')">Guardar entrada</button></div>`;
+    const endCell=hasEnd?`<div><b>${esc(saved.actualEnd)}</b><button class="btn secondary tiny" style="margin-top:6px" onclick="editAttendancePart('${r.staffId}','end')">Modificar salida</button></div>`:`<div><input id="att-end-${r.staffId}" type="time" value="${esc(defaultEnd)}"><button class="btn primary tiny" style="margin-top:6px;width:100%" onclick="saveAttendancePart('${r.staffId}','end')">Guardar salida</button></div>`;
+    const notesCell=`<div><textarea id="att-notes-${r.staffId}" rows="1" placeholder="Observación opcional">${esc(saved?.notes||'')}</textarea><button class="btn secondary tiny" style="margin-top:6px;width:100%" onclick="saveAttendanceNotes('${r.staffId}')">${saved?.notes?'Actualizar observación':'Guardar observación'}</button></div>`;
+    return `<tr><td><b>${esc(saved?.staffName||r.staffName)}</b><div class="muted tiny">${roleLabel}</div></td><td><span class="status-pill ${saved?.planned!==false&&r.planned!==false?'planned':'unplanned'}">${typeLabel}</span></td><td><span class="badge ${stateClass}">${stateLabel}</span></td><td>${startCell}</td><td>${endCell}</td><td>${notesCell}</td><td>${saved?attendanceUpdatedLabel(saved):'—'}</td><td>${saved?`<button class="btn danger tiny" onclick="cancelAttendance('${r.staffId}')">Anular registro</button>`:'—'}</td></tr>`;
   }).join('');
-
-  let html=`<div class="row" style="margin-bottom:12px">
-    <div><h3 style="margin:0">Pendientes: ${pendingCount}</h3></div>
-    <div><h3 style="margin:0;text-align:right">Confirmadas: ${confirmed.length}</h3></div>
-  </div>`;
-
-  html+=rows.length
-    ?`<div style="overflow:auto"><table class="attendance-table">
-      <thead><tr><th>Persona</th><th>Tipo</th><th>Estado</th><th>Entrada</th><th>Salida</th><th>Observación</th><th>Última modificación</th><th></th></tr></thead>
-      <tbody>${tableRows}</tbody>
-    </table></div>`
-    :'<div class="empty">No hay personal planificado ni asistencia registrada para esta fecha.</div>';
-
-  if(rows.length&&pendingCount===0){
-    html+=`<div class="oknotice" style="margin-top:12px"><b>✓ Todas las asistencias de esta fecha ya fueron confirmadas.</b></div>`;
-  }
-
-  html+=`<div class="row" style="margin-top:14px">
-    <div><label>Agregar persona no planificada</label>
-      <select id="unplannedStaff"><option value="">Seleccionar persona</option>${options.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('')}</select>
-    </div>
-    <div><button class="btn secondary" id="addUnplannedBtn" ${options.length?'':'disabled'}>Agregar</button></div>
-  </div>`;
-
-  $('attendanceList').innerHTML=html;
-  if($('attendanceSummary'))$('attendanceSummary').innerHTML='';
-
-  const btn=$('addUnplannedBtn');
-  if(btn)btn.onclick=()=>{
-    const sid=$('unplannedStaff').value;
-    if(!sid)return alert('Selecciona una persona.');
-    const set=pendingUnplannedByDate.get(date)||new Set();
-    set.add(sid);
-    pendingUnplannedByDate.set(date,set);
-    renderAttendance();
-  };
+  let html=`<div class="row" style="margin-bottom:12px"><div><h3 style="margin:0">Pendientes: ${pendingCount}</h3></div><div><h3 style="margin:0;text-align:center">Parciales: ${partialCount}</h3></div><div><h3 style="margin:0;text-align:right">Completas: ${completeCount}</h3></div></div>`;
+  html+=rows.length?`<div style="overflow:auto"><table class="attendance-table"><thead><tr><th>Persona</th><th>Tipo</th><th>Estado</th><th>Entrada</th><th>Salida</th><th>Observación</th><th>Última modificación</th><th></th></tr></thead><tbody>${tableRows}</tbody></table></div>`:'<div class="empty">No hay personal planificado ni asistencia registrada para esta fecha.</div>';
+  if(rows.length&&completeCount===rows.length)html+=`<div class="oknotice" style="margin-top:12px"><b>✓ Todas las asistencias de esta fecha están completas.</b></div>`;else if(partialCount)html+=`<div class="notice" style="margin-top:12px"><b>Hay ${partialCount} asistencia(s) parcial(es).</b> Puedes completar la salida más tarde, incluso después del cierre del día.</div>`;
+  html+=`<div class="row" style="margin-top:14px"><div><label>Agregar persona no planificada</label><select id="unplannedStaff"><option value="">Seleccionar persona</option>${options.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('')}</select></div><div><button class="btn secondary" id="addUnplannedBtn" ${options.length?'':'disabled'}>Agregar</button></div></div>`;
+  $('attendanceList').innerHTML=html;if($('attendanceSummary'))$('attendanceSummary').innerHTML='';
+  const btn=$('addUnplannedBtn');if(btn)btn.onclick=()=>{const sid=$('unplannedStaff').value;if(!sid)return alert('Selecciona una persona.');const set=pendingUnplannedByDate.get(date)||new Set();set.add(sid);pendingUnplannedByDate.set(date,set);renderAttendance();};
 }
-window.beginAttendanceEdit=staffId=>{
-  if(!roleIsManager())return;
-  attendanceEditingRows.add(`${$('attendanceDate').value}_${staffId}`);
-  renderAttendance();
-};
-window.cancelAttendanceEdit=staffId=>{
-  attendanceEditingRows.delete(`${$('attendanceDate').value}_${staffId}`);
-  renderAttendance();
-};
-window.saveAttendance=async(staffId)=>{
-  if(!roleIsManager())return;
-  const date=$('attendanceDate').value;
-  const row=attendanceRowsForDate(date).find(r=>r.staffId===staffId);
-  if(!row)return alert('No fue posible identificar a la persona seleccionada.');
-  const actualStart=$(`att-start-${staffId}`).value,actualEnd=$(`att-end-${staffId}`).value,notes=$(`att-notes-${staffId}`).value.trim();
-  if(!actualStart&&!actualEnd)return alert('Ingresa al menos la hora de entrada o de salida.');
-  if(actualStart&&actualEnd&&timeToMinutes(actualEnd)<timeToMinutes(actualStart))return alert('La salida no puede ser anterior a la entrada.');
-  const data={date,staffId,staffName:row.staffName,role:normalizeRole(row.role),planned:row.planned!==false,actualStart,actualEnd,notes,createdByUid:currentUser.uid,createdByName:selectedStaff?.name||currentUser.name,createdAt:nowIso(),...auditFields()};
-  await setDoc(doc(firestore,'attendance',`${date}_${staffId}`),data,{merge:true});
-  const index=state.attendance.findIndex(a=>a.date===date&&a.staffId===staffId);
-  const optimistic={id:`${date}_${staffId}`,...data};
-  if(index>=0)state.attendance[index]=optimistic;else state.attendance.push(optimistic);
-  const set=pendingUnplannedByDate.get(date);if(set){set.delete(staffId);if(!set.size)pendingUnplannedByDate.delete(date)}
-  renderAttendance();
-  showAttendanceNotice(`✓ Asistencia de ${row.staffName} registrada correctamente.`);
-};
-window.updateConfirmedAttendance=async(staffId)=>{
-  if(!roleIsManager())return;
-  const date=$('attendanceDate').value;
-  const existing=state.attendance.find(a=>a.date===date&&a.staffId===staffId);
-  if(!existing)return alert('No fue posible encontrar la asistencia confirmada.');
-  const actualStart=$(`confirmed-start-${staffId}`).value,actualEnd=$(`confirmed-end-${staffId}`).value,notes=$(`confirmed-notes-${staffId}`).value.trim();
-  if(!actualStart&&!actualEnd)return alert('Ingresa al menos la hora de entrada o de salida.');
-  if(actualStart&&actualEnd&&timeToMinutes(actualEnd)<timeToMinutes(actualStart))return alert('La salida no puede ser anterior a la entrada.');
-  const changes={actualStart,actualEnd,notes,...auditFields()};
-  await updateDoc(doc(firestore,'attendance',`${date}_${staffId}`),changes);
-  Object.assign(existing,changes);
-  attendanceEditingRows.delete(`${date}_${staffId}`);
-  renderAttendance();
-  showAttendanceNotice(`✓ Asistencia de ${existing.staffName} actualizada correctamente.`);
-};
-window.cancelAttendance=async(staffId)=>{
-  if(!roleIsManager())return;
-  const date=$('attendanceDate').value;
-  const existing=state.attendance.find(a=>a.date===date&&a.staffId===staffId);
-  if(!existing||!confirm(`¿Anular la asistencia confirmada de ${existing.staffName}?`))return;
-  await deleteDoc(doc(firestore,'attendance',`${date}_${staffId}`));
-  state.attendance=state.attendance.filter(a=>!(a.date===date&&a.staffId===staffId));
-  attendanceEditingRows.delete(`${date}_${staffId}`);
-  if(existing.planned===false){const set=pendingUnplannedByDate.get(date)||new Set();set.add(staffId);pendingUnplannedByDate.set(date,set)}
-  renderAttendance();
-  showAttendanceNotice(`Asistencia de ${existing.staffName} anulada. Volvió a pendientes.`);
-};
+function attendanceBaseData(date,staffId){const row=attendanceRowsForDate(date).find(r=>r.staffId===staffId),existing=state.attendance.find(a=>a.date===date&&a.staffId===staffId);if(!row&&!existing)return null;return{row:row||existing,existing};}
+window.saveAttendancePart=async(staffId,part)=>{if(!roleIsManager())return;const date=$('attendanceDate').value,base=attendanceBaseData(date,staffId);if(!base)return alert('No fue posible identificar a la persona seleccionada.');const inputId=part==='start'?`att-start-${staffId}`:`att-end-${staffId}`,value=$(inputId)?.value||'';if(!value)return alert(part==='start'?'Ingresa la hora de entrada.':'Ingresa la hora de salida.');const currentStart=part==='start'?value:(base.existing?.actualStart||''),currentEnd=part==='end'?value:(base.existing?.actualEnd||'');if(currentStart&&currentEnd&&timeToMinutes(currentEnd)<timeToMinutes(currentStart))return alert('La salida no puede ser anterior a la entrada.');const notes=$(`att-notes-${staffId}`)?.value.trim()??base.existing?.notes??'',data={date,staffId,staffName:base.row.staffName,role:normalizeRole(base.row.role),planned:base.row.planned!==false,actualStart:currentStart,actualEnd:currentEnd,notes,createdByUid:base.existing?.createdByUid||currentUser.uid,createdByName:base.existing?.createdByName||(selectedStaff?.name||currentUser.name),createdAt:base.existing?.createdAt||nowIso(),...auditFields()};await setDoc(doc(firestore,'attendance',`${date}_${staffId}`),data,{merge:true});const optimistic={id:`${date}_${staffId}`,...data},index=state.attendance.findIndex(a=>a.date===date&&a.staffId===staffId);if(index>=0)state.attendance[index]=optimistic;else state.attendance.push(optimistic);const set=pendingUnplannedByDate.get(date);if(set){set.delete(staffId);if(!set.size)pendingUnplannedByDate.delete(date)}renderAttendance();showAttendanceNotice(`✓ ${part==='start'?'Entrada':'Salida'} de ${base.row.staffName} guardada correctamente.`);};
+window.saveAttendanceNotes=async(staffId)=>{if(!roleIsManager())return;const date=$('attendanceDate').value,base=attendanceBaseData(date,staffId);if(!base)return alert('No fue posible identificar a la persona seleccionada.');const notes=$(`att-notes-${staffId}`)?.value.trim()||'',data={date,staffId,staffName:base.row.staffName,role:normalizeRole(base.row.role),planned:base.row.planned!==false,actualStart:base.existing?.actualStart||'',actualEnd:base.existing?.actualEnd||'',notes,createdByUid:base.existing?.createdByUid||currentUser.uid,createdByName:base.existing?.createdByName||(selectedStaff?.name||currentUser.name),createdAt:base.existing?.createdAt||nowIso(),...auditFields()};await setDoc(doc(firestore,'attendance',`${date}_${staffId}`),data,{merge:true});const optimistic={id:`${date}_${staffId}`,...data},index=state.attendance.findIndex(a=>a.date===date&&a.staffId===staffId);if(index>=0)state.attendance[index]=optimistic;else state.attendance.push(optimistic);renderAttendance();showAttendanceNotice(`✓ Observación de ${base.row.staffName} guardada correctamente.`);};
+window.editAttendancePart=async(staffId,part)=>{if(!roleIsManager())return;const date=$('attendanceDate').value,existing=state.attendance.find(a=>a.date===date&&a.staffId===staffId);if(!existing)return;const current=part==='start'?existing.actualStart:existing.actualEnd,label=part==='start'?'entrada':'salida',value=prompt(`Nueva hora de ${label} para ${existing.staffName}:`,current||'');if(value===null)return;if(!/^\d{2}:\d{2}$/.test(value))return alert('Ingresa una hora válida en formato HH:MM.');const newStart=part==='start'?value:(existing.actualStart||''),newEnd=part==='end'?value:(existing.actualEnd||'');if(newStart&&newEnd&&timeToMinutes(newEnd)<timeToMinutes(newStart))return alert('La salida no puede ser anterior a la entrada.');const changes=part==='start'?{actualStart:value,...auditFields()}:{actualEnd:value,...auditFields()};await updateDoc(doc(firestore,'attendance',`${date}_${staffId}`),changes);Object.assign(existing,changes);renderAttendance();showAttendanceNotice(`✓ Hora de ${label} de ${existing.staffName} actualizada.`);};
+window.cancelAttendance=async(staffId)=>{if(!roleIsManager())return;const date=$('attendanceDate').value,existing=state.attendance.find(a=>a.date===date&&a.staffId===staffId);if(!existing||!confirm(`¿Anular todo el registro de asistencia de ${existing.staffName}?`))return;await deleteDoc(doc(firestore,'attendance',`${date}_${staffId}`));state.attendance=state.attendance.filter(a=>!(a.date===date&&a.staffId===staffId));if(existing.planned===false){const set=pendingUnplannedByDate.get(date)||new Set();set.add(staffId);pendingUnplannedByDate.set(date,set)}renderAttendance();showAttendanceNotice(`Registro de ${existing.staffName} anulado.`);};
 $('attendanceDate').onchange=()=>{clearTimeout(attendanceNoticeTimer);attendanceEditingRows.clear();$('attendanceSaveNotice').classList.add('hidden');renderAttendance()};
 function renderOperation(){
   if(!$('operationStatus'))return;const op=getTodayOperation();let cls='pending',text='<b>Día sin abrir.</b> Aún no se ha habilitado la atención.';if(op?.status==='open'){cls='opened';text=`<b>Día abierto.</b><br>Abierto por ${esc(op.openedByName||'Usuario')} a las ${esc(localTimeFromIso(op.openedAt))}.`}else if(op?.status==='closed'){cls='closed-day';text=`<b>Día cerrado.</b><br>Cerrado por ${esc(op.closedByName||'Usuario')} a las ${esc(localTimeFromIso(op.closedAt))}.`}$('operationStatus').className=`operation-status ${cls}`;$('operationStatus').innerHTML=text;
