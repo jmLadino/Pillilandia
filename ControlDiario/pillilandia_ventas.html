@@ -144,7 +144,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 
 <section id="calendar"><div class="grid">
 <div class="card span-12"><div class="row"><div><h2>Asistencia real</h2></div><div><label>Fecha</label><input id="attendanceDate" type="date"></div></div><div class="notice">La entrada y la salida se guardan por separado. Puedes registrar primero la entrada y completar la salida más tarde, incluso después del cierre del día.</div><div id="attendanceSaveNotice" class="oknotice hidden" style="margin-bottom:12px"></div><div id="attendanceList"></div><div id="attendanceSummary" class="hidden"></div></div>
-<div class="card span-5"><h3>Planificar turno</h3><div class="schedule-grid"><div><label>Fecha desde</label><input id="scheduleDateFrom" type="date"></div><div><label>Fecha hasta</label><input id="scheduleDateTo" type="date"></div><div><label>Horario de inicio</label><input id="scheduleStart" type="time" value="10:00"></div><div><label>Horario de término</label><input id="scheduleEnd" type="time" value="20:00"></div></div><label style="margin-top:12px">Persona</label><select id="scheduleStaff"><option value="">Seleccionar persona</option></select><div class="notice" style="margin-top:12px">Se creará un turno por cada día del rango. Los sábados se omitirán automáticamente. Los empleados podrán abrir o cerrar el local dentro de su turno, considerando 30 minutos de tolerancia antes y después.</div><button id="saveScheduleBtn" class="btn primary" style="margin-top:12px">Guardar planificación</button></div>
+<div class="card span-5"><h3 id="scheduleFormTitle">Planificar turno</h3><input id="editScheduleId" type="hidden"><div class="schedule-grid"><div><label>Fecha desde</label><input id="scheduleDateFrom" type="date"></div><div><label>Fecha hasta</label><input id="scheduleDateTo" type="date"></div><div><label>Horario de inicio</label><input id="scheduleStart" type="time" value="10:00"></div><div><label>Horario de término</label><input id="scheduleEnd" type="time" value="20:00"></div></div><label style="margin-top:12px">Persona</label><select id="scheduleStaff"><option value="">Seleccionar persona</option></select><div id="scheduleFormNotice" class="notice" style="margin-top:12px">Se creará un turno por cada día del rango. Los sábados se omitirán automáticamente. Los empleados podrán abrir o cerrar el local dentro de su turno, considerando 30 minutos de tolerancia antes y después.</div><div class="actions"><button id="saveScheduleBtn" class="btn primary" style="margin-top:12px">Guardar planificación</button><button id="cancelScheduleEditBtn" class="btn secondary hidden" style="margin-top:12px" type="button">Cancelar edición</button></div></div>
 <div class="card span-7"><div class="row"><div><h3>Planificación del mes</h3></div><div><label>Mes</label><input id="scheduleMonth" type="month"></div></div><div class="notice">Los días pendientes del mes se muestran primero. Los días ya transcurridos quedan al final.</div><div id="scheduleList"></div></div>
 </div></section>
 
@@ -166,7 +166,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 
 <dialog id="productDialog"><div class="dialog-body"><div class="dialog-head"><h2 id="productDialogTitle">Producto</h2><button class="x" onclick="productDialog.close()">×</button></div><input id="editProductId" type="hidden"><label>Nombre</label><input id="editProductName"><div class="row" style="margin-top:10px"><div><label>Categoría</label><input id="editProductCategory"></div><div><label>Precio</label><input id="editProductPrice" type="number" min="0"></div></div><div class="row" style="margin-top:10px"><div><label>Stock actual</label><input id="editProductStock" type="number" step="1"></div><div><label>Control de stock</label><select id="editProductTrack"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Activo</label><select id="editProductActive"><option value="true">Sí</option><option value="false">No</option></select></div></div><button class="btn primary" style="margin-top:12px" id="saveProductBtn">Guardar producto</button></div></dialog>
 
-<!-- Versión 3.18: propiedad y toma de control de cuentas con auditoría -->
+<!-- Versión 3.19: propiedad y toma de control de cuentas con auditoría -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import {
@@ -663,9 +663,39 @@ function renderScheduleList(){
     `<b>${pendingCount}</b> pendiente(s)`,
     `<b>${xs.length-pendingCount}</b> transcurrido(s)`
   ].filter(Boolean).join(' · ');
-  $('scheduleList').innerHTML=xs.length?`<div class="tiny muted" style="margin-bottom:8px">${summary}</div><div style="overflow:auto"><table><thead><tr><th>Estado</th><th>Fecha</th><th>Persona</th><th>Rol</th><th>Horario</th><th></th></tr></thead><tbody>${xs.map(x=>`<tr><td><span class="badge ${x._displayState.css}">${x._displayState.label}</span></td><td>${esc(x.date)}</td><td>${esc(x.staffName)}</td><td>${normalizeRole(x.role)==='gerente'?'Gerente':'Empleado'}</td><td>${esc(x.startTime)}–${esc(x.endTime)}</td><td><button class="btn danger tiny" onclick="deleteSchedule('${x.id}')">Eliminar</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sin turnos planificados para este mes</div>';
+  $('scheduleList').innerHTML=xs.length?`<div class="tiny muted" style="margin-bottom:8px">${summary}</div><div style="overflow:auto"><table><thead><tr><th>Estado</th><th>Fecha</th><th>Persona</th><th>Rol</th><th>Horario</th><th>Acciones</th></tr></thead><tbody>${xs.map(x=>`<tr><td><span class="badge ${x._displayState.css}">${x._displayState.label}</span></td><td>${esc(x.date)}</td><td>${esc(x.staffName)}</td><td>${normalizeRole(x.role)==='gerente'?'Gerente':'Empleado'}</td><td>${esc(x.startTime)}–${esc(x.endTime)}</td><td><div class="actions" style="margin-top:0;flex-wrap:nowrap"><button class="btn secondary tiny" onclick="editSchedule('${x.id}')">Editar</button><button class="btn danger tiny" onclick="deleteSchedule('${x.id}')">Eliminar</button></div></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sin turnos planificados para este mes</div>';
 }
-window.deleteSchedule=async id=>{if(!roleIsManager()||!confirm('¿Eliminar este turno planificado?'))return;await deleteDoc(doc(firestore,'staffSchedules',id))};
+function resetScheduleForm(){
+  $('editScheduleId').value='';
+  $('scheduleFormTitle').textContent='Planificar turno';
+  $('saveScheduleBtn').textContent='Guardar planificación';
+  $('cancelScheduleEditBtn').classList.add('hidden');
+  $('scheduleDateFrom').disabled=false;
+  $('scheduleDateTo').disabled=false;
+  $('scheduleStaff').disabled=false;
+  $('scheduleFormNotice').innerHTML='Se creará un turno por cada día del rango. Los sábados se omitirán automáticamente. Los empleados podrán abrir o cerrar el local dentro de su turno, considerando 30 minutos de tolerancia antes y después.';
+}
+window.editSchedule=id=>{
+  if(!roleIsManager())return;
+  const schedule=state.schedules.find(x=>x.id===id);
+  if(!schedule)return alert('El turno ya no está disponible.');
+  $('editScheduleId').value=schedule.id;
+  $('scheduleFormTitle').textContent='Editar turno planificado';
+  $('scheduleDateFrom').value=schedule.date;
+  $('scheduleDateTo').value=schedule.date;
+  $('scheduleStart').value=schedule.startTime||'';
+  $('scheduleEnd').value=schedule.endTime||'';
+  $('scheduleStaff').value=schedule.staffId||'';
+  $('scheduleDateFrom').disabled=true;
+  $('scheduleDateTo').disabled=true;
+  $('scheduleStaff').disabled=true;
+  $('saveScheduleBtn').textContent='Guardar cambios';
+  $('cancelScheduleEditBtn').classList.remove('hidden');
+  $('scheduleFormNotice').innerHTML=`Estás modificando el turno de <b>${esc(schedule.staffName)}</b> para el <b>${esc(schedule.date)}</b>. Solo se actualizarán las horas de inicio y término.`;
+  $('scheduleFormTitle').scrollIntoView({behavior:'smooth',block:'start'});
+};
+$('cancelScheduleEditBtn').onclick=()=>resetScheduleForm();
+window.deleteSchedule=async id=>{if(!roleIsManager()||!confirm('¿Eliminar este turno planificado?'))return;await deleteDoc(doc(firestore,'staffSchedules',id));if($('editScheduleId').value===id)resetScheduleForm()};
 function datesInRangeSkippingSaturdays(fromDate,toDate){
   const result=[];
   const [fy,fm,fd]=fromDate.split('-').map(Number),[ty,tm,td]=toDate.split('-').map(Number);
@@ -681,10 +711,25 @@ function datesInRangeSkippingSaturdays(fromDate,toDate){
 }
 $('saveScheduleBtn').onclick=async()=>{
   if(!roleIsManager())return;
+  const editId=$('editScheduleId').value;
   const dateFrom=$('scheduleDateFrom').value,dateTo=$('scheduleDateTo').value,startTime=$('scheduleStart').value,endTime=$('scheduleEnd').value,staffId=$('scheduleStaff').value;
   if(!dateFrom||!dateTo||!startTime||!endTime||!staffId)return alert('Completa el rango de fechas, el horario y selecciona una persona.');
-  if(dateTo<dateFrom)return alert('La fecha hasta no puede ser anterior a la fecha desde.');
   if(timeToMinutes(endTime)<=timeToMinutes(startTime))return alert('La hora de término debe ser posterior a la hora de inicio.');
+  if(editId){
+    const existing=state.schedules.find(x=>x.id===editId);
+    if(!existing)return alert('El turno ya no está disponible para editar.');
+    if(!confirm(`¿Guardar el nuevo horario ${startTime}–${endTime} para ${existing.staffName} el ${existing.date}?`))return;
+    await updateDoc(doc(firestore,'staffSchedules',editId),{
+      startTime,endTime,
+      plannedStartAt:new Date(`${existing.date}T${startTime}:00`),
+      plannedEndAt:new Date(`${existing.date}T${endTime}:00`),
+      ...auditFields()
+    });
+    resetScheduleForm();
+    alert(`Turno de ${existing.staffName} actualizado correctamente.`);
+    return;
+  }
+  if(dateTo<dateFrom)return alert('La fecha hasta no puede ser anterior a la fecha desde.');
   const p=state.staff.find(x=>x.id===staffId);if(!p)return alert('La persona seleccionada ya no está disponible.');
   const dates=datesInRangeSkippingSaturdays(dateFrom,dateTo);
   if(!dates.length)return alert('El rango seleccionado solo contiene sábado(s), por lo que no hay turnos para guardar.');
