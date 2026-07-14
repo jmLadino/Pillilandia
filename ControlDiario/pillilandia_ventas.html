@@ -131,7 +131,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 
 <section id="calendar"><div class="grid">
 <div class="card span-12"><div class="row"><div><h2>Calendario mensual de asistencia</h2></div><div><label>Mes</label><input id="scheduleMonth" type="month"></div></div><div class="notice">Define un turno diario por persona. Los empleados podrán abrir o cerrar el local dentro de su turno, considerando 30 minutos de tolerancia antes y después.</div></div>
-<div class="card span-5"><h3>Planificar turno</h3><div class="schedule-grid"><div><label>Fecha</label><input id="scheduleDate" type="date"></div><div><label>Horario de inicio</label><input id="scheduleStart" type="time" value="10:00"></div><div><label>Horario de término</label><input id="scheduleEnd" type="time" value="20:00"></div></div><label style="margin-top:12px">Personas que trabajarán ese día</label><div id="scheduleStaffChecks" class="staff-checks"></div><button id="saveScheduleBtn" class="btn primary" style="margin-top:12px">Guardar planificación</button></div>
+<div class="card span-5"><h3>Planificar turno</h3><div class="schedule-grid"><div><label>Fecha desde</label><input id="scheduleDateFrom" type="date"></div><div><label>Fecha hasta</label><input id="scheduleDateTo" type="date"></div><div><label>Horario de inicio</label><input id="scheduleStart" type="time" value="10:00"></div><div><label>Horario de término</label><input id="scheduleEnd" type="time" value="20:00"></div></div><label style="margin-top:12px">Persona</label><select id="scheduleStaff"><option value="">Seleccionar persona</option></select><div class="notice" style="margin-top:12px">Se creará un turno por cada día del rango. Los sábados se omitirán automáticamente.</div><button id="saveScheduleBtn" class="btn primary" style="margin-top:12px">Guardar planificación</button></div>
 <div class="card span-7"><h3>Planificación del mes</h3><div id="scheduleList"></div></div>
 <div class="card span-12"><div class="row"><div><h3>Asistencia real</h3></div><div><label>Fecha</label><input id="attendanceDate" type="date"></div></div><div class="notice">La asistencia se completa inicialmente con el horario planificado. El gerente puede corregir las horas o registrar personas no planificadas.</div><div id="attendanceList"></div></div>
 </div></section>
@@ -465,17 +465,50 @@ $('newProductBtn').onclick=()=>editProduct('');$('saveProductBtn').onclick=async
 function renderCloseDay(){const d=today(),orders=state.orders.filter(o=>o.status!=='void'&&o.businessDate===d),payments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate===d)),sales=payments.reduce((s,p)=>s+Number(p.amount),0),open=state.orders.filter(o=>o.status==='open'),creditOpen=state.orders.filter(o=>o.status==='open'&&o.onCredit),methods=['Efectivo','Débito','Crédito','Transferencia'];$('closeDaySummary').innerHTML=`<div class="metrics" style="margin-bottom:12px"><div class="metric"><small>Total cobrado hoy</small><b>${fmt(sales)}</b></div><div class="metric"><small>Pedidos del día</small><b>${orders.length}</b></div><div class="metric"><small>Cuentas cerradas</small><b>${orders.filter(o=>o.status==='closed').length}</b></div><div class="metric"><small>Ventas fiadas abiertas</small><b>${creditOpen.length}</b></div></div><div class="card" style="box-shadow:none"><h3>Medios de pago</h3>${methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(payments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('')}</div>${open.length?`<div class="dangernotice" style="margin-top:12px"><b>Atención:</b> existen ${open.length} cuenta(s) abierta(s) por ${fmt(open.reduce((s,o)=>s+balance(o),0))}.</div>`:'<div class="oknotice" style="margin-top:12px">No existen cuentas abiertas.</div>'}`}
 
 function renderScheduleStaffChecks(){
-  if(!$('scheduleStaffChecks'))return;
-  $('scheduleStaffChecks').innerHTML=state.staff.length?state.staff.map(p=>`<label class="staff-check"><input type="checkbox" value="${esc(p.id)}"> <span><b>${esc(p.name)}</b><br><span class="muted tiny">${normalizeRole(p.role)==='gerente'?'Gerente':'Empleado'}</span></span></label>`).join(''):'<div class="empty">No hay personal activo</div>';
+  if(!$('scheduleStaff'))return;
+  const currentValue=$('scheduleStaff').value;
+  $('scheduleStaff').innerHTML=`<option value="">Seleccionar persona</option>`+state.staff.map(p=>`<option value="${esc(p.id)}">${esc(p.name)} · ${normalizeRole(p.role)==='gerente'?'Gerente':'Empleado'}</option>`).join('');
+  if(state.staff.some(p=>p.id===currentValue))$('scheduleStaff').value=currentValue;
 }
 function renderScheduleList(){
   if(!$('scheduleList'))return;const month=$('scheduleMonth').value;const xs=state.schedules.filter(x=>x.month===month||String(x.date||'').startsWith(month)).sort((a,b)=>(a.date+a.startTime+a.staffName).localeCompare(b.date+b.startTime+b.staffName));
   $('scheduleList').innerHTML=xs.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Persona</th><th>Rol</th><th>Horario</th><th></th></tr></thead><tbody>${xs.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.staffName)}</td><td>${normalizeRole(x.role)==='gerente'?'Gerente':'Empleado'}</td><td>${esc(x.startTime)}–${esc(x.endTime)}</td><td><button class="btn danger tiny" onclick="deleteSchedule('${x.id}')">Eliminar</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sin turnos planificados para este mes</div>';
 }
 window.deleteSchedule=async id=>{if(!roleIsManager()||!confirm('¿Eliminar este turno planificado?'))return;await deleteDoc(doc(firestore,'staffSchedules',id))};
+function datesInRangeSkippingSaturdays(fromDate,toDate){
+  const result=[];
+  const [fy,fm,fd]=fromDate.split('-').map(Number),[ty,tm,td]=toDate.split('-').map(Number);
+  const current=new Date(fy,fm-1,fd,12,0,0),last=new Date(ty,tm-1,td,12,0,0);
+  while(current<=last){
+    if(current.getDay()!==6){
+      const y=current.getFullYear(),m=String(current.getMonth()+1).padStart(2,'0'),d=String(current.getDate()).padStart(2,'0');
+      result.push(`${y}-${m}-${d}`);
+    }
+    current.setDate(current.getDate()+1);
+  }
+  return result;
+}
 $('saveScheduleBtn').onclick=async()=>{
-  if(!roleIsManager())return;const date=$('scheduleDate').value,startTime=$('scheduleStart').value,endTime=$('scheduleEnd').value;const selected=[...document.querySelectorAll('#scheduleStaffChecks input:checked')].map(x=>x.value);if(!date||!startTime||!endTime||!selected.length)return alert('Completa fecha, horario y selecciona al menos una persona.');if(timeToMinutes(endTime)<=timeToMinutes(startTime))return alert('La hora de término debe ser posterior a la hora de inicio.');
-  const batch=writeBatch(firestore);for(const staffId of selected){const p=state.staff.find(x=>x.id===staffId);if(!p)continue;const startAt=new Date(`${date}T${startTime}:00`),endAt=new Date(`${date}T${endTime}:00`);batch.set(doc(firestore,'staffSchedules',`${date}_${staffId}`),{date,month:date.slice(0,7),staffId,staffName:p.name,role:normalizeRole(p.role),startTime,endTime,plannedStartAt:startAt,plannedEndAt:endAt,active:true,createdByUid:currentUser.uid,createdByName:selectedStaff?.name||currentUser.name,createdAt:nowIso(),...auditFields()},{merge:true})}await batch.commit();alert('Planificación guardada.');
+  if(!roleIsManager())return;
+  const dateFrom=$('scheduleDateFrom').value,dateTo=$('scheduleDateTo').value,startTime=$('scheduleStart').value,endTime=$('scheduleEnd').value,staffId=$('scheduleStaff').value;
+  if(!dateFrom||!dateTo||!startTime||!endTime||!staffId)return alert('Completa el rango de fechas, el horario y selecciona una persona.');
+  if(dateTo<dateFrom)return alert('La fecha hasta no puede ser anterior a la fecha desde.');
+  if(timeToMinutes(endTime)<=timeToMinutes(startTime))return alert('La hora de término debe ser posterior a la hora de inicio.');
+  const p=state.staff.find(x=>x.id===staffId);if(!p)return alert('La persona seleccionada ya no está disponible.');
+  const dates=datesInRangeSkippingSaturdays(dateFrom,dateTo);
+  if(!dates.length)return alert('El rango seleccionado solo contiene sábado(s), por lo que no hay turnos para guardar.');
+  const skippedSaturdays=Math.round((new Date(`${dateTo}T12:00:00`)-new Date(`${dateFrom}T12:00:00`))/86400000)+1-dates.length;
+  const message=`Se guardarán ${dates.length} jornada(s) para ${p.name}, desde ${dateFrom} hasta ${dateTo}, con horario ${startTime}–${endTime}.${skippedSaturdays?` Se omitirán ${skippedSaturdays} sábado(s).`:''}`;
+  if(!confirm(message+'\n\n¿Deseas continuar?'))return;
+  const batch=writeBatch(firestore);
+  for(const date of dates){
+    const existing=state.schedules.find(x=>x.date===date&&x.staffId===staffId);
+    const startAt=new Date(`${date}T${startTime}:00`),endAt=new Date(`${date}T${endTime}:00`);
+    batch.set(doc(firestore,'staffSchedules',`${date}_${staffId}`),{date,month:date.slice(0,7),staffId,staffName:p.name,role:normalizeRole(p.role),startTime,endTime,plannedStartAt:startAt,plannedEndAt:endAt,active:true,createdByUid:existing?.createdByUid||currentUser.uid,createdByName:existing?.createdByName||(selectedStaff?.name||currentUser.name),createdAt:existing?.createdAt||nowIso(),...auditFields()},{merge:true});
+  }
+  await batch.commit();
+  $('scheduleMonth').value=dateFrom.slice(0,7);
+  alert(`Planificación guardada correctamente: ${dates.length} jornada(s) para ${p.name}.`);
 };
 $('scheduleMonth').onchange=renderScheduleList;
 function attendanceRowsForDate(date){const planned=state.schedules.filter(x=>x.date===date&&x.active!==false);const map=new Map();for(const sc of planned)map.set(sc.staffId,{staffId:sc.staffId,staffName:sc.staffName,role:sc.role,planned:true,startTime:sc.startTime,endTime:sc.endTime});for(const a of state.attendance.filter(x=>x.date===date)){map.set(a.staffId,{...map.get(a.staffId),...a,planned:a.planned!==false})}return [...map.values()].sort((a,b)=>String(a.staffName).localeCompare(String(b.staffName),'es'))}
@@ -499,7 +532,7 @@ function renderStorageInfo(){$('storageInfo').innerHTML=`<p><b>Modo:</b> Firebas
 function updateHeaderClock(){const now=new Date();$('headerDate').textContent=now.toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase());$('headerTime').textContent=now.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});const op=getTodayOperation();const closed=op?.status==='closed',opened=op?.status==='open';$('cashStatus').classList.toggle('closed-day',closed||!opened);$('cashStatus').querySelector('span:last-child').textContent=closed?'Día cerrado':opened?'Día abierto':'Día sin abrir'}
 setInterval(updateHeaderClock,1000);
 function renderAll(){renderServiceButtons();renderProductButtons();renderCart();renderOrders();renderExpenses();renderProductTable();renderDashboard();renderMonthly();renderCloseDay();renderScheduleStaffChecks();renderScheduleList();renderAttendance();renderOperation();renderStorageInfo();updateAccessState();updateHeaderClock()}
-$('reportDate').value=today();$('expenseDate').value=today();$('expenseFilterDate').value=today();$('monthlyPeriod').value=today().slice(0,7);$('scheduleMonth').value=today().slice(0,7);$('scheduleDate').value=today();$('attendanceDate').value=today();$('expenseCategory').innerHTML=expenseCats.map(x=>`<option>${x}</option>`).join('');renderAll();applyPermissions();
+$('reportDate').value=today();$('expenseDate').value=today();$('expenseFilterDate').value=today();$('monthlyPeriod').value=today().slice(0,7);$('scheduleMonth').value=today().slice(0,7);$('scheduleDateFrom').value=today();$('scheduleDateTo').value=today();$('attendanceDate').value=today();$('expenseCategory').innerHTML=expenseCats.map(x=>`<option>${x}</option>`).join('');renderAll();applyPermissions();
 </script>
 
 </body>
