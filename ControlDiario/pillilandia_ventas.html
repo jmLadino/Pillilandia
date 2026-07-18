@@ -290,7 +290,7 @@ async function validateEmployeeShiftAccess(){
   const schedule={id:snap.id,...snap.data()};
   const start=timeToMinutes(schedule.startTime),end=timeToMinutes(schedule.endTime),now=minutesNow();
   if(start===null||end===null)return {allowed:false,message:'Tu turno de hoy tiene un horario inválido.',detail:'Solicita a un gerente que corrija la planificación.'};
-  if(now<start-30||now>end+30)return {allowed:false,message:'No estás dentro del horario habilitado para usar el sistema.',detail:`Tu turno de hoy es ${schedule.startTime}–${schedule.endTime}. El acceso considera 30 minutos de tolerancia antes y después.`};
+  if(now<start-30||now>end+30)return {allowed:false,message:'Tu horario de trabajo aún no ha comenzado o ya ha finalizado.',detail:''};
   return {allowed:true,schedule};
 }
 function friendlyAuthError(code){
