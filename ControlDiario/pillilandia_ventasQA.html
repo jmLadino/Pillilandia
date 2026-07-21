@@ -67,6 +67,19 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
   font-weight: 800;
   text-align: center;
 }
+
+@media print{
+  body>*:not(#printReceipt){display:none!important}
+  #printReceipt{display:block!important;width:58mm;max-width:58mm;margin:0;padding:2mm;font-family:monospace;color:#000;background:#fff;font-size:11px;line-height:1.25}
+  #printReceipt .receipt-title{text-align:center;font-size:15px;font-weight:900;margin-bottom:4px}
+  #printReceipt .receipt-center{text-align:center}
+  #printReceipt .receipt-sep{border-top:1px dashed #000;margin:6px 0}
+  #printReceipt .receipt-row{display:flex;justify-content:space-between;gap:6px}
+  #printReceipt .receipt-row span:first-child{flex:1}
+  #printReceipt .receipt-total{font-size:13px;font-weight:900}
+  @page{size:58mm auto;margin:0}
+}
+#printReceipt{display:none}
 </style>
 </head>
 <body>
@@ -185,7 +198,8 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 </div></section>
 </div>
 
-<dialog id="paymentDialog"><div class="dialog-body"><div class="dialog-head"><h2>Registrar pago</h2><button class="x" onclick="paymentDialog.close()">×</button></div><div id="paymentOrderInfo"></div><div id="tipPicker" class="tip-picker"><label>Propina sugerida</label><div class="tip-options"><button type="button" class="tip-btn" data-tip="0">Sin propina</button><button type="button" class="tip-btn" data-tip="5">5%</button><button type="button" class="tip-btn" data-tip="10">10%</button><button type="button" class="tip-btn" data-tip="15">15%</button><button type="button" class="tip-btn" data-tip="20">20%</button></div><div id="tipHelp" class="muted tiny" style="margin-top:8px"></div></div><div class="row" style="margin-top:12px"><div><label>Medio de pago</label><select id="paymentMethod"><option>Efectivo</option><option>Débito</option><option>Crédito</option><option>Transferencia</option></select></div><div><label>Monto</label><input id="paymentAmount" type="number" min="1" step="1"></div></div><div class="actions"><button class="btn primary" id="addPaymentBtn">Agregar pago</button><button class="btn secondary" onclick="paymentDialog.close()">Cerrar</button></div><div id="paymentsExisting"></div></div></dialog>
+<div id="printReceipt" aria-hidden="true"></div>
+<dialog id="paymentDialog"><div class="dialog-body"><div class="dialog-head"><h2>Registrar pago</h2><button class="x" onclick="paymentDialog.close()">×</button></div><div id="paymentOrderInfo"></div><div id="tipPicker" class="tip-picker"><label>Propina sugerida</label><div class="tip-options"><button type="button" class="tip-btn" data-tip="0">Sin propina</button><button type="button" class="tip-btn" data-tip="5">5%</button><button type="button" class="tip-btn" data-tip="10">10%</button><button type="button" class="tip-btn" data-tip="15">15%</button><button type="button" class="tip-btn" data-tip="20">20%</button></div><div id="tipHelp" class="muted tiny" style="margin-top:8px"></div></div><div class="row" style="margin-top:12px"><div><label>Medio de pago</label><select id="paymentMethod"><option>Efectivo</option><option>Débito</option><option>Crédito</option><option>Transferencia</option></select></div><div><label>Monto</label><input id="paymentAmount" type="number" min="1" step="1"></div></div><div class="actions"><button class="btn primary" id="addPaymentBtn">Agregar pago</button><button class="btn secondary" id="addPaymentPrintBtn">Agregar pago e imprimir</button><button class="btn secondary" onclick="paymentDialog.close()">Cerrar</button></div><div id="paymentsExisting"></div></div></dialog>
 
 <dialog id="creditDialog"><div class="dialog-body"><div class="dialog-head"><h2>Autorizar cuenta fiada</h2><button class="x" onclick="creditDialog.close()">×</button></div><div id="creditOrderInfo"></div><label>Nombre completo o identificación del cliente</label><input id="creditCustomerName" placeholder="Dato obligatorio para autorizar el fiado"><div class="notice" style="margin-top:12px">Esta acción debe ser realizada por un gerente. La cuenta pasará a “Cuentas pendientes”, liberará la mesa y no bloqueará el cierre diario.</div><div class="actions"><button class="btn primary" id="confirmCreditBtn">Confirmar fiado</button><button class="btn secondary" onclick="creditDialog.close()">Cancelar</button></div></div></dialog>
 
@@ -701,7 +715,28 @@ function renderPaymentDialog(){
   $('paymentAmount').value=pending||'';
   $('paymentsExisting').innerHTML=(o.payments||[]).length?`<h3 style="margin-top:16px">Pagos registrados</h3>`+o.payments.map(p=>`<div class="payment-line"><b>${esc(p.method)}</b> · ${fmt(p.amount)} <span class="muted tiny">${asDate(p.createdAt).toLocaleString('es-CL')}</span></div>`).join(''):'';
 }
-$('addPaymentBtn').onclick=async()=>{
+function buildReceiptHtml(o,payment,percent,tip,total,newBalance){
+  const items=(o.items||[]).map(i=>`<div class="receipt-row"><span>${Number(i.qty)||0} x ${esc(i.name)}</span><b>${fmt((Number(i.price)||0)*(Number(i.qty)||0))}</b></div>`).join('');
+  return `<div class="receipt-title">PILLILANDIA</div>
+    <div class="receipt-center">Heladería y Cafetería</div>
+    <div class="receipt-center">Comprobante de pago</div>
+    <div class="receipt-sep"></div>
+    <div>Cuenta: #${o.number} · ${esc(o.label)}</div>
+    <div>Fecha: ${new Date().toLocaleString('es-CL',{hour12:false})}</div>
+    <div>Atendido por: ${esc(selectedStaff?.name||currentUser?.name||'')}</div>
+    <div class="receipt-sep"></div>
+    ${items}
+    <div class="receipt-sep"></div>
+    <div class="receipt-row"><span>Consumo</span><b>${fmt(orderTotal(o))}</b></div>
+    <div class="receipt-row"><span>Propina (${percent}%)</span><b>${fmt(tip)}</b></div>
+    <div class="receipt-row receipt-total"><span>Total cuenta</span><b>${fmt(total)}</b></div>
+    <div class="receipt-sep"></div>
+    <div class="receipt-row"><span>${esc(payment.method)}</span><b>${fmt(payment.amount)}</b></div>
+    <div class="receipt-row"><span>Saldo pendiente</span><b>${fmt(newBalance)}</b></div>
+    <div class="receipt-sep"></div>
+    <div class="receipt-center">¡Gracias por su compra!</div>`;
+}
+async function registerPayment({printAfter=false}={}){
   const o=state.orders.find(x=>x.id===paymentOrderId),amount=Number($('paymentAmount').value);
   if(!o||!Number.isFinite(amount)||amount<=0)return alert('Ingresa un monto válido.');
   const hasPayments=(o.payments||[]).length>0;
@@ -711,12 +746,19 @@ $('addPaymentBtn').onclick=async()=>{
   const currentPaid=paidTotal(o);
   const currentBalance=Math.max(0,total-currentPaid);
   if(amount>currentBalance)return alert(`El monto supera el saldo de ${fmt(currentBalance)}.`);
-  const payments=[...(o.payments||[]),{id:uid(),method:$('paymentMethod').value,amount,createdAt:nowIso(),businessDate:today(),staffId:selectedStaff?.id||null,staffName:selectedStaff?.name||null}];
+  const payment={id:uid(),method:$('paymentMethod').value,amount,createdAt:nowIso(),businessDate:today(),staffId:selectedStaff?.id||null,staffName:selectedStaff?.name||null};
+  const payments=[...(o.payments||[]),payment];
   const newBalance=Math.max(0,total-payments.reduce((s,p)=>s+Number(p.amount),0));
   const pendingStatus=(o.status==='credit'||o.onCredit===true)?'credit':'open';
   await updateDoc(doc(firestore,'orders',o.id),{payments,tipPercent:percent,tipAmount:tip,status:newBalance===0?'closed':pendingStatus,closedAt:newBalance===0?nowIso():null,...auditFields()});
-  if(newBalance===0){$('paymentDialog').close();switchTab('orders');alert('Cuenta pagada y cerrada.')}else renderPaymentDialog();
-};
+  if(printAfter){
+    $('printReceipt').innerHTML=buildReceiptHtml(o,payment,percent,tip,total,newBalance);
+    setTimeout(()=>window.print(),120);
+  }
+  if(newBalance===0){$('paymentDialog').close();switchTab('orders');alert(printAfter?'Cuenta pagada, cerrada y enviada a impresión.':'Cuenta pagada y cerrada.')}else renderPaymentDialog();
+}
+$('addPaymentBtn').onclick=()=>registerPayment({printAfter:false});
+$('addPaymentPrintBtn').onclick=()=>registerPayment({printAfter:true});
 window.voidOrder=async id=>{const o=state.orders.find(x=>x.id===id);if(!o||!ensureOrderActionAccess(o,'anular esta cuenta')||!confirm('¿Anular esta cuenta? El stock controlado será devuelto.'))return;const batch=writeBatch(firestore);batch.update(doc(firestore,'orders',id),{status:'void',voidedAt:nowIso(),...auditFields()});for(const i of o.items||[]){const p=state.products.find(x=>x.id===i.productId);if(p?.trackStock)batch.update(doc(firestore,'products',p.id),{stock:Number(p.stock)+Number(i.qty),...auditFields()})}await batch.commit()};
 
 function renderExpenses(){const f=$('expenseFilterDate').value;const xs=state.expenses.filter(x=>!f||x.date===f).sort((a,b)=>String(b.date+b.createdAt).localeCompare(String(a.date+a.createdAt)));$('expenseDayTotal').textContent=fmt(xs.reduce((s,x)=>s+Number(x.amount),0));$('expenseDayCount').textContent=xs.length;$('expenseList').innerHTML=xs.length?xs.map(x=>`<div class="expense-line"><div class="order-head"><div><b>${esc(x.category)}</b><div class="muted tiny">${x.date}${x.description?' · '+esc(x.description):''} · ${esc(x.createdByName||'')}</div></div><div><span class="money">${fmt(x.amount)}</span> <button class="btn danger tiny" onclick="deleteExpense('${x.id}')">Eliminar</button></div></div></div>`).join(''):'<div class="empty">No hay gastos para el día seleccionado</div>'}
