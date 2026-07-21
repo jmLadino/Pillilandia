@@ -723,7 +723,6 @@ function buildReceiptHtml(o,payment,percent,tip,total,newBalance){
     <div class="receipt-sep"></div>
     <div>Cuenta: #${o.number} · ${esc(o.label)}</div>
     <div>Fecha: ${new Date().toLocaleString('es-CL',{hour12:false})}</div>
-    <div>Atendido por: ${esc(selectedStaff?.name||currentUser?.name||'')}</div>
     <div class="receipt-sep"></div>
     ${items}
     <div class="receipt-sep"></div>
