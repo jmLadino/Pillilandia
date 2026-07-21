@@ -54,6 +54,8 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 
 @media print{header,nav,.no-print{display:none!important}body{background:#fff}.card{box-shadow:none;border:0}.wrap{max-width:none}}
 
+.toast-container{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:100000;width:min(680px,calc(100% - 24px));display:grid;gap:8px;pointer-events:none}.toast-message{padding:12px 16px;border-radius:11px;background:#12383c;color:#fff;font-weight:800;box-shadow:0 10px 30px rgba(0,0,0,.28);opacity:0;transform:translateY(-12px);transition:opacity .2s ease,transform .2s ease}.toast-message.show{opacity:1;transform:translateY(0)}.toast-message.success{background:#075d38}.toast-message.error{background:#8b1a12}.toast-message.warning{background:#884d00}.order-items-list{margin-top:10px;padding:10px 12px;border-radius:9px;background:#f3f9fa;border:1px solid #c2dadd}.order-item-row{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid #dce9ea}.order-item-row:last-child{border-bottom:0}.edit-order-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(300px,.9fr);gap:14px;align-items:start}.edit-order-products{max-height:440px;overflow:auto;padding-right:4px}.edit-order-cart{max-height:440px;overflow:auto}.edit-order-summary{position:sticky;top:0}.edit-order-dialog{max-width:1050px}@media(max-width:850px){.edit-order-layout{grid-template-columns:1fr}.edit-order-summary{position:static}}
+
 .test-environment-banner {
   position: sticky;
   top: 0;
@@ -68,6 +70,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 </style>
 </head>
 <body>
+<div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 <div class="test-environment-banner">
   AMBIENTE DE PRUEBAS — LOS DATOS NO SON REALES
 </div>
@@ -186,6 +189,8 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 
 <dialog id="creditDialog"><div class="dialog-body"><div class="dialog-head"><h2>Autorizar cuenta fiada</h2><button class="x" onclick="creditDialog.close()">×</button></div><div id="creditOrderInfo"></div><label>Nombre completo o identificación del cliente</label><input id="creditCustomerName" placeholder="Dato obligatorio para autorizar el fiado"><div class="notice" style="margin-top:12px">Esta acción debe ser realizada por un gerente. La cuenta pasará a “Cuentas pendientes”, liberará la mesa y no bloqueará el cierre diario.</div><div class="actions"><button class="btn primary" id="confirmCreditBtn">Confirmar fiado</button><button class="btn secondary" onclick="creditDialog.close()">Cancelar</button></div></div></dialog>
 
+<dialog id="orderEditDialog" class="edit-order-dialog"><div class="dialog-body"><div class="dialog-head"><h2>Modificar cuenta abierta</h2><button class="x" onclick="closeOrderEditor()">×</button></div><div id="editOrderHeader" class="notice"></div><div class="edit-order-layout"><div><label>Referencia adicional</label><input id="editOrderReference" placeholder="Nombre del cliente o detalle"><label style="margin-top:10px">Observación general</label><textarea id="editOrderNotes" rows="3" placeholder="Ej.: sin azúcar, llevar a mesa..."></textarea><h3 style="margin-top:16px">Agregar productos</h3><div id="editOrderProducts" class="products edit-order-products"></div></div><div class="edit-order-summary"><h3>Productos de la cuenta</h3><div id="editOrderCart" class="edit-order-cart"></div><div class="total"><span>Nuevo total</span><span id="editOrderTotal">$0</span></div><div class="actions"><button class="btn primary" id="saveOrderChangesBtn">Guardar cambios</button><button class="btn secondary" type="button" onclick="closeOrderEditor()">Cancelar</button></div></div></div></div></dialog>
+
 <dialog id="saleDetailDialog"><div class="dialog-body"><div class="dialog-head"><h2>Detalle de la venta</h2><button class="x" onclick="saleDetailDialog.close()">×</button></div><div id="saleDetailContent"></div><div class="actions"><button class="btn secondary" onclick="saleDetailDialog.close()">Cerrar</button></div></div></dialog>
 
 <dialog id="productDialog"><div class="dialog-body"><div class="dialog-head"><h2 id="productDialogTitle">Producto</h2><button class="x" onclick="productDialog.close()">×</button></div><input id="editProductId" type="hidden"><label>Nombre</label><input id="editProductName"><label style="margin-top:10px">Descripción para el menú público</label><textarea id="editProductDescription" rows="2" placeholder="Ej.: Preparado con café en grano recién molido."></textarea><div class="row" style="margin-top:10px"><div><label>Categoría</label><input id="editProductCategory"></div><div><label>Precio</label><input id="editProductPrice" type="number" min="0"></div></div><div class="row" style="margin-top:10px"><div><label>Stock actual</label><input id="editProductStock" type="number" step="1"></div><div><label>Control de stock</label><select id="editProductTrack"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Activo</label><select id="editProductActive"><option value="true">Sí</option><option value="false">No</option></select></div></div><button class="btn primary" style="margin-top:12px" id="saveProductBtn">Guardar producto</button></div></dialog>
@@ -226,9 +231,20 @@ const today = () => new Date().toLocaleDateString('en-CA',{timeZone:'America/San
 const esc = s => String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const asDate = v => v?.toDate ? v.toDate() : new Date(v);
 const nowIso = () => new Date().toISOString();
+function showToast(message,type='info',duration=3500){
+  const container=$('toastContainer');
+  if(!container||!message)return;
+  const toast=document.createElement('div');
+  toast.className=`toast-message ${type}`;
+  toast.textContent=String(message);
+  container.appendChild(toast);
+  requestAnimationFrame(()=>toast.classList.add('show'));
+  setTimeout(()=>{toast.classList.remove('show');setTimeout(()=>toast.remove(),220)},duration);
+}
+window.alert=message=>showToast(message,'warning',4200);
 
 let state={settings:{tableCount:6,businessName:'Pillilandia',businessSubtitle:'Heladería & Cafetería',currency:'CLP',timeZone:'America/Santiago'},products:[],orders:[],expenses:[],closures:[],staff:[],schedules:[],attendance:[],operations:[]};
-let currentUser=null, selectedStaff=null, cart=[], paymentOrderId=null, creditOrderId=null, selectedTipPercent=10, selectedService={type:'meson',label:'Venta Directa'}, employeeAccessLocked=false;
+let currentUser=null, selectedStaff=null, cart=[], paymentOrderId=null, creditOrderId=null, editOrderId=null, editOrderCart=[], selectedTipPercent=10, selectedService={type:'meson',label:'Venta Directa'}, employeeAccessLocked=false;
 let unsubscribers=[];
 const pendingUnplannedByDate=new Map();
 let attendanceNoticeTimer=null;
@@ -543,15 +559,75 @@ function renderOrders(){
   $('openOrders').innerHTML=openList.length?openList.map(o=>{
     const mine=isOrderOwner(o);
     const actionButtons=mine
-      ?`<button class="btn primary" onclick="openPayment('${o.id}')">Registrar pago</button><button class="btn secondary" onclick="addItemsToOrder('${o.id}')">Agregar productos</button><button class="btn danger" onclick="voidOrder('${o.id}')">Anular</button><button class="btn outline ${roleIsManager()?'':'hidden'}" onclick="openCreditDialog('${o.id}')">Fiar</button>`
+      ?`<button class="btn primary" onclick="openPayment('${o.id}')">Registrar pago</button><button class="btn secondary" onclick="openOrderEditor('${o.id}')">Modificar</button><button class="btn danger" onclick="voidOrder('${o.id}')">Anular</button><button class="btn outline ${roleIsManager()?'':'hidden'}" onclick="openCreditDialog('${o.id}')">Fiar</button>`
       :`<button class="btn secondary" onclick="takeOrderControl('${o.id}')">Tomar control / Asignarme cuenta</button>`;
     const history=(o.ownerHistory||[]),last=history.length?history[history.length-1]:null;
-    return `<div class="order-card"><div class="order-head"><div><b>#${o.number} · ${esc(o.label)}</b><div class="muted tiny">${asDate(o.createdAt).toLocaleString('es-CL')} · ${o.serviceType==='mesa'?'Mesa':'Mesón'} · Creada por ${esc(o.staffName||o.createdByName||'')}</div><div class="tiny" style="margin-top:4px"><b>Propietario actual:</b> ${esc(ownerName(o))}${last?` · Anterior: ${esc(last.previousOwnerName||'Sin asignar')}`:''}</div></div><span class="badge open">Pendiente ${fmt(balance(o))}</span></div><div class="tiny" style="margin-top:8px">${(o.items||[]).map(i=>`${i.qty}× ${esc(i.name)}`).join(' · ')}</div><div class="total"><span>Total ${fmt(chargedTotal(o))}</span><span>Pagado ${fmt(paidTotal(o))}</span></div><div class="actions">${actionButtons}</div></div>`;
+    return `<div class="order-card"><div class="order-head"><div><b>#${o.number} · ${esc(o.label)}</b><div class="muted tiny">${asDate(o.createdAt).toLocaleString('es-CL')} · ${o.serviceType==='mesa'?'Mesa':'Mesón'} · Creada por ${esc(o.staffName||o.createdByName||'')}</div><div class="tiny" style="margin-top:4px"><b>Propietario actual:</b> ${esc(ownerName(o))}${last?` · Anterior: ${esc(last.previousOwnerName||'Sin asignar')}`:''}</div></div><span class="badge open">Pendiente ${fmt(balance(o))}</span></div><div class="order-items-list">${(o.items||[]).map(i=>`<div class="order-item-row"><span>${Number(i.qty)||0}× ${esc(i.name)}</span><b>${fmt((Number(i.price)||0)*(Number(i.qty)||0))}</b></div>`).join('')}</div><div class="total"><span>Total ${fmt(chargedTotal(o))}</span><span>Pagado ${fmt(paidTotal(o))}</span></div><div class="actions">${actionButtons}</div></div>`;
   }).join(''):'<div class="empty">No hay cuentas abiertas</div>';
   $('creditOrdersCount').textContent=`${creditList.length} pendiente${creditList.length===1?'':'s'}`;
-  $('creditOrders').innerHTML=creditList.length?creditList.map(o=>`<div class="order-card"><div class="order-head"><div><b>#${o.number} · ${esc(o.label)}</b><div class="muted tiny">Cliente: <b>${esc(o.creditCustomerName||'Sin identificar')}</b> · Autorizada por ${esc(o.creditedByName||o.updatedByName||'Gerente')}</div></div><span class="badge open">Por cobrar ${fmt(balance(o))}</span></div><div class="tiny" style="margin-top:8px">${(o.items||[]).map(i=>`${i.qty}× ${esc(i.name)}`).join(' · ')}</div><div class="total"><span>Total ${fmt(chargedTotal(o))}</span><span>Pagado ${fmt(paidTotal(o))}</span></div><div class="actions"><button class="btn primary" onclick="openPayment('${o.id}')">Registrar pago</button><button class="btn danger ${roleIsManager()?'':'hidden'}" onclick="voidOrder('${o.id}')">Anular</button></div></div>`).join(''):'<div class="empty">No hay cuentas pendientes</div>';
+  $('creditOrders').innerHTML=creditList.length?creditList.map(o=>`<div class="order-card"><div class="order-head"><div><b>#${o.number} · ${esc(o.label)}</b><div class="muted tiny">Cliente: <b>${esc(o.creditCustomerName||'Sin identificar')}</b> · Autorizada por ${esc(o.creditedByName||o.updatedByName||'Gerente')}</div></div><span class="badge open">Por cobrar ${fmt(balance(o))}</span></div><div class="order-items-list">${(o.items||[]).map(i=>`<div class="order-item-row"><span>${Number(i.qty)||0}× ${esc(i.name)}</span><b>${fmt((Number(i.price)||0)*(Number(i.qty)||0))}</b></div>`).join('')}</div><div class="total"><span>Total ${fmt(chargedTotal(o))}</span><span>Pagado ${fmt(paidTotal(o))}</span></div><div class="actions"><button class="btn primary" onclick="openPayment('${o.id}')">Registrar pago</button><button class="btn danger ${roleIsManager()?'':'hidden'}" onclick="voidOrder('${o.id}')">Anular</button></div></div>`).join(''):'<div class="empty">No hay cuentas pendientes</div>';
 }
 $('orderSearch').oninput=renderOrders;
+function orderBaseLabel(o){
+  if(o.serviceType==='mesa')return String(o.label||'').replace(/^M\d+\s*·?\s*/,'');
+  return String(o.label||'').replace(/^Venta Directa\s*·?\s*/,'');
+}
+function renderEditOrderProducts(){
+  const order=['Helados & Repostería','Bebidas Calientes','Desayunos & Sandwiches','Bebidas Frías y Jugos'];
+  const active=state.products.filter(p=>p.active!==false);let html='';
+  for(const cat of [...order,...new Set(active.map(p=>p.category).filter(c=>!order.includes(c)))]){
+    const items=active.filter(p=>p.category===cat);if(!items.length)continue;
+    html+=`<div class="category">${esc(cat)}</div>`;
+    items.forEach(p=>{const stockNote=p.trackStock?` · stock ${p.stock}`:'';html+=`<button type="button" class="product" onclick="addProductToEditor('${p.id}')"><b>${esc(p.name)}</b><span>${fmt(p.price)}${stockNote}</span></button>`});
+  }
+  html+=`<div class="category">Otro</div><button type="button" class="product" onclick="addCustomToEditor()"><b>OTRO</b><span>Texto y monto libre</span></button>`;
+  $('editOrderProducts').innerHTML=html;
+}
+function renderEditOrderCart(){
+  $('editOrderCart').innerHTML=!editOrderCart.length?'<div class="empty">La cuenta no tiene productos</div>':editOrderCart.map((x,i)=>`<div class="cart-line"><div><b>${esc(x.name)}</b><div class="muted tiny">${fmt(x.price)} c/u</div></div><div class="qty"><button type="button" onclick="changeEditOrderQty(${i},-1)">−</button><b>${x.qty}</b><button type="button" onclick="changeEditOrderQty(${i},1)">+</button></div><div class="money">${fmt(x.price*x.qty)}</div></div>`).join('');
+  $('editOrderTotal').textContent=fmt(editOrderCart.reduce((s,x)=>s+Number(x.price)*Number(x.qty),0));
+}
+window.openOrderEditor=id=>{
+  const o=state.orders.find(x=>x.id===id&&x.status==='open'&&!x.onCredit);
+  if(!o||!ensureOrderActionAccess(o,'modificar esta cuenta'))return;
+  editOrderId=id;
+  editOrderCart=(o.items||[]).map(x=>({...x,qty:Number(x.qty)||0,price:Number(x.price)||0}));
+  $('editOrderReference').value=orderBaseLabel(o);
+  $('editOrderNotes').value=o.notes||'';
+  $('editOrderHeader').innerHTML=`<b>#${o.number} · ${esc(o.label)}</b><br>La edición se realizará sin salir de Cuentas abiertas.`;
+  renderEditOrderProducts();renderEditOrderCart();
+  $('orderEditDialog').showModal();
+};
+window.closeOrderEditor=()=>{editOrderId=null;editOrderCart=[];$('orderEditDialog').close()};
+window.addProductToEditor=id=>{const p=state.products.find(x=>x.id===id);if(!p)return;const line=editOrderCart.find(x=>x.productId===id);if(line)line.qty++;else editOrderCart.push({productId:id,name:p.name,price:Number(p.price),qty:1});renderEditOrderCart()};
+window.addCustomToEditor=()=>{const name=prompt('Nombre del producto o servicio:');if(!name)return;const price=Number(prompt('Monto unitario:'));if(!Number.isFinite(price)||price<0)return alert('Monto inválido');editOrderCart.push({productId:null,name,price,qty:1,custom:true});renderEditOrderCart()};
+window.changeEditOrderQty=(i,d)=>{if(!editOrderCart[i])return;editOrderCart[i].qty+=d;if(editOrderCart[i].qty<=0)editOrderCart.splice(i,1);renderEditOrderCart()};
+function quantitiesByProduct(items){const map=new Map();for(const i of items||[]){if(i.productId)map.set(i.productId,(map.get(i.productId)||0)+Number(i.qty||0));}return map;}
+$('saveOrderChangesBtn').onclick=async()=>{
+  const o=state.orders.find(x=>x.id===editOrderId&&x.status==='open'&&!x.onCredit);
+  if(!o)return alert('La cuenta ya no está disponible para modificar.');
+  if(!editOrderCart.length)return alert('La cuenta debe mantener al menos un producto.');
+  const oldQty=quantitiesByProduct(o.items),newQty=quantitiesByProduct(editOrderCart);
+  for(const [productId,qty] of newQty){
+    const p=state.products.find(x=>x.id===productId);if(!p?.trackStock)continue;
+    const available=Number(p.stock||0)+Number(oldQty.get(productId)||0);
+    if(qty>available)return alert(`No hay stock suficiente de ${p.name}. Disponible para esta cuenta: ${available}.`);
+  }
+  const base=o.serviceType==='mesa'?(tableCodeFromOrder(o)||'Mesa'):'Venta Directa';
+  const extra=$('editOrderReference').value.trim();
+  const label=extra?`${base} · ${extra}`:base;
+  const batch=writeBatch(firestore);
+  batch.update(doc(firestore,'orders',o.id),{items:editOrderCart.map(x=>({...x})),label,notes:$('editOrderNotes').value.trim(),...auditFields()});
+  const productIds=new Set([...oldQty.keys(),...newQty.keys()]);
+  for(const productId of productIds){
+    const p=state.products.find(x=>x.id===productId);if(!p?.trackStock)continue;
+    const delta=Number(oldQty.get(productId)||0)-Number(newQty.get(productId)||0);
+    if(delta)batch.update(doc(firestore,'products',productId),{stock:Number(p.stock||0)+delta,...auditFields()});
+  }
+  await batch.commit();
+  closeOrderEditor();
+  showToast(`Cuenta #${o.number} modificada correctamente.`,'success');
+};
 window.takeOrderControl=async id=>{
   const o=state.orders.find(x=>x.id===id);
   if(!canTakeOrder(o))return;
@@ -641,7 +717,6 @@ $('addPaymentBtn').onclick=async()=>{
   await updateDoc(doc(firestore,'orders',o.id),{payments,tipPercent:percent,tipAmount:tip,status:newBalance===0?'closed':pendingStatus,closedAt:newBalance===0?nowIso():null,...auditFields()});
   if(newBalance===0){$('paymentDialog').close();switchTab('orders');alert('Cuenta pagada y cerrada.')}else renderPaymentDialog();
 };
-window.addItemsToOrder=id=>{const o=state.orders.find(x=>x.id===id);if(!o||!ensureOrderActionAccess(o,'agregar productos a esta cuenta'))return;cart=[];selectedService={type:o.serviceType,label:o.serviceType==='mesa'?(String(o.label).match(/^M\d+/)?.[0]||'M1'):'Venta Directa'};$('orderLabel').value=String(o.label).replace(/^M\d+\s*·?\s*|^Venta Directa\s*·?\s*/,'');$('orderNotes').value=`Agregar al pedido #${o.number}`;switchTab('sale');const oldSave=$('savePending').onclick,oldPay=$('payNow').onclick;const finish=async pay=>{if(!cart.length)return alert('Agrega productos.');const err=validateStock(cart);if(err)return alert(err);const batch=writeBatch(firestore);batch.update(doc(firestore,'orders',o.id),{items:[...(o.items||[]),...cart.map(x=>({...x}))],...auditFields()});for(const i of cart){const p=state.products.find(x=>x.id===i.productId);if(p?.trackStock)batch.update(doc(firestore,'products',p.id),{stock:Number(p.stock)-i.qty,...auditFields()})}await batch.commit();cart=[];renderCart();$('savePending').onclick=oldSave;$('payNow').onclick=oldPay;if(pay)openPayment(id);else switchTab('orders')};$('savePending').onclick=()=>finish(false);$('payNow').onclick=()=>finish(true)};
 window.voidOrder=async id=>{const o=state.orders.find(x=>x.id===id);if(!o||!ensureOrderActionAccess(o,'anular esta cuenta')||!confirm('¿Anular esta cuenta? El stock controlado será devuelto.'))return;const batch=writeBatch(firestore);batch.update(doc(firestore,'orders',id),{status:'void',voidedAt:nowIso(),...auditFields()});for(const i of o.items||[]){const p=state.products.find(x=>x.id===i.productId);if(p?.trackStock)batch.update(doc(firestore,'products',p.id),{stock:Number(p.stock)+Number(i.qty),...auditFields()})}await batch.commit()};
 
 function renderExpenses(){const f=$('expenseFilterDate').value;const xs=state.expenses.filter(x=>!f||x.date===f).sort((a,b)=>String(b.date+b.createdAt).localeCompare(String(a.date+a.createdAt)));$('expenseDayTotal').textContent=fmt(xs.reduce((s,x)=>s+Number(x.amount),0));$('expenseDayCount').textContent=xs.length;$('expenseList').innerHTML=xs.length?xs.map(x=>`<div class="expense-line"><div class="order-head"><div><b>${esc(x.category)}</b><div class="muted tiny">${x.date}${x.description?' · '+esc(x.description):''} · ${esc(x.createdByName||'')}</div></div><div><span class="money">${fmt(x.amount)}</span> <button class="btn danger tiny" onclick="deleteExpense('${x.id}')">Eliminar</button></div></div></div>`).join(''):'<div class="empty">No hay gastos para el día seleccionado</div>'}
@@ -1150,7 +1225,7 @@ function updateHeaderClock(){const now=new Date();$('headerDate').textContent=no
 setInterval(updateHeaderClock,1000);
 setInterval(()=>{if(document.querySelector('section#calendar.active'))renderScheduleList()},60000);
 function renderAll(){renderServiceButtons();renderProductButtons();renderCart();renderOrders();renderExpenses();renderProductTable();renderDashboard();renderMonthly();renderCloseDay();renderScheduleStaffChecks();renderScheduleList();renderAttendance();renderOperation();updateAccessState();updateHeaderClock()}
-$('reportDate').value=today();$('expenseDate').value=today();$('expenseFilterDate').value=today();$('monthlyPeriod').value=today().slice(0,7);$('scheduleMonth').value=today().slice(0,7);$('scheduleDateFrom').value=today();$('scheduleDateTo').value=today();$('attendanceDate').value=today();$('expenseCategory').innerHTML=expenseCats.map(x=>`<option>${x}</option>`).join('');renderAll();applyPermissions();
+$('reportDate').value=today();$('expenseDate').value=today();$('expenseFilterDate').value=today();$('monthlyPeriod').value=today().slice(0,7);$('scheduleMonth').value=today().slice(0,7);$('scheduleDateFrom').value=today();$('scheduleDateTo').value=today();$('attendanceDate').value=today();renderExpenseCategories();renderAll();applyPermissions();
 </script>
 
 </body>
