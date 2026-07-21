@@ -36,8 +36,6 @@ table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{text-align:left;
 .service-button.occupied.active{background:#d68100;border-color:#a85f00;color:#fff}
 .table-status-legend{width:100%;margin-top:8px;font-size:.8rem;font-weight:750;color:var(--muted)}
 .table-status-legend .legend-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#d68100;margin-right:5px;vertical-align:-1px}
-.table-config{display:flex;gap:8px;align-items:end;margin-top:12px;max-width:340px}
-.table-config input{background:#fff;border:2px solid #8bbfc4}
 .sale-panel .category{font-size:1rem;color:#12383c;background:#cfecef;border-left:5px solid var(--brand2);padding:9px 11px;border-radius:8px;margin-top:16px}
 .sale-panel .product{border:2px solid #a9cdd1;background:#fff;box-shadow:0 2px 7px rgba(16,74,80,.08)}
 .sale-panel .product:hover{border-color:var(--brand2);background:#f2fbfc;box-shadow:0 5px 13px rgba(13,119,128,.16)}
@@ -50,9 +48,9 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 .sale-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px;margin-bottom:14px}.sale-detail-field{padding:8px 0;border-bottom:1px solid var(--line)}.sale-detail-field span{display:block;font-size:.78rem;color:var(--muted);font-weight:750;margin-bottom:3px}.sale-detail-section{margin-top:16px}.sale-detail-section h3{margin:0 0 8px}.sale-detail-totals{margin-left:auto;width:min(340px,100%)}.sale-detail-totals .payment-line{padding:7px 0}.sale-detail-totals .grand-total{font-size:1.08rem;border-top:2px solid var(--line);margin-top:4px;padding-top:10px}@media(max-width:620px){.sale-detail-grid{grid-template-columns:1fr}}
 .login-overlay{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#159eaa,#075f67);display:flex;align-items:center;justify-content:center;padding:18px}.login-card{width:min(440px,100%);background:#fff;border:3px solid #b7d9dc;border-radius:20px;padding:25px;box-shadow:0 24px 70px rgba(0,0,0,.34)}.shift-lock-overlay{position:fixed;inset:0;z-index:10000;background:linear-gradient(135deg,#159eaa,#075f67);display:flex;align-items:center;justify-content:center;padding:18px}.shift-lock-card{width:min(480px,100%);background:#fff;border:3px solid #b7d9dc;border-radius:20px;padding:28px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.34)}.shift-lock-card h2{color:var(--brand2);margin:12px 0 8px}.shift-lock-icon{font-size:3rem;line-height:1}.shift-lock-detail{margin:16px 0;padding:12px;border-radius:10px;background:#fff5d9;color:#6d4700;font-weight:750}.shift-lock-card .btn{width:100%;margin-top:10px;padding:13px}.login-brand{text-align:center;margin-bottom:20px}.login-logo{width:96px;height:96px;object-fit:cover;border-radius:50%;border:4px solid #159eaa;background:#fff}.login-brand h1{margin:10px 0 3px;color:#075f67}.login-brand p{margin:0;color:#415f63;font-weight:700}.login-card label{margin-top:12px}.login-card .btn{width:100%;margin-top:18px;padding:13px}.login-error{display:none;margin-top:12px;padding:10px;border-radius:9px;background:#fee4e2;color:#8b1a12;font-weight:750}.role-hidden{display:none!important}
 
-.schedule-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.staff-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}.staff-check{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid var(--line);border-radius:9px;background:#f7fbfb}.staff-check input{width:auto}.operation-status{padding:14px;border-radius:12px;border:2px solid var(--line);background:#eef8f9;margin-bottom:12px}.operation-status.opened{background:#daf5e8;border-color:#65b98d}.operation-status.closed-day{background:#fee4e2;border-color:#d89a96}.operation-status.pending{background:#fff5d9;border-color:#dfbd6d}.restricted-tab{opacity:.5}.credit-box{margin-top:10px;padding:11px;border:2px solid #dfbd6d;border-radius:10px;background:#fff9e8}.credit-box label{display:flex;align-items:center;gap:8px;margin:0}.credit-box input[type=checkbox]{width:auto}.attendance-table input{min-width:110px;padding:7px}.attendance-table textarea{min-width:170px;padding:7px}.status-pill{display:inline-block;border-radius:999px;padding:4px 8px;font-size:.75rem;font-weight:800;background:#e5eff0}.status-pill.planned{background:#dff0f2}.status-pill.unplanned{background:#fff1d6;color:var(--warning)}
+.schedule-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.operation-status{padding:14px;border-radius:12px;border:2px solid var(--line);background:#eef8f9;margin-bottom:12px}.operation-status.opened{background:#daf5e8;border-color:#65b98d}.operation-status.closed-day{background:#fee4e2;border-color:#d89a96}.operation-status.pending{background:#fff5d9;border-color:#dfbd6d}.restricted-tab{opacity:.5}.attendance-table input{min-width:110px;padding:7px}.attendance-table textarea{min-width:170px;padding:7px}.status-pill{display:inline-block;border-radius:999px;padding:4px 8px;font-size:.75rem;font-weight:800;background:#e5eff0}.status-pill.planned{background:#dff0f2}.status-pill.unplanned{background:#fff1d6;color:var(--warning)}
 .tip-picker{margin-top:12px;padding:12px;border:2px solid #9fc2c6;border-radius:11px;background:#f4fbfb}.tip-options{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.tip-btn{min-width:58px;border:2px solid #8db8bd;border-radius:9px;padding:9px 12px;background:#fff;color:#173c40;font-weight:850;cursor:pointer}.tip-btn:hover{background:#e4f4f5}.tip-btn.active{background:var(--brand2);border-color:var(--brand2);color:#fff}.tip-line{display:flex;justify-content:space-between;gap:12px;padding:7px 0}.tip-line.total-line{border-top:2px solid var(--line);margin-top:5px;padding-top:10px;font-size:1.05rem;font-weight:900}
-@media(max-width:850px){.schedule-grid,.staff-checks{grid-template-columns:1fr}}
+@media(max-width:850px){.schedule-grid{grid-template-columns:1fr}}
 
 @media print{header,nav,.no-print{display:none!important}body{background:#fff}.card{box-shadow:none;border:0}.wrap{max-width:none}}
 </style>
@@ -111,6 +109,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 <button class="tab manager-only" data-tab="expenses">Gastos</button>
 <button class="tab manager-only" data-tab="monthly">Gestión Mensual</button>
 <button class="tab manager-only" data-tab="products">Productos / Stock</button>
+<button class="tab admin-only role-hidden" data-tab="dataExport">Exportar datos</button>
 <button class="tab" data-tab="backup">Apertura / Cierre del día</button>
 </nav>
 
@@ -157,6 +156,11 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 
 <section id="products"><div class="card"><div class="notice">El stock de esta primera versión es por producto vendido (unidades). Para controlar ingredientes —leche, café, helado por sabor, vasos— se necesitará definir recetas y unidades de medida en una segunda etapa.</div><div class="row"><div><h2>Productos y stock simple</h2></div><div><button class="btn primary" id="newProductBtn">Agregar producto</button></div></div><div style="overflow:auto"><table><thead><tr><th>Producto</th><th>Descripción</th><th>Categoría</th><th class="right">Precio</th><th class="right">Stock</th><th>Controla stock</th><th>Activo</th><th></th></tr></thead><tbody id="productTable"></tbody></table></div></div></section>
 
+<section id="dataExport" class="admin-only role-hidden"><div class="grid">
+<div class="card span-12"><h2>Exportación de datos por colección</h2><div class="notice">Cada colección se descarga de forma independiente. Si una exportación falla por permisos o conexión, puedes reintentar solamente esa colección sin repetir las demás.</div><div id="collectionExportButtons" class="actions" style="margin-top:14px"></div></div>
+<div class="card span-12"><h3>Estado de las exportaciones</h3><div id="collectionExportStatus" class="muted">Aún no se ha realizado ninguna exportación.</div></div>
+</div></section>
+
 <section id="backup"><div class="grid">
 <div class="card span-12"><h2>Apertura / Cierre del día</h2><div id="operationStatus"></div><div id="operationEligibility"></div><div class="actions"><button class="btn success" id="openDayBtn">Abrir día</button><button class="btn primary" id="exportBtn">Cerrar día y descargar respaldo</button></div></div>
 <div class="card span-12"><h3>Resumen para el cierre</h3><div id="closeDaySummary"></div><div id="closeCreditNotice" class="notice hidden">Las cuentas pendientes validadas como fiado no impiden el cierre del día. Las cuentas abiertas normales deben cobrarse, anularse o ser autorizadas por un gerente como fiado.</div></div>
@@ -171,7 +175,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 
 <dialog id="productDialog"><div class="dialog-body"><div class="dialog-head"><h2 id="productDialogTitle">Producto</h2><button class="x" onclick="productDialog.close()">×</button></div><input id="editProductId" type="hidden"><label>Nombre</label><input id="editProductName"><label style="margin-top:10px">Descripción para el menú público</label><textarea id="editProductDescription" rows="2" placeholder="Ej.: Preparado con café en grano recién molido."></textarea><div class="row" style="margin-top:10px"><div><label>Categoría</label><input id="editProductCategory"></div><div><label>Precio</label><input id="editProductPrice" type="number" min="0"></div></div><div class="row" style="margin-top:10px"><div><label>Stock actual</label><input id="editProductStock" type="number" step="1"></div><div><label>Control de stock</label><select id="editProductTrack"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Activo</label><select id="editProductActive"><option value="true">Sí</option><option value="false">No</option></select></div></div><button class="btn primary" style="margin-top:12px" id="saveProductBtn">Guardar producto</button></div></dialog>
 
-<!-- Versión 3.22: propiedad y toma de control de cuentas con auditoría -->
+<!-- Versión 3.24: rol administrador y exportación unitaria por colección -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import {
@@ -253,11 +257,20 @@ let state={settings:{tableCount:6,businessName:'Pillilandia',businessSubtitle:'H
 let currentUser=null, selectedStaff=null, cart=[], paymentOrderId=null, creditOrderId=null, selectedTipPercent=10, selectedService={type:'meson',label:'Venta Directa'}, employeeAccessLocked=false;
 let unsubscribers=[];
 const pendingUnplannedByDate=new Map();
-const attendanceEditingRows=new Set();
 let attendanceNoticeTimer=null;
 
-function roleIsManager(){return currentUser?.role==='gerente'||currentUser?.role==='manager'}
-function normalizeRole(r){r=String(r||'').toLowerCase();return r==='gerente'||r==='manager'?'gerente':'empleado'}
+function roleIsAdmin(){return currentUser?.role==='administrador'}
+function roleIsManager(){return roleIsAdmin()||currentUser?.role==='gerente'}
+function normalizeRole(r){
+  r=String(r||'').trim().toLowerCase();
+  if(r==='administrador'||r==='admin'||r==='administrator')return 'administrador';
+  if(r==='gerente'||r==='manager')return 'gerente';
+  return 'empleado';
+}
+function roleLabel(role){
+  const normalized=normalizeRole(role);
+  return normalized==='administrador'?'Administrador':normalized==='gerente'?'Gerente':'Empleado';
+}
 function clearEmployeeLocalData(){
   try{localStorage.clear();}catch(err){console.warn('No fue posible limpiar localStorage:',err);}
   try{sessionStorage.clear();}catch(err){console.warn('No fue posible limpiar sessionStorage:',err);}
@@ -308,8 +321,9 @@ function friendlyAuthError(code){
 function applyPermissions(){
   const manager=roleIsManager();
   document.querySelectorAll('.manager-only').forEach(el=>el.classList.toggle('role-hidden',!manager));
+  document.querySelectorAll('.admin-only').forEach(el=>el.classList.toggle('role-hidden',!roleIsAdmin()));
   $('userArea').classList.toggle('hidden',!currentUser);
-  $('currentUserChip').textContent=currentUser?(selectedStaff?.name||currentUser.name||currentUser.email||'Usuario'):'';
+  $('currentUserChip').textContent=currentUser?`${selectedStaff?.name||currentUser.name||currentUser.email||'Usuario'} · ${roleLabel(currentUser.role)}`:'';
   updateCloseButtonByRole();
   if(!manager&&['calendar','expenses','monthly','products'].includes(document.querySelector('section.active')?.id))switchTab(isDayOpen()?'sale':'backup');
   updateAccessState();
@@ -476,6 +490,7 @@ function updateAccessState(){
 function ensureOpenDay(){if(isDayOpen())return true;alert('Primero debes realizar la apertura del día.');switchTab('backup');return false}
 function switchTab(id){
   if(!roleIsManager()&&['calendar','expenses','monthly','products'].includes(id))id=isDayOpen()?'sale':'backup';
+  if(id==='dataExport'&&!roleIsAdmin())id=isDayOpen()?'sale':'backup';
   if(['sale','orders'].includes(id)&&!isDayOpen())id='backup';
   document.querySelectorAll('section').forEach(x=>x.classList.toggle('active',x.id===id));
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));
@@ -747,7 +762,7 @@ function renderCloseDay(){const d=today(),orders=state.orders.filter(o=>o.status
 function renderScheduleStaffChecks(){
   if(!$('scheduleStaff'))return;
   const currentValue=$('scheduleStaff').value;
-  $('scheduleStaff').innerHTML=`<option value="">Seleccionar persona</option>`+state.staff.map(p=>`<option value="${esc(p.id)}">${esc(p.name)} · ${normalizeRole(p.role)==='gerente'?'Gerente':'Empleado'}</option>`).join('');
+  $('scheduleStaff').innerHTML=`<option value="">Seleccionar persona</option>`+state.staff.map(p=>`<option value="${esc(p.id)}">${esc(p.name)} · ${roleLabel(p.role)}</option>`).join('');
   if(state.staff.some(p=>p.id===currentValue))$('scheduleStaff').value=currentValue;
 }
 function scheduleDisplayState(schedule,currentDate,currentMinutes){
@@ -778,7 +793,7 @@ function renderScheduleList(){
     `<b>${pendingCount}</b> pendiente(s)`,
     `<b>${xs.length-pendingCount}</b> transcurrido(s)`
   ].filter(Boolean).join(' · ');
-  $('scheduleList').innerHTML=xs.length?`<div class="tiny muted" style="margin-bottom:8px">${summary}</div><div style="overflow:auto"><table><thead><tr><th>Estado</th><th>Fecha</th><th>Persona</th><th>Rol</th><th>Horario</th><th>Acciones</th></tr></thead><tbody>${xs.map(x=>`<tr><td><span class="badge ${x._displayState.css}">${x._displayState.label}</span></td><td>${esc(x.date)}</td><td>${esc(x.staffName)}</td><td>${normalizeRole(x.role)==='gerente'?'Gerente':'Empleado'}</td><td>${esc(x.startTime)}–${esc(x.endTime)}</td><td><div class="actions" style="margin-top:0;flex-wrap:nowrap"><button class="btn secondary tiny" onclick="editSchedule('${x.id}')">Editar</button><button class="btn danger tiny" onclick="deleteSchedule('${x.id}')">Eliminar</button></div></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sin turnos planificados para este mes</div>';
+  $('scheduleList').innerHTML=xs.length?`<div class="tiny muted" style="margin-bottom:8px">${summary}</div><div style="overflow:auto"><table><thead><tr><th>Estado</th><th>Fecha</th><th>Persona</th><th>Rol</th><th>Horario</th><th>Acciones</th></tr></thead><tbody>${xs.map(x=>`<tr><td><span class="badge ${x._displayState.css}">${x._displayState.label}</span></td><td>${esc(x.date)}</td><td>${esc(x.staffName)}</td><td>${roleLabel(x.role)}</td><td>${esc(x.startTime)}–${esc(x.endTime)}</td><td><div class="actions" style="margin-top:0;flex-wrap:nowrap"><button class="btn secondary tiny" onclick="editSchedule('${x.id}')">Editar</button><button class="btn danger tiny" onclick="deleteSchedule('${x.id}')">Eliminar</button></div></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sin turnos planificados para este mes</div>';
 }
 function resetScheduleForm(){
   $('editScheduleId').value='';
@@ -871,8 +886,8 @@ function attendanceRowsForDate(date){
     if(p&&!map.has(sid))map.set(sid,{staffId:p.id,staffName:p.name,role:p.role,planned:false,startTime:'',endTime:''});
   }
   return [...map.values()].sort((a,b)=>{
-    const roleOrder=normalizeRole(a.role)==='gerente'?0:1;
-    const otherRoleOrder=normalizeRole(b.role)==='gerente'?0:1;
+    const roleOrder=normalizeRole(a.role)==='administrador'?0:normalizeRole(a.role)==='gerente'?1:2;
+    const otherRoleOrder=normalizeRole(b.role)==='administrador'?0:normalizeRole(b.role)==='gerente'?1:2;
     return roleOrder-otherRoleOrder||String(a.staffName).localeCompare(String(b.staffName),'es');
   });
 }
@@ -899,20 +914,20 @@ function renderAttendance(){
   const op=state.operations.find(x=>x.id===date||x.businessDate===date);
   const rows=[...allCandidates];
   for(const a of confirmed){if(!candidateByStaff.has(a.staffId))rows.push({staffId:a.staffId,staffName:a.staffName,role:a.role,planned:a.planned!==false,startTime:'',endTime:''});}
-  rows.sort((a,b)=>{const aa=confirmedByStaff.get(a.staffId),bb=confirmedByStaff.get(b.staffId);const ac=Boolean(aa?.actualStart&&aa?.actualEnd),bc=Boolean(bb?.actualStart&&bb?.actualEnd);if(ac!==bc)return Number(ac)-Number(bc);const ar=normalizeRole(a.role)==='gerente'?0:1,br=normalizeRole(b.role)==='gerente'?0:1;return ar-br||String(a.staffName).localeCompare(String(b.staffName),'es');});
+  rows.sort((a,b)=>{const aa=confirmedByStaff.get(a.staffId),bb=confirmedByStaff.get(b.staffId);const ac=Boolean(aa?.actualStart&&aa?.actualEnd),bc=Boolean(bb?.actualStart&&bb?.actualEnd);if(ac!==bc)return Number(ac)-Number(bc);const ar=normalizeRole(a.role)==='administrador'?0:normalizeRole(a.role)==='gerente'?1:2,br=normalizeRole(b.role)==='administrador'?0:normalizeRole(b.role)==='gerente'?1:2;return ar-br||String(a.staffName).localeCompare(String(b.staffName),'es');});
   const unavailableIds=new Set(rows.map(r=>r.staffId));
   const options=state.staff.filter(p=>!unavailableIds.has(p.id));
   const completeCount=confirmed.filter(a=>a.actualStart&&a.actualEnd).length;
   const partialCount=confirmed.filter(a=>(a.actualStart||a.actualEnd)&&!(a.actualStart&&a.actualEnd)).length;
   const pendingCount=rows.length-completeCount-partialCount;
   const tableRows=rows.map(r=>{
-    const saved=confirmedByStaff.get(r.staffId),roleLabel=normalizeRole(r.role)==='gerente'?'Gerente':'Empleado',typeLabel=(saved?.planned!==false&&r.planned!==false)?'Planificada':'No planificada';
+    const saved=confirmedByStaff.get(r.staffId),staffRoleLabel=roleLabel(r.role),typeLabel=(saved?.planned!==false&&r.planned!==false)?'Planificada':'No planificada';
     const defaultStart=saved?.actualStart||r.startTime||localTimeFromIso(op?.openedAt)||'',defaultEnd=saved?.actualEnd||r.endTime||localTimeFromIso(op?.closedAt)||'';
     const hasStart=Boolean(saved?.actualStart),hasEnd=Boolean(saved?.actualEnd),stateLabel=hasStart&&hasEnd?'Completa':(hasStart||hasEnd?'Parcial':'Pendiente'),stateClass=hasStart&&hasEnd?'closed':(hasStart||hasEnd?'today':'open');
     const startCell=hasStart?`<div><b>${esc(saved.actualStart)}</b><button class="btn secondary tiny" style="margin-top:6px" onclick="editAttendancePart('${r.staffId}','start')">Modificar entrada</button></div>`:`<div><input id="att-start-${r.staffId}" type="time" value="${esc(defaultStart)}"><button class="btn primary tiny" style="margin-top:6px;width:100%" onclick="saveAttendancePart('${r.staffId}','start')">Guardar entrada</button></div>`;
     const endCell=hasEnd?`<div><b>${esc(saved.actualEnd)}</b><button class="btn secondary tiny" style="margin-top:6px" onclick="editAttendancePart('${r.staffId}','end')">Modificar salida</button></div>`:`<div><input id="att-end-${r.staffId}" type="time" value="${esc(defaultEnd)}"><button class="btn primary tiny" style="margin-top:6px;width:100%" onclick="saveAttendancePart('${r.staffId}','end')">Guardar salida</button></div>`;
     const notesCell=`<div><textarea id="att-notes-${r.staffId}" rows="1" placeholder="Observación opcional">${esc(saved?.notes||'')}</textarea><button class="btn secondary tiny" style="margin-top:6px;width:100%" onclick="saveAttendanceNotes('${r.staffId}')">${saved?.notes?'Actualizar observación':'Guardar observación'}</button></div>`;
-    return `<tr><td><b>${esc(saved?.staffName||r.staffName)}</b><div class="muted tiny">${roleLabel}</div></td><td><span class="status-pill ${saved?.planned!==false&&r.planned!==false?'planned':'unplanned'}">${typeLabel}</span></td><td><span class="badge ${stateClass}">${stateLabel}</span></td><td>${startCell}</td><td>${endCell}</td><td>${notesCell}</td><td>${saved?attendanceUpdatedLabel(saved):'—'}</td><td>${saved?`<button class="btn danger tiny" onclick="cancelAttendance('${r.staffId}')">Anular registro</button>`:'—'}</td></tr>`;
+    return `<tr><td><b>${esc(saved?.staffName||r.staffName)}</b><div class="muted tiny">${staffRoleLabel}</div></td><td><span class="status-pill ${saved?.planned!==false&&r.planned!==false?'planned':'unplanned'}">${typeLabel}</span></td><td><span class="badge ${stateClass}">${stateLabel}</span></td><td>${startCell}</td><td>${endCell}</td><td>${notesCell}</td><td>${saved?attendanceUpdatedLabel(saved):'—'}</td><td>${saved?`<button class="btn danger tiny" onclick="cancelAttendance('${r.staffId}')">Anular registro</button>`:'—'}</td></tr>`;
   }).join('');
   let html=`<div class="row" style="margin-bottom:12px"><div><h3 style="margin:0">Pendientes: ${pendingCount}</h3></div><div><h3 style="margin:0;text-align:center">Parciales: ${partialCount}</h3></div><div><h3 style="margin:0;text-align:right">Completas: ${completeCount}</h3></div></div>`;
   html+=rows.length?`<div style="overflow:auto"><table class="attendance-table"><thead><tr><th>Persona</th><th>Tipo</th><th>Estado</th><th>Entrada</th><th>Salida</th><th>Observación</th><th>Última modificación</th><th></th></tr></thead><tbody>${tableRows}</tbody></table></div>`:'<div class="empty">No hay personal planificado ni asistencia registrada para esta fecha.</div>';
@@ -926,7 +941,7 @@ window.saveAttendancePart=async(staffId,part)=>{if(!roleIsManager())return;const
 window.saveAttendanceNotes=async(staffId)=>{if(!roleIsManager())return;const date=$('attendanceDate').value,base=attendanceBaseData(date,staffId);if(!base)return alert('No fue posible identificar a la persona seleccionada.');const notes=$(`att-notes-${staffId}`)?.value.trim()||'',data={date,staffId,staffName:base.row.staffName,role:normalizeRole(base.row.role),planned:base.row.planned!==false,actualStart:base.existing?.actualStart||'',actualEnd:base.existing?.actualEnd||'',notes,createdByUid:base.existing?.createdByUid||currentUser.uid,createdByName:base.existing?.createdByName||(selectedStaff?.name||currentUser.name),createdAt:base.existing?.createdAt||nowIso(),...auditFields()};await setDoc(doc(firestore,'attendance',`${date}_${staffId}`),data,{merge:true});const optimistic={id:`${date}_${staffId}`,...data},index=state.attendance.findIndex(a=>a.date===date&&a.staffId===staffId);if(index>=0)state.attendance[index]=optimistic;else state.attendance.push(optimistic);renderAttendance();showAttendanceNotice(`✓ Observación de ${base.row.staffName} guardada correctamente.`);};
 window.editAttendancePart=async(staffId,part)=>{if(!roleIsManager())return;const date=$('attendanceDate').value,existing=state.attendance.find(a=>a.date===date&&a.staffId===staffId);if(!existing)return;const current=part==='start'?existing.actualStart:existing.actualEnd,label=part==='start'?'entrada':'salida',value=prompt(`Nueva hora de ${label} para ${existing.staffName}:`,current||'');if(value===null)return;if(!/^\d{2}:\d{2}$/.test(value))return alert('Ingresa una hora válida en formato HH:MM.');const newStart=part==='start'?value:(existing.actualStart||''),newEnd=part==='end'?value:(existing.actualEnd||'');if(newStart&&newEnd&&timeToMinutes(newEnd)<timeToMinutes(newStart))return alert('La salida no puede ser anterior a la entrada.');const changes=part==='start'?{actualStart:value,...auditFields()}:{actualEnd:value,...auditFields()};await updateDoc(doc(firestore,'attendance',`${date}_${staffId}`),changes);Object.assign(existing,changes);renderAttendance();showAttendanceNotice(`✓ Hora de ${label} de ${existing.staffName} actualizada.`);};
 window.cancelAttendance=async(staffId)=>{if(!roleIsManager())return;const date=$('attendanceDate').value,existing=state.attendance.find(a=>a.date===date&&a.staffId===staffId);if(!existing||!confirm(`¿Anular todo el registro de asistencia de ${existing.staffName}?`))return;await deleteDoc(doc(firestore,'attendance',`${date}_${staffId}`));state.attendance=state.attendance.filter(a=>!(a.date===date&&a.staffId===staffId));if(existing.planned===false){const set=pendingUnplannedByDate.get(date)||new Set();set.add(staffId);pendingUnplannedByDate.set(date,set)}renderAttendance();showAttendanceNotice(`Registro de ${existing.staffName} anulado.`);};
-$('attendanceDate').onchange=()=>{clearTimeout(attendanceNoticeTimer);attendanceEditingRows.clear();$('attendanceSaveNotice').classList.add('hidden');renderAttendance()};
+$('attendanceDate').onchange=()=>{clearTimeout(attendanceNoticeTimer);$('attendanceSaveNotice').classList.add('hidden');renderAttendance()};
 function renderOperation(){
   if(!$('operationStatus'))return;const op=getTodayOperation();let cls='pending',text='<b>Día sin abrir.</b> Aún no se ha habilitado la atención.';if(op?.status==='open'){cls='opened';text=`<b>Día abierto.</b><br>Abierto por ${esc(op.openedByName||'Usuario')} a las ${esc(localTimeFromIso(op.openedAt))}.`}else if(op?.status==='closed'){cls='closed-day';text=`<b>Día cerrado.</b><br>Cerrado por ${esc(op.closedByName||'Usuario')} a las ${esc(localTimeFromIso(op.closedAt))}.`}$('operationStatus').className=`operation-status ${cls}`;$('operationStatus').innerHTML=text;
   const sc=ownTodaySchedule(),eligible=employeeWithinSchedule();$('operationEligibility').innerHTML=roleIsManager()?'<div class="oknotice">Los gerentes pueden abrir o cerrar el día sin restricción horaria.</div>':sc?`<div class="notice">Tu turno planificado es ${esc(sc.startTime)}–${esc(sc.endTime)}.</div>`:'<div class="dangernotice">No tienes un turno planificado para hoy.</div>';
@@ -946,7 +961,7 @@ $('exportBtn').onclick=async()=>{
     salesTotal:payments.reduce((s,p)=>s+Number(p.amount),0),
     openOrderCount:open.length,
     creditOrderCount:state.orders.filter(o=>(o.status==='credit'||o.onCredit===true)&&o.status!=='closed'&&o.status!=='void').length,
-    closedByRole:roleIsManager()?'gerente':'empleado',
+    closedByRole:currentUser.role,
     backupExported:roleIsManager(),
     ...actorFields(),
     ...auditFields()
@@ -977,12 +992,7 @@ $('exportBtn').onclick=async()=>{
       staffSchedules:state.schedules,
       attendance:state.attendance
     };
-    const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download=`pillilandia-cierre-${d}.json`;
-    a.click();
-    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    downloadJson(data,`pillilandia-cierre-${d}.json`);
     alert('Día cerrado correctamente. Se descargó el respaldo JSON.');
   }else{
     clearEmployeeLocalData();
@@ -991,18 +1001,84 @@ $('exportBtn').onclick=async()=>{
   }
   switchTab('dashboard');
 };
-if($('importBtn'))$('importBtn').onclick=()=>alert('La restauración directa está deshabilitada en la versión online para evitar reemplazar accidentalmente Firestore. El archivo JSON queda disponible como respaldo para una restauración administrada.');
-if($('eraseBtn'))$('eraseBtn').onclick=()=>alert('El borrado masivo está deshabilitado en la versión online por seguridad.');
-function renderStorageInfo(){
-  if(!$('storageInfo'))return;
-  $('storageInfo').innerHTML=roleIsManager()
-    ?`<p><b>Modo:</b> Firebase / Firestore</p><p><b>Respaldo JSON:</b> disponible para gerentes al cerrar el día</p>`
-    :`<p><b>Modo:</b> Firebase / Firestore</p><p><b>Respaldo JSON:</b> no disponible para empleados</p><p class="muted">Los datos locales de sesión se limpian al ingresar y al cerrar el día.</p>`;
+
+const FIRESTORE_EXPORT_COLLECTIONS=[
+  'settings','users','staff','products','orders','expenses',
+  'staffSchedules','attendance','dailyOperations','dailyClosures'
+];
+function downloadJson(data,filename){
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');
+  link.href=url;
+  link.download=filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
+function collectionExportTimestamp(){
+  return new Date().toLocaleString('sv-SE',{timeZone:state.settings.timeZone||'America/Santiago'}).replace(' ','_').replaceAll(':','-');
+}
+function setCollectionExportStatus(collectionName,type,message){
+  const container=$('collectionExportStatus');
+  if(!container)return;
+  if(container.classList.contains('muted')){container.classList.remove('muted');container.innerHTML=''}
+  let row=container.querySelector(`[data-export-status="${collectionName}"]`);
+  if(!row){
+    row=document.createElement('div');
+    row.dataset.exportStatus=collectionName;
+    row.style.cssText='padding:10px 0;border-bottom:1px solid #dfe9ea';
+    container.appendChild(row);
+  }
+  const label=type==='success'?'Exportada':type==='error'?'Error':'Exportando';
+  row.innerHTML=`<b>${escapeHtml(collectionName)}</b>: ${label}. <span class="muted">${escapeHtml(message||'')}</span>`;
+}
+async function exportFirestoreCollection(collectionName,button){
+  if(!roleIsAdmin())return alert('Solo un administrador puede exportar las colecciones.');
+  if(!FIRESTORE_EXPORT_COLLECTIONS.includes(collectionName))return alert('Colección no reconocida.');
+  const originalText=button.textContent;
+  button.disabled=true;
+  button.textContent=`Exportando ${collectionName}...`;
+  setCollectionExportStatus(collectionName,'loading','Leyendo datos desde Firestore.');
+  try{
+    const snapshot=await getDocs(collection(firestore,collectionName));
+    const documents=snapshot.docs.map(item=>({id:item.id,...item.data()}));
+    const exportData={
+      format:'pillilandia-firestore-collection-export',
+      version:1,
+      projectId:firebaseConfig.projectId,
+      collection:collectionName,
+      documentCount:documents.length,
+      exportedAt:nowIso(),
+      exportedBy:{uid:currentUser.uid,email:currentUser.email,name:selectedStaff?.name||currentUser.name,role:currentUser.role},
+      documents
+    };
+    downloadJson(exportData,`pillilandia-${collectionName}-${collectionExportTimestamp()}.json`);
+    setCollectionExportStatus(collectionName,'success',`${documents.length} documento(s) descargado(s).`);
+  }catch(error){
+    console.error(`No fue posible exportar ${collectionName}:`,error);
+    setCollectionExportStatus(collectionName,'error',`${error.code||'sin-código'}: ${error.message||String(error)}`);
+    alert(`No fue posible exportar la colección ${collectionName}. Puedes corregir el problema y reintentar solamente esta colección.`);
+  }finally{
+    button.disabled=false;
+    button.textContent=originalText;
+  }
+}
+function renderCollectionExportButtons(){
+  const container=$('collectionExportButtons');
+  if(!container)return;
+  container.innerHTML=FIRESTORE_EXPORT_COLLECTIONS.map(collectionName=>`<button class="btn outline collection-export-btn" type="button" data-collection="${collectionName}">Exportar ${collectionName}</button>`).join('');
+  container.querySelectorAll('.collection-export-btn').forEach(button=>{
+    button.onclick=()=>exportFirestoreCollection(button.dataset.collection,button);
+  });
+}
+renderCollectionExportButtons();
+
 function updateHeaderClock(){const now=new Date();$('headerDate').textContent=now.toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase());$('headerTime').textContent=now.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});const op=getTodayOperation();const closed=op?.status==='closed',opened=op?.status==='open';$('cashStatus').classList.toggle('closed-day',closed||!opened);$('cashStatus').querySelector('span:last-child').textContent=closed?'Día cerrado':opened?'Día abierto':'Día sin abrir'}
 setInterval(updateHeaderClock,1000);
 setInterval(()=>{if(document.querySelector('section#calendar.active'))renderScheduleList()},60000);
-function renderAll(){renderServiceButtons();renderProductButtons();renderCart();renderOrders();renderExpenses();renderProductTable();renderDashboard();renderMonthly();renderCloseDay();renderScheduleStaffChecks();renderScheduleList();renderAttendance();renderOperation();renderStorageInfo();updateAccessState();updateHeaderClock()}
+function renderAll(){renderServiceButtons();renderProductButtons();renderCart();renderOrders();renderExpenses();renderProductTable();renderDashboard();renderMonthly();renderCloseDay();renderScheduleStaffChecks();renderScheduleList();renderAttendance();renderOperation();updateAccessState();updateHeaderClock()}
 $('reportDate').value=today();$('expenseDate').value=today();$('expenseFilterDate').value=today();$('monthlyPeriod').value=today().slice(0,7);$('scheduleMonth').value=today().slice(0,7);$('scheduleDateFrom').value=today();$('scheduleDateTo').value=today();$('attendanceDate').value=today();$('expenseCategory').innerHTML=expenseCats.map(x=>`<option>${x}</option>`).join('');renderAll();applyPermissions();
 </script>
 
