@@ -53,9 +53,25 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 @media(max-width:850px){.schedule-grid{grid-template-columns:1fr}}
 
 @media print{header,nav,.no-print{display:none!important}body{background:#fff}.card{box-shadow:none;border:0}.wrap{max-width:none}}
+
+.toast-container{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:100000;width:min(680px,calc(100% - 24px));display:grid;gap:8px;pointer-events:none}.toast-message{padding:12px 16px;border-radius:11px;background:#12383c;color:#fff;font-weight:800;box-shadow:0 10px 30px rgba(0,0,0,.28);opacity:0;transform:translateY(-12px);transition:opacity .2s ease,transform .2s ease}.toast-message.show{opacity:1;transform:translateY(0)}.toast-message.success{background:#075d38}.toast-message.error{background:#8b1a12}.toast-message.warning{background:#884d00}.order-items-list{margin-top:10px;padding:10px 12px;border-radius:9px;background:#f3f9fa;border:1px solid #c2dadd}.order-item-row{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid #dce9ea}.order-item-row:last-child{border-bottom:0}.edit-order-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(300px,.9fr);gap:14px;align-items:start}.edit-order-products{overflow:visible;padding-right:4px}.edit-order-cart{max-height:440px;overflow:auto}.edit-order-summary{position:sticky;top:0}.edit-order-dialog{max-width:1050px;height:min(92vh,900px);max-height:92vh;overflow:hidden}.edit-order-dialog .dialog-body{height:100%;max-height:92vh;padding:0;display:flex;flex-direction:column;overflow:hidden}.edit-order-fixed{flex:0 0 auto;padding:18px 18px 0;background:#fff;position:relative;z-index:3}.edit-order-fixed #editOrderHeader{margin-bottom:0}.edit-order-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:14px 18px 18px}.edit-order-scroll .edit-order-layout{min-height:100%}@media(max-width:850px){.edit-order-dialog{height:92vh}.edit-order-layout{grid-template-columns:1fr}.edit-order-summary{position:static}.edit-order-products{max-height:none;overflow:visible}.edit-order-cart{max-height:none;overflow:visible}}
+
+@media print{
+  body>*:not(#printReceipt){display:none!important}
+  #printReceipt{display:block!important;width:58mm;max-width:58mm;margin:0;padding:2mm;font-family:monospace;color:#000;background:#fff;font-size:11px;line-height:1.25}
+  #printReceipt .receipt-title{text-align:center;font-size:15px;font-weight:900;margin-bottom:4px}
+  #printReceipt .receipt-center{text-align:center}
+  #printReceipt .receipt-sep{border-top:1px dashed #000;margin:6px 0}
+  #printReceipt .receipt-row{display:flex;justify-content:space-between;gap:6px}
+  #printReceipt .receipt-row span:first-child{flex:1}
+  #printReceipt .receipt-total{font-size:13px;font-weight:900}
+  @page{size:58mm auto;margin:0}
+}
+#printReceipt{display:none}
 </style>
 </head>
 <body>
+<div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 <div id="loginOverlay" class="login-overlay">
   <div class="login-card">
     <div class="login-brand">
@@ -167,9 +183,12 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 </div></section>
 </div>
 
-<dialog id="paymentDialog"><div class="dialog-body"><div class="dialog-head"><h2>Registrar pago</h2><button class="x" onclick="paymentDialog.close()">×</button></div><div id="paymentOrderInfo"></div><div id="tipPicker" class="tip-picker"><label>Propina sugerida</label><div class="tip-options"><button type="button" class="tip-btn" data-tip="0">Sin propina</button><button type="button" class="tip-btn" data-tip="5">5%</button><button type="button" class="tip-btn" data-tip="10">10%</button><button type="button" class="tip-btn" data-tip="15">15%</button><button type="button" class="tip-btn" data-tip="20">20%</button></div><div id="tipHelp" class="muted tiny" style="margin-top:8px"></div></div><div class="row" style="margin-top:12px"><div><label>Medio de pago</label><select id="paymentMethod"><option>Efectivo</option><option>Débito</option><option>Crédito</option><option>Transferencia</option></select></div><div><label>Monto</label><input id="paymentAmount" type="number" min="1" step="1"></div></div><div class="actions"><button class="btn primary" id="addPaymentBtn">Agregar pago</button><button class="btn secondary" onclick="paymentDialog.close()">Cerrar</button></div><div id="paymentsExisting"></div></div></dialog>
+<div id="printReceipt" aria-hidden="true"></div>
+<dialog id="paymentDialog"><div class="dialog-body"><div class="dialog-head"><h2>Registrar pago</h2><button class="x" onclick="paymentDialog.close()">×</button></div><div id="paymentOrderInfo"></div><div id="tipPicker" class="tip-picker"><label>Propina sugerida</label><div class="tip-options"><button type="button" class="tip-btn" data-tip="0">Sin propina</button><button type="button" class="tip-btn" data-tip="5">5%</button><button type="button" class="tip-btn" data-tip="10">10%</button><button type="button" class="tip-btn" data-tip="15">15%</button><button type="button" class="tip-btn" data-tip="20">20%</button></div><div id="tipHelp" class="muted tiny" style="margin-top:8px"></div></div><div class="row" style="margin-top:12px"><div><label>Medio de pago</label><select id="paymentMethod"><option>Efectivo</option><option>Débito</option><option>Crédito</option><option>Transferencia</option></select></div><div><label>Monto</label><input id="paymentAmount" type="number" min="1" step="1"></div></div><div class="actions"><button class="btn primary" id="addPaymentBtn">Agregar pago</button><button class="btn secondary" id="addPaymentPrintBtn">Agregar pago e imprimir</button><button class="btn secondary" onclick="paymentDialog.close()">Cerrar</button></div><div id="paymentsExisting"></div></div></dialog>
 
 <dialog id="creditDialog"><div class="dialog-body"><div class="dialog-head"><h2>Autorizar cuenta fiada</h2><button class="x" onclick="creditDialog.close()">×</button></div><div id="creditOrderInfo"></div><label>Nombre completo o identificación del cliente</label><input id="creditCustomerName" placeholder="Dato obligatorio para autorizar el fiado"><div class="notice" style="margin-top:12px">Esta acción debe ser realizada por un gerente. La cuenta pasará a “Cuentas pendientes”, liberará la mesa y no bloqueará el cierre diario.</div><div class="actions"><button class="btn primary" id="confirmCreditBtn">Confirmar fiado</button><button class="btn secondary" onclick="creditDialog.close()">Cancelar</button></div></div></dialog>
+
+<dialog id="orderEditDialog" class="edit-order-dialog"><div class="dialog-body"><div class="edit-order-fixed"><div class="dialog-head"><h2>Modificar cuenta abierta</h2><button class="x" onclick="closeOrderEditor()">×</button></div><div id="editOrderHeader" class="notice"></div></div><div class="edit-order-scroll"><div class="edit-order-layout"><div><label>Referencia adicional</label><input id="editOrderReference" placeholder="Nombre del cliente o detalle"><label style="margin-top:10px">Observación general</label><textarea id="editOrderNotes" rows="3" placeholder="Ej.: sin azúcar, llevar a mesa..."></textarea><h3 style="margin-top:16px">Agregar productos</h3><div id="editOrderProducts" class="products edit-order-products"></div></div><div class="edit-order-summary"><h3>Productos de la cuenta</h3><div id="editOrderCart" class="edit-order-cart"></div><div class="total"><span>Nuevo total</span><span id="editOrderTotal">$0</span></div><div class="actions"><button class="btn primary" id="saveOrderChangesBtn">Guardar cambios</button><button class="btn secondary" type="button" onclick="closeOrderEditor()">Cancelar</button></div></div></div></div></div></dialog>
 
 <dialog id="saleDetailDialog"><div class="dialog-body"><div class="dialog-head"><h2>Detalle de la venta</h2><button class="x" onclick="saleDetailDialog.close()">×</button></div><div id="saleDetailContent"></div><div class="actions"><button class="btn secondary" onclick="saleDetailDialog.close()">Cerrar</button></div></div></dialog>
 
@@ -211,50 +230,20 @@ const today = () => new Date().toLocaleDateString('en-CA',{timeZone:'America/San
 const esc = s => String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const asDate = v => v?.toDate ? v.toDate() : new Date(v);
 const nowIso = () => new Date().toISOString();
-
-const defaults=[
-['Bebidas Calientes','Té',1000],['Bebidas Calientes','Café Tradicional',1000],['Bebidas Calientes','Café en Grano',2000],['Bebidas Calientes','Affogato Negro',3500],['Bebidas Calientes','Affogato Blanco',3500],['Bebidas Calientes','Café de Máquina',1500],['Bebidas Calientes','Leche Caliente',1500],['Bebidas Calientes','Mate',2500],
-['Bebidas Frías y Jugos','Jugos Naturales',2500],['Bebidas Frías y Jugos','Jugo de Naranja',2000],['Bebidas Frías y Jugos','Café Helado',4000],['Bebidas Frías y Jugos','Milkshake',4000],['Bebidas Frías y Jugos','Bebidas en lata',1500],['Bebidas Frías y Jugos','Agua mineral',1500],['Bebidas Frías y Jugos','Leche con Plátano',1500],
-['Desayunos & Sandwiches','Selladitos Jamón Queso',2000],['Desayunos & Sandwiches','Paila de Huevos',2500],['Desayunos & Sandwiches','Tostadas con Palta',2800],['Desayunos & Sandwiches','Tostadas con Palta y Queso Fresco',3500],['Desayunos & Sandwiches','Sandwich Ave Palta',3800],['Desayunos & Sandwiches','Chaparritas',1500],
-['Helados & Repostería','Artesanal 1 sabor',2800],['Helados & Repostería','Artesanal 2 sabores',4000],['Helados & Repostería','Artesanal 3 sabores',5500],['Helados & Repostería','Helado Soft',1000],['Helados & Repostería','Cono / Vaso extra',500],['Helados & Repostería','Agregados Helados',200],['Helados & Repostería','Trozo de Torta',4500],['Helados & Repostería','Brownie',2800],['Helados & Repostería','Galletas',1500],['Helados & Repostería','Alfajores',600]
-];
-const expenseCats=['Fresa','FrioCid','Suministros','Insumos de Aseo','Inmobiliario','Construcción','Municipalidad','SII','GetNet','Redelcom','Aportes JM','Arriendo','Servicios','Bencina','Otro'];
-const defaultProductDescriptions={
-  'Té':'Variedades de té: Ceylán, verde o frutal.',
-  'Café Tradicional':'Café instantáneo clásico.',
-  'Café en Grano':'Preparado con café en grano recién molido.',
-  'Affogato Negro':'Café caliente con helado a elección.',
-  'Affogato Blanco':'Leche caliente con helado a elección.',
-  'Café de Máquina':'Capuccino, mocaccino o chocolate caliente.',
-  'Leche Caliente':'Servida sola, con café o Milo.',
-  'Mate':'Yerba más 1 litro de agua caliente.',
-  'Jugos Naturales':'Frambuesa, frutilla, mango, maracuyá, chirimoya o piña.',
-  'Jugo de Naranja':'Exprimido en el momento.',
-  'Café Helado':'Café frío con helado a elección y crema.',
-  'Milkshake':'Batido helado con leche y frutas o chocolate.',
-  'Bebidas en lata':'Variedades Coca-Cola, Sprite y otras.',
-  'Agua mineral':'Con o sin gas.',
-  'Leche con Plátano':'Bebida cremosa y nutritiva.',
-  'Selladitos Jamón Queso':'Pan de molde caliente con relleno.',
-  'Paila de Huevos':'Huevos revueltos o fritos.',
-  'Tostadas con Palta':'Pan de molde con palta recién preparada.',
-  'Tostadas con Palta y Queso Fresco':'Pan de molde con palta recién preparada y queso fresco.',
-  'Sandwich Ave Palta':'Pollo desmenuzado con palta fresca.',
-  'Chaparritas':'Masa rellena con vienesa y queso.',
-  'Artesanal 1 sabor':'Helado artesanal en cono o vaso, con un sabor a elección.',
-  'Artesanal 2 sabores':'Helado artesanal en cono o vaso, con dos sabores a elección.',
-  'Artesanal 3 sabores':'Helado artesanal en cono o vaso, con tres sabores a elección.',
-  'Helado Soft':'Helado suave y cremoso.',
-  'Cono / Vaso extra':'Cono o vaso adicional para tu helado.',
-  'Agregados Helados':'Chips, salsa o frutos secos.',
-  'Trozo de Torta':'Porción individual de torta.',
-  'Brownie':'Chocolate frambuesa o chocolate dulce de leche.',
-  'Galletas':'Hechas en casa, ideales para acompañar.',
-  'Alfajores':'Dulce de leche con baño de chocolate.'
-};
+function showToast(message,type='info',duration=3500){
+  const container=$('toastContainer');
+  if(!container||!message)return;
+  const toast=document.createElement('div');
+  toast.className=`toast-message ${type}`;
+  toast.textContent=String(message);
+  container.appendChild(toast);
+  requestAnimationFrame(()=>toast.classList.add('show'));
+  setTimeout(()=>{toast.classList.remove('show');setTimeout(()=>toast.remove(),220)},duration);
+}
+window.alert=message=>showToast(message,'warning',4200);
 
 let state={settings:{tableCount:6,businessName:'Pillilandia',businessSubtitle:'Heladería & Cafetería',currency:'CLP',timeZone:'America/Santiago'},products:[],orders:[],expenses:[],closures:[],staff:[],schedules:[],attendance:[],operations:[]};
-let currentUser=null, selectedStaff=null, cart=[], paymentOrderId=null, creditOrderId=null, selectedTipPercent=10, selectedService={type:'meson',label:'Venta Directa'}, employeeAccessLocked=false;
+let currentUser=null, selectedStaff=null, cart=[], paymentOrderId=null, creditOrderId=null, editOrderId=null, editOrderCart=[], selectedTipPercent=10, selectedService={type:'meson',label:'Venta Directa'}, employeeAccessLocked=false;
 let unsubscribers=[];
 const pendingUnplannedByDate=new Map();
 let attendanceNoticeTimer=null;
@@ -391,7 +380,6 @@ onAuthStateChanged(auth,async user=>{
       setEmployeeShiftLock(true,access.message,access.detail);
       return;
     }
-    if(roleIsManager())await seedProductsIfNeeded();
     startRealtime();
   }catch(err){
     showError($('loginError'),err.message||'No fue posible cargar el perfil del usuario.');
@@ -399,25 +387,18 @@ onAuthStateChanged(auth,async user=>{
   }
 });
 
-async function seedProductsIfNeeded(){
-  const snap=await getDocs(collection(firestore,'products'));
-  if(snap.empty){
-    const batch=writeBatch(firestore);
-    defaults.forEach(([category,name,price],index)=>{
-      const ref=doc(collection(firestore,'products'));
-      batch.set(ref,{category,name,description:defaultProductDescriptions[name]||'',price,stock:0,trackStock:false,active:true,displayOrder:index+1,createdAt:nowIso(),updatedAt:nowIso()});
-    });
-    await batch.commit();
-    return;
-  }
-  const missing=snap.docs.filter(d=>{
-    const p=d.data();
-    return !String(p.description||'').trim()&&defaultProductDescriptions[p.name];
-  });
-  if(!missing.length)return;
-  const batch=writeBatch(firestore);
-  missing.forEach(d=>batch.update(d.ref,{description:defaultProductDescriptions[d.data().name],updatedAt:nowIso(),updatedByUid:currentUser.uid,updatedByName:selectedStaff?.name||currentUser.name}));
-  await batch.commit();
+function renderExpenseCategories(){
+  const select=$('expenseCategory');
+  if(!select)return;
+  const current=select.value;
+  const categories=Array.isArray(state.settings.expenseCategories)
+    ? state.settings.expenseCategories.filter(x=>typeof x==='string'&&x.trim()).map(x=>x.trim())
+    : [];
+  select.innerHTML=categories.length
+    ? categories.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')
+    : '<option value="">Sin categorías configuradas</option>';
+  select.disabled=!categories.length;
+  if(categories.includes(current))select.value=current;
 }
 
 function stopRealtime(){unsubscribers.forEach(fn=>fn());unsubscribers=[]}
@@ -425,6 +406,7 @@ function startRealtime(){
   stopRealtime();
   unsubscribers.push(onSnapshot(doc(firestore,'settings','general'),snap=>{
     if(snap.exists())state.settings={...state.settings,...snap.data()};
+    renderExpenseCategories();
     renderAll();
   },firebaseError));
   unsubscribers.push(onSnapshot(collection(firestore,'products'),snap=>{
@@ -576,15 +558,75 @@ function renderOrders(){
   $('openOrders').innerHTML=openList.length?openList.map(o=>{
     const mine=isOrderOwner(o);
     const actionButtons=mine
-      ?`<button class="btn primary" onclick="openPayment('${o.id}')">Registrar pago</button><button class="btn secondary" onclick="addItemsToOrder('${o.id}')">Agregar productos</button><button class="btn danger" onclick="voidOrder('${o.id}')">Anular</button><button class="btn outline ${roleIsManager()?'':'hidden'}" onclick="openCreditDialog('${o.id}')">Fiar</button>`
+      ?`<button class="btn primary" onclick="openPayment('${o.id}')">Registrar pago</button><button class="btn secondary" onclick="openOrderEditor('${o.id}')">Modificar</button><button class="btn danger" onclick="voidOrder('${o.id}')">Anular</button><button class="btn outline ${roleIsManager()?'':'hidden'}" onclick="openCreditDialog('${o.id}')">Fiar</button>`
       :`<button class="btn secondary" onclick="takeOrderControl('${o.id}')">Tomar control / Asignarme cuenta</button>`;
     const history=(o.ownerHistory||[]),last=history.length?history[history.length-1]:null;
-    return `<div class="order-card"><div class="order-head"><div><b>#${o.number} · ${esc(o.label)}</b><div class="muted tiny">${asDate(o.createdAt).toLocaleString('es-CL')} · ${o.serviceType==='mesa'?'Mesa':'Mesón'} · Creada por ${esc(o.staffName||o.createdByName||'')}</div><div class="tiny" style="margin-top:4px"><b>Propietario actual:</b> ${esc(ownerName(o))}${last?` · Anterior: ${esc(last.previousOwnerName||'Sin asignar')}`:''}</div></div><span class="badge open">Pendiente ${fmt(balance(o))}</span></div><div class="tiny" style="margin-top:8px">${(o.items||[]).map(i=>`${i.qty}× ${esc(i.name)}`).join(' · ')}</div><div class="total"><span>Total ${fmt(chargedTotal(o))}</span><span>Pagado ${fmt(paidTotal(o))}</span></div><div class="actions">${actionButtons}</div></div>`;
+    return `<div class="order-card"><div class="order-head"><div><b>#${o.number} · ${esc(o.label)}</b><div class="muted tiny">${asDate(o.createdAt).toLocaleString('es-CL')} · ${o.serviceType==='mesa'?'Mesa':'Mesón'} · Creada por ${esc(o.staffName||o.createdByName||'')}</div><div class="tiny" style="margin-top:4px"><b>Propietario actual:</b> ${esc(ownerName(o))}${last?` · Anterior: ${esc(last.previousOwnerName||'Sin asignar')}`:''}</div></div><span class="badge open">Pendiente ${fmt(balance(o))}</span></div><div class="order-items-list">${(o.items||[]).map(i=>`<div class="order-item-row"><span>${Number(i.qty)||0}× ${esc(i.name)}</span><b>${fmt((Number(i.price)||0)*(Number(i.qty)||0))}</b></div>`).join('')}</div><div class="total"><span>Total ${fmt(chargedTotal(o))}</span><span>Pagado ${fmt(paidTotal(o))}</span></div><div class="actions">${actionButtons}</div></div>`;
   }).join(''):'<div class="empty">No hay cuentas abiertas</div>';
   $('creditOrdersCount').textContent=`${creditList.length} pendiente${creditList.length===1?'':'s'}`;
-  $('creditOrders').innerHTML=creditList.length?creditList.map(o=>`<div class="order-card"><div class="order-head"><div><b>#${o.number} · ${esc(o.label)}</b><div class="muted tiny">Cliente: <b>${esc(o.creditCustomerName||'Sin identificar')}</b> · Autorizada por ${esc(o.creditedByName||o.updatedByName||'Gerente')}</div></div><span class="badge open">Por cobrar ${fmt(balance(o))}</span></div><div class="tiny" style="margin-top:8px">${(o.items||[]).map(i=>`${i.qty}× ${esc(i.name)}`).join(' · ')}</div><div class="total"><span>Total ${fmt(chargedTotal(o))}</span><span>Pagado ${fmt(paidTotal(o))}</span></div><div class="actions"><button class="btn primary" onclick="openPayment('${o.id}')">Registrar pago</button><button class="btn danger ${roleIsManager()?'':'hidden'}" onclick="voidOrder('${o.id}')">Anular</button></div></div>`).join(''):'<div class="empty">No hay cuentas pendientes</div>';
+  $('creditOrders').innerHTML=creditList.length?creditList.map(o=>`<div class="order-card"><div class="order-head"><div><b>#${o.number} · ${esc(o.label)}</b><div class="muted tiny">Cliente: <b>${esc(o.creditCustomerName||'Sin identificar')}</b> · Autorizada por ${esc(o.creditedByName||o.updatedByName||'Gerente')}</div></div><span class="badge open">Por cobrar ${fmt(balance(o))}</span></div><div class="order-items-list">${(o.items||[]).map(i=>`<div class="order-item-row"><span>${Number(i.qty)||0}× ${esc(i.name)}</span><b>${fmt((Number(i.price)||0)*(Number(i.qty)||0))}</b></div>`).join('')}</div><div class="total"><span>Total ${fmt(chargedTotal(o))}</span><span>Pagado ${fmt(paidTotal(o))}</span></div><div class="actions"><button class="btn primary" onclick="openPayment('${o.id}')">Registrar pago</button><button class="btn danger ${roleIsManager()?'':'hidden'}" onclick="voidOrder('${o.id}')">Anular</button></div></div>`).join(''):'<div class="empty">No hay cuentas pendientes</div>';
 }
 $('orderSearch').oninput=renderOrders;
+function orderBaseLabel(o){
+  if(o.serviceType==='mesa')return String(o.label||'').replace(/^M\d+\s*·?\s*/,'');
+  return String(o.label||'').replace(/^Venta Directa\s*·?\s*/,'');
+}
+function renderEditOrderProducts(){
+  const order=['Helados & Repostería','Bebidas Calientes','Desayunos & Sandwiches','Bebidas Frías y Jugos'];
+  const active=state.products.filter(p=>p.active!==false);let html='';
+  for(const cat of [...order,...new Set(active.map(p=>p.category).filter(c=>!order.includes(c)))]){
+    const items=active.filter(p=>p.category===cat);if(!items.length)continue;
+    html+=`<div class="category">${esc(cat)}</div>`;
+    items.forEach(p=>{const stockNote=p.trackStock?` · stock ${p.stock}`:'';html+=`<button type="button" class="product" onclick="addProductToEditor('${p.id}')"><b>${esc(p.name)}</b><span>${fmt(p.price)}${stockNote}</span></button>`});
+  }
+  html+=`<div class="category">Otro</div><button type="button" class="product" onclick="addCustomToEditor()"><b>OTRO</b><span>Texto y monto libre</span></button>`;
+  $('editOrderProducts').innerHTML=html;
+}
+function renderEditOrderCart(){
+  $('editOrderCart').innerHTML=!editOrderCart.length?'<div class="empty">La cuenta no tiene productos</div>':editOrderCart.map((x,i)=>`<div class="cart-line"><div><b>${esc(x.name)}</b><div class="muted tiny">${fmt(x.price)} c/u</div></div><div class="qty"><button type="button" onclick="changeEditOrderQty(${i},-1)">−</button><b>${x.qty}</b><button type="button" onclick="changeEditOrderQty(${i},1)">+</button></div><div class="money">${fmt(x.price*x.qty)}</div></div>`).join('');
+  $('editOrderTotal').textContent=fmt(editOrderCart.reduce((s,x)=>s+Number(x.price)*Number(x.qty),0));
+}
+window.openOrderEditor=id=>{
+  const o=state.orders.find(x=>x.id===id&&x.status==='open'&&!x.onCredit);
+  if(!o||!ensureOrderActionAccess(o,'modificar esta cuenta'))return;
+  editOrderId=id;
+  editOrderCart=(o.items||[]).map(x=>({...x,qty:Number(x.qty)||0,price:Number(x.price)||0}));
+  $('editOrderReference').value=orderBaseLabel(o);
+  $('editOrderNotes').value=o.notes||'';
+  $('editOrderHeader').innerHTML=`<b>#${o.number} · ${esc(o.label)}</b><br>La edición se realizará sin salir de Cuentas abiertas.`;
+  renderEditOrderProducts();renderEditOrderCart();
+  $('orderEditDialog').showModal();
+};
+window.closeOrderEditor=()=>{editOrderId=null;editOrderCart=[];$('orderEditDialog').close()};
+window.addProductToEditor=id=>{const p=state.products.find(x=>x.id===id);if(!p)return;const line=editOrderCart.find(x=>x.productId===id);if(line)line.qty++;else editOrderCart.push({productId:id,name:p.name,price:Number(p.price),qty:1});renderEditOrderCart()};
+window.addCustomToEditor=()=>{const name=prompt('Nombre del producto o servicio:');if(!name)return;const price=Number(prompt('Monto unitario:'));if(!Number.isFinite(price)||price<0)return alert('Monto inválido');editOrderCart.push({productId:null,name,price,qty:1,custom:true});renderEditOrderCart()};
+window.changeEditOrderQty=(i,d)=>{if(!editOrderCart[i])return;editOrderCart[i].qty+=d;if(editOrderCart[i].qty<=0)editOrderCart.splice(i,1);renderEditOrderCart()};
+function quantitiesByProduct(items){const map=new Map();for(const i of items||[]){if(i.productId)map.set(i.productId,(map.get(i.productId)||0)+Number(i.qty||0));}return map;}
+$('saveOrderChangesBtn').onclick=async()=>{
+  const o=state.orders.find(x=>x.id===editOrderId&&x.status==='open'&&!x.onCredit);
+  if(!o)return alert('La cuenta ya no está disponible para modificar.');
+  if(!editOrderCart.length)return alert('La cuenta debe mantener al menos un producto.');
+  const oldQty=quantitiesByProduct(o.items),newQty=quantitiesByProduct(editOrderCart);
+  for(const [productId,qty] of newQty){
+    const p=state.products.find(x=>x.id===productId);if(!p?.trackStock)continue;
+    const available=Number(p.stock||0)+Number(oldQty.get(productId)||0);
+    if(qty>available)return alert(`No hay stock suficiente de ${p.name}. Disponible para esta cuenta: ${available}.`);
+  }
+  const base=o.serviceType==='mesa'?(tableCodeFromOrder(o)||'Mesa'):'Venta Directa';
+  const extra=$('editOrderReference').value.trim();
+  const label=extra?`${base} · ${extra}`:base;
+  const batch=writeBatch(firestore);
+  batch.update(doc(firestore,'orders',o.id),{items:editOrderCart.map(x=>({...x})),label,notes:$('editOrderNotes').value.trim(),...auditFields()});
+  const productIds=new Set([...oldQty.keys(),...newQty.keys()]);
+  for(const productId of productIds){
+    const p=state.products.find(x=>x.id===productId);if(!p?.trackStock)continue;
+    const delta=Number(oldQty.get(productId)||0)-Number(newQty.get(productId)||0);
+    if(delta)batch.update(doc(firestore,'products',productId),{stock:Number(p.stock||0)+delta,...auditFields()});
+  }
+  await batch.commit();
+  closeOrderEditor();
+  showToast(`Cuenta #${o.number} modificada correctamente.`,'success');
+};
 window.takeOrderControl=async id=>{
   const o=state.orders.find(x=>x.id===id);
   if(!canTakeOrder(o))return;
@@ -658,7 +700,30 @@ function renderPaymentDialog(){
   $('paymentAmount').value=pending||'';
   $('paymentsExisting').innerHTML=(o.payments||[]).length?`<h3 style="margin-top:16px">Pagos registrados</h3>`+o.payments.map(p=>`<div class="payment-line"><b>${esc(p.method)}</b> · ${fmt(p.amount)} <span class="muted tiny">${asDate(p.createdAt).toLocaleString('es-CL')}</span></div>`).join(''):'';
 }
-$('addPaymentBtn').onclick=async()=>{
+function buildReceiptHtml(o,payment,percent,tip,total,newBalance){
+  const items=(o.items||[]).map(i=>`<div class="receipt-row"><span>${Number(i.qty)||0} x ${esc(i.name)}</span><b>${fmt((Number(i.price)||0)*(Number(i.qty)||0))}</b></div>`).join('');
+  return `<div class="receipt-title">PILLILANDIA</div>
+    <div class="receipt-center">Heladería y Cafetería</div>
+    <div class="receipt-center">Comprobante de pago</div>
+    <div class="receipt-sep"></div>
+    <div>Cuenta: #${o.number} · ${esc(o.label)}</div>
+    <div>Fecha: ${new Date().toLocaleString('es-CL',{hour12:false})}</div>
+    <div class="receipt-sep"></div>
+    ${items}
+    <div class="receipt-sep"></div>
+    <div class="receipt-row"><span>Consumo</span><b>${fmt(orderTotal(o))}</b></div>
+    <div class="receipt-row"><span>Propina (${percent}%)</span><b>${fmt(tip)}</b></div>
+    <div class="receipt-row receipt-total"><span>Total cuenta</span><b>${fmt(total)}</b></div>
+    <div class="receipt-sep"></div>
+    <div class="receipt-row"><span>${esc(payment.method)}</span><b>${fmt(payment.amount)}</b></div>
+    <div class="receipt-row"><span>Saldo pendiente</span><b>${fmt(newBalance)}</b></div>
+    <div class="receipt-sep"></div>
+    <div class="receipt-center">¡Gracias por preferirnos!</div>
+    <div class="receipt-center" style="margin-top:8px;font-weight:700">Comprobante no válido como boleta.</div>
+    <div class="receipt-center" style="margin-top:8px">Síguenos en Instagram:</div>
+    <div class="receipt-center" style="font-weight:700">@pillilandia</div>`;
+}
+async function registerPayment({printAfter=false}={}){
   const o=state.orders.find(x=>x.id===paymentOrderId),amount=Number($('paymentAmount').value);
   if(!o||!Number.isFinite(amount)||amount<=0)return alert('Ingresa un monto válido.');
   const hasPayments=(o.payments||[]).length>0;
@@ -668,17 +733,23 @@ $('addPaymentBtn').onclick=async()=>{
   const currentPaid=paidTotal(o);
   const currentBalance=Math.max(0,total-currentPaid);
   if(amount>currentBalance)return alert(`El monto supera el saldo de ${fmt(currentBalance)}.`);
-  const payments=[...(o.payments||[]),{id:uid(),method:$('paymentMethod').value,amount,createdAt:nowIso(),businessDate:today(),staffId:selectedStaff?.id||null,staffName:selectedStaff?.name||null}];
+  const payment={id:uid(),method:$('paymentMethod').value,amount,createdAt:nowIso(),businessDate:today(),staffId:selectedStaff?.id||null,staffName:selectedStaff?.name||null};
+  const payments=[...(o.payments||[]),payment];
   const newBalance=Math.max(0,total-payments.reduce((s,p)=>s+Number(p.amount),0));
   const pendingStatus=(o.status==='credit'||o.onCredit===true)?'credit':'open';
   await updateDoc(doc(firestore,'orders',o.id),{payments,tipPercent:percent,tipAmount:tip,status:newBalance===0?'closed':pendingStatus,closedAt:newBalance===0?nowIso():null,...auditFields()});
-  if(newBalance===0){$('paymentDialog').close();switchTab('orders');alert('Cuenta pagada y cerrada.')}else renderPaymentDialog();
-};
-window.addItemsToOrder=id=>{const o=state.orders.find(x=>x.id===id);if(!o||!ensureOrderActionAccess(o,'agregar productos a esta cuenta'))return;cart=[];selectedService={type:o.serviceType,label:o.serviceType==='mesa'?(String(o.label).match(/^M\d+/)?.[0]||'M1'):'Venta Directa'};$('orderLabel').value=String(o.label).replace(/^M\d+\s*·?\s*|^Venta Directa\s*·?\s*/,'');$('orderNotes').value=`Agregar al pedido #${o.number}`;switchTab('sale');const oldSave=$('savePending').onclick,oldPay=$('payNow').onclick;const finish=async pay=>{if(!cart.length)return alert('Agrega productos.');const err=validateStock(cart);if(err)return alert(err);const batch=writeBatch(firestore);batch.update(doc(firestore,'orders',o.id),{items:[...(o.items||[]),...cart.map(x=>({...x}))],...auditFields()});for(const i of cart){const p=state.products.find(x=>x.id===i.productId);if(p?.trackStock)batch.update(doc(firestore,'products',p.id),{stock:Number(p.stock)-i.qty,...auditFields()})}await batch.commit();cart=[];renderCart();$('savePending').onclick=oldSave;$('payNow').onclick=oldPay;if(pay)openPayment(id);else switchTab('orders')};$('savePending').onclick=()=>finish(false);$('payNow').onclick=()=>finish(true)};
+  if(printAfter){
+    $('printReceipt').innerHTML=buildReceiptHtml(o,payment,percent,tip,total,newBalance);
+    setTimeout(()=>window.print(),120);
+  }
+  if(newBalance===0){$('paymentDialog').close();switchTab('orders');alert(printAfter?'Cuenta pagada, cerrada y enviada a impresión.':'Cuenta pagada y cerrada.')}else renderPaymentDialog();
+}
+$('addPaymentBtn').onclick=()=>registerPayment({printAfter:false});
+$('addPaymentPrintBtn').onclick=()=>registerPayment({printAfter:true});
 window.voidOrder=async id=>{const o=state.orders.find(x=>x.id===id);if(!o||!ensureOrderActionAccess(o,'anular esta cuenta')||!confirm('¿Anular esta cuenta? El stock controlado será devuelto.'))return;const batch=writeBatch(firestore);batch.update(doc(firestore,'orders',id),{status:'void',voidedAt:nowIso(),...auditFields()});for(const i of o.items||[]){const p=state.products.find(x=>x.id===i.productId);if(p?.trackStock)batch.update(doc(firestore,'products',p.id),{stock:Number(p.stock)+Number(i.qty),...auditFields()})}await batch.commit()};
 
 function renderExpenses(){const f=$('expenseFilterDate').value;const xs=state.expenses.filter(x=>!f||x.date===f).sort((a,b)=>String(b.date+b.createdAt).localeCompare(String(a.date+a.createdAt)));$('expenseDayTotal').textContent=fmt(xs.reduce((s,x)=>s+Number(x.amount),0));$('expenseDayCount').textContent=xs.length;$('expenseList').innerHTML=xs.length?xs.map(x=>`<div class="expense-line"><div class="order-head"><div><b>${esc(x.category)}</b><div class="muted tiny">${x.date}${x.description?' · '+esc(x.description):''} · ${esc(x.createdByName||'')}</div></div><div><span class="money">${fmt(x.amount)}</span> <button class="btn danger tiny" onclick="deleteExpense('${x.id}')">Eliminar</button></div></div></div>`).join(''):'<div class="empty">No hay gastos para el día seleccionado</div>'}
-$('expenseForm').onsubmit=async e=>{e.preventDefault();await addDoc(collection(firestore,'expenses'),{date:$('expenseDate').value,category:$('expenseCategory').value,description:$('expenseDescription').value.trim(),amount:Number($('expenseAmount').value),createdAt:nowIso(),...actorFields(),...auditFields()});$('expenseAmount').value='';$('expenseDescription').value='';$('expenseFilterDate').value=$('expenseDate').value};$('expenseFilterDate').onchange=renderExpenses;window.deleteExpense=async id=>{if(confirm('¿Eliminar este gasto?'))await deleteDoc(doc(firestore,'expenses',id))};
+$('expenseForm').onsubmit=async e=>{e.preventDefault();const category=$('expenseCategory').value;if(!category){alert('No hay categorías de gastos configuradas en settings/general.');return;}await addDoc(collection(firestore,'expenses'),{date:$('expenseDate').value,category,description:$('expenseDescription').value.trim(),amount:Number($('expenseAmount').value),createdAt:nowIso(),...actorFields(),...auditFields()});$('expenseAmount').value='';$('expenseDescription').value='';$('expenseFilterDate').value=$('expenseDate').value};$('expenseFilterDate').onchange=renderExpenses;window.deleteExpense=async id=>{if(confirm('¿Eliminar este gasto?'))await deleteDoc(doc(firestore,'expenses',id))};
 
 function productSalesSummary(orders){
   const map=new Map();
