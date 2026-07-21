@@ -1032,7 +1032,7 @@ function setCollectionExportStatus(collectionName,type,message){
     container.appendChild(row);
   }
   const label=type==='success'?'Exportada':type==='error'?'Error':'Exportando';
-  row.innerHTML=`<b>${escapeHtml(collectionName)}</b>: ${label}. <span class="muted">${escapeHtml(message||'')}</span>`;
+  row.innerHTML=`<b>${esc(collectionName)}</b>: ${label}. <span class="muted">${esc(message||'')}</span>`;
 }
 async function exportFirestoreCollection(collectionName,button){
   if(!roleIsAdmin())return alert('Solo un administrador puede exportar las colecciones.');
