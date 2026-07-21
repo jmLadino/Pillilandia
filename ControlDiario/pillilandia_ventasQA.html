@@ -69,17 +69,21 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 }
 
 @media print{
+  html,body{width:58mm!important;height:auto!important;min-height:0!important;margin:0!important;padding:0!important;background:#fff!important}
   body>*:not(#printReceipt){display:none!important}
-  #printReceipt{display:block!important;width:58mm;max-width:58mm;margin:0;padding:2mm;font-family:monospace;color:#000;background:#fff;font-size:11px;line-height:1.25}
-  #printReceipt .receipt-title{text-align:center;font-size:15px;font-weight:900;margin-bottom:4px}
+  #printReceipt{display:inline-block!important;box-sizing:border-box;width:58mm;max-width:58mm;height:auto!important;min-height:0!important;margin:0!important;padding:2mm 2.5mm 3mm;font-family:"Courier New",monospace;color:#000;background:#fff;font-size:10px;line-height:1.18;overflow:visible;page-break-after:avoid;break-after:avoid}
+  #printReceipt .receipt-title{text-align:center;font-size:16px;font-weight:900;line-height:1;margin:0 0 3px}
+  #printReceipt .receipt-subtitle{text-align:center;font-size:10px;line-height:1.15}
   #printReceipt .receipt-center{text-align:center}
-  #printReceipt .receipt-sep{border-top:1px dashed #000;margin:6px 0}
-  #printReceipt .receipt-row{display:flex;justify-content:space-between;gap:6px}
-  #printReceipt .receipt-row span:first-child{flex:1}
-  #printReceipt .receipt-total{font-size:13px;font-weight:900}
+  #printReceipt .receipt-sep{border-top:1px dashed #000;margin:5px 0}
+  #printReceipt .receipt-row{display:flex;align-items:flex-start;justify-content:space-between;gap:5px;margin:1px 0}
+  #printReceipt .receipt-row span:first-child{flex:1;min-width:0;overflow-wrap:anywhere}
+  #printReceipt .receipt-row b{white-space:nowrap;text-align:right}
+  #printReceipt .receipt-total{font-size:12px;font-weight:900;margin-top:2px}
+  #printReceipt .receipt-warning{margin-top:7px;padding-top:5px;border-top:1px dashed #000;text-align:center;font-size:9px;font-weight:700;text-transform:uppercase}
   @page{size:58mm auto;margin:0}
 }
-#printReceipt{display:none}
+#printReceipt{display:none;width:58mm;height:auto;min-height:0}
 </style>
 </head>
 <body>
@@ -716,25 +720,32 @@ function renderPaymentDialog(){
   $('paymentsExisting').innerHTML=(o.payments||[]).length?`<h3 style="margin-top:16px">Pagos registrados</h3>`+o.payments.map(p=>`<div class="payment-line"><b>${esc(p.method)}</b> · ${fmt(p.amount)} <span class="muted tiny">${asDate(p.createdAt).toLocaleString('es-CL')}</span></div>`).join(''):'';
 }
 function buildReceiptHtml(o,payment,percent,tip,total,newBalance){
-  const items=(o.items||[]).map(i=>`<div class="receipt-row"><span>${Number(i.qty)||0} x ${esc(i.name)}</span><b>${fmt((Number(i.price)||0)*(Number(i.qty)||0))}</b></div>`).join('');
+  const items=(o.items||[]).map(i=>{
+    const qty=Number(i.qty)||0;
+    const lineTotal=(Number(i.price)||0)*qty;
+    return `<div class="receipt-row"><span>${qty} x ${esc(i.name)}</span><b>${fmt(lineTotal)}</b></div>`;
+  }).join('');
+  const dateText=new Date().toLocaleString('es-CL',{hour12:false});
+  const staffName=selectedStaff?.name||currentUser?.name||'';
   return `<div class="receipt-title">PILLILANDIA</div>
-    <div class="receipt-center">Heladería y Cafetería</div>
-    <div class="receipt-center">Comprobante de pago</div>
+    <div class="receipt-subtitle">Heladería y Cafetería</div>
+    <div class="receipt-subtitle">Comprobante de pago</div>
     <div class="receipt-sep"></div>
     <div>Cuenta: #${o.number} · ${esc(o.label)}</div>
-    <div>Fecha: ${new Date().toLocaleString('es-CL',{hour12:false})}</div>
-    <div>Atendido por: ${esc(selectedStaff?.name||currentUser?.name||'')}</div>
+    <div>Fecha: ${dateText}</div>
+    <div>Atendido por: ${esc(staffName)}</div>
     <div class="receipt-sep"></div>
     ${items}
     <div class="receipt-sep"></div>
     <div class="receipt-row"><span>Consumo</span><b>${fmt(orderTotal(o))}</b></div>
     <div class="receipt-row"><span>Propina (${percent}%)</span><b>${fmt(tip)}</b></div>
-    <div class="receipt-row receipt-total"><span>Total cuenta</span><b>${fmt(total)}</b></div>
+    <div class="receipt-row receipt-total"><span>TOTAL CUENTA</span><b>${fmt(total)}</b></div>
     <div class="receipt-sep"></div>
     <div class="receipt-row"><span>${esc(payment.method)}</span><b>${fmt(payment.amount)}</b></div>
     <div class="receipt-row"><span>Saldo pendiente</span><b>${fmt(newBalance)}</b></div>
     <div class="receipt-sep"></div>
-    <div class="receipt-center">¡Gracias por su compra!</div>`;
+    <div class="receipt-center">¡Gracias por su compra!</div>
+    <div class="receipt-warning">Comprobante no válido como boleta</div>`;
 }
 async function registerPayment({printAfter=false}={}){
   const o=state.orders.find(x=>x.id===paymentOrderId),amount=Number($('paymentAmount').value);
