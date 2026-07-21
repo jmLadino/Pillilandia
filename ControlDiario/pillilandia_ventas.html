@@ -157,8 +157,8 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 <section id="products"><div class="card"><div class="notice">El stock de esta primera versión es por producto vendido (unidades). Para controlar ingredientes —leche, café, helado por sabor, vasos— se necesitará definir recetas y unidades de medida en una segunda etapa.</div><div class="row"><div><h2>Productos y stock simple</h2></div><div><button class="btn primary" id="newProductBtn">Agregar producto</button></div></div><div style="overflow:auto"><table><thead><tr><th>Producto</th><th>Descripción</th><th>Categoría</th><th class="right">Precio</th><th class="right">Stock</th><th>Controla stock</th><th>Activo</th><th></th></tr></thead><tbody id="productTable"></tbody></table></div></div></section>
 
 <section id="dataExport" class="admin-only role-hidden"><div class="grid">
-<div class="card span-12"><h2>Exportación de datos por colección</h2><div class="notice">Cada colección se descarga de forma independiente. Si una exportación falla por permisos o conexión, puedes reintentar solamente esa colección sin repetir las demás.</div><div id="collectionExportButtons" class="actions" style="margin-top:14px"></div></div>
-<div class="card span-12"><h3>Estado de las exportaciones</h3><div id="collectionExportStatus" class="muted">Aún no se ha realizado ninguna exportación.</div></div>
+<div class="card span-12"><h2>Exportación e importación de datos por colección</h2><div class="notice">Cada colección se procesa de forma independiente. La importación conserva el ID de cada documento y reemplaza el contenido de los documentos incluidos en el JSON, pero no elimina documentos adicionales que ya existan en el ambiente de destino.</div><div id="collectionTransferRows" style="margin-top:14px"></div><input id="collectionImportFile" type="file" accept="application/json,.json" class="hidden"></div>
+<div class="card span-12"><h3>Estado de las operaciones</h3><div id="collectionExportStatus" class="muted">Aún no se ha realizado ninguna exportación o importación.</div></div>
 </div></section>
 
 <section id="backup"><div class="grid">
@@ -175,7 +175,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 
 <dialog id="productDialog"><div class="dialog-body"><div class="dialog-head"><h2 id="productDialogTitle">Producto</h2><button class="x" onclick="productDialog.close()">×</button></div><input id="editProductId" type="hidden"><label>Nombre</label><input id="editProductName"><label style="margin-top:10px">Descripción para el menú público</label><textarea id="editProductDescription" rows="2" placeholder="Ej.: Preparado con café en grano recién molido."></textarea><div class="row" style="margin-top:10px"><div><label>Categoría</label><input id="editProductCategory"></div><div><label>Precio</label><input id="editProductPrice" type="number" min="0"></div></div><div class="row" style="margin-top:10px"><div><label>Stock actual</label><input id="editProductStock" type="number" step="1"></div><div><label>Control de stock</label><select id="editProductTrack"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Activo</label><select id="editProductActive"><option value="true">Sí</option><option value="false">No</option></select></div></div><button class="btn primary" style="margin-top:12px" id="saveProductBtn">Guardar producto</button></div></dialog>
 
-<!-- Versión 3.24: rol administrador y exportación unitaria por colección -->
+<!-- Versión 3.26: rol administrador, exportación e importación unitaria por colección -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import {
@@ -185,7 +185,7 @@ import {
 import {
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
   collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc,
-  onSnapshot, query, where, writeBatch
+  onSnapshot, query, where, writeBatch, Timestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -1006,6 +1006,8 @@ const FIRESTORE_EXPORT_COLLECTIONS=[
   'settings','users','staff','products','orders','expenses',
   'staffSchedules','attendance','dailyOperations','dailyClosures'
 ];
+let pendingImportCollection='';
+let pendingImportButton=null;
 function downloadJson(data,filename){
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
@@ -1031,8 +1033,8 @@ function setCollectionExportStatus(collectionName,type,message){
     row.style.cssText='padding:10px 0;border-bottom:1px solid #dfe9ea';
     container.appendChild(row);
   }
-  const label=type==='success'?'Exportada':type==='error'?'Error':'Exportando';
-  row.innerHTML=`<b>${esc(collectionName)}</b>: ${label}. <span class="muted">${esc(message||'')}</span>`;
+  const labels={success:'Completado',error:'Error',loading:'Procesando'};
+  row.innerHTML=`<b>${esc(collectionName)}</b>: ${labels[type]||'Estado'}. <span class="muted">${esc(message||'')}</span>`;
 }
 async function exportFirestoreCollection(collectionName,button){
   if(!roleIsAdmin())return alert('Solo un administrador puede exportar las colecciones.');
@@ -1065,15 +1067,117 @@ async function exportFirestoreCollection(collectionName,button){
     button.textContent=originalText;
   }
 }
-function renderCollectionExportButtons(){
-  const container=$('collectionExportButtons');
+function reviveFirestoreValues(value){
+  if(Array.isArray(value))return value.map(reviveFirestoreValues);
+  if(value&&typeof value==='object'){
+    const keys=Object.keys(value);
+    const seconds=value.seconds??value._seconds;
+    const nanoseconds=value.nanoseconds??value._nanoseconds??0;
+    const timestampShape=(value.type==='firestore/timestamp'||keys.every(k=>['seconds','nanoseconds','_seconds','_nanoseconds','type'].includes(k)))&&Number.isFinite(Number(seconds));
+    if(timestampShape)return new Timestamp(Number(seconds),Number(nanoseconds));
+    const output={};
+    for(const [key,item] of Object.entries(value)){
+      if(['__proto__','prototype','constructor'].includes(key))throw new Error(`El JSON contiene una clave no permitida: ${key}`);
+      output[key]=reviveFirestoreValues(item);
+    }
+    return output;
+  }
+  return value;
+}
+function validateCollectionImport(payload,expectedCollection){
+  if(!payload||typeof payload!=='object')throw new Error('El archivo no contiene un objeto JSON válido.');
+  if(payload.format!=='pillilandia-firestore-collection-export')throw new Error('El archivo no corresponde al formato de exportación de Pillilandia.');
+  if(payload.collection!==expectedCollection)throw new Error(`El JSON pertenece a la colección ${payload.collection||'(sin identificar)'}, no a ${expectedCollection}.`);
+  if(!Array.isArray(payload.documents))throw new Error('El JSON no contiene la lista documents.');
+  const seen=new Set();
+  payload.documents.forEach((item,index)=>{
+    if(!item||typeof item!=='object'||Array.isArray(item))throw new Error(`Documento inválido en la posición ${index+1}.`);
+    if(typeof item.id!=='string'||!item.id.trim())throw new Error(`Falta el ID del documento en la posición ${index+1}.`);
+    if(item.id.includes('/'))throw new Error(`El ID ${item.id} no puede contener una barra.`);
+    if(seen.has(item.id))throw new Error(`El ID ${item.id} está repetido en el archivo.`);
+    seen.add(item.id);
+  });
+  return payload.documents;
+}
+async function importFirestoreCollection(collectionName,file,button){
+  if(!roleIsAdmin())return alert('Solo un administrador puede importar las colecciones.');
+  const originalText=button.textContent;
+  button.disabled=true;
+  button.textContent=`Importando ${collectionName}...`;
+  setCollectionExportStatus(collectionName,'loading',`Validando ${file.name}.`);
+  try{
+    const text=await file.text();
+    let payload;
+    try{payload=JSON.parse(text)}catch{throw new Error('El archivo no contiene un JSON válido.');}
+    const documents=validateCollectionImport(payload,collectionName);
+    const sourceProject=payload.projectId||'no informado';
+    const confirmed=confirm(
+      `Se importarán ${documents.length} documento(s) en la colección ${collectionName}.\n\n`+
+      `Origen: ${sourceProject}\nDestino: ${firebaseConfig.projectId}\n\n`+
+      'Los documentos con el mismo ID serán reemplazados. Los documentos adicionales del destino no serán eliminados. ¿Deseas continuar?'
+    );
+    if(!confirmed){
+      setCollectionExportStatus(collectionName,'error','Importación cancelada por el usuario.');
+      return;
+    }
+    let processed=0;
+    const batchSize=400;
+    for(let offset=0;offset<documents.length;offset+=batchSize){
+      const batch=writeBatch(firestore);
+      const chunk=documents.slice(offset,offset+batchSize);
+      for(const exportedDocument of chunk){
+        const {id,...rawData}=exportedDocument;
+        batch.set(doc(firestore,collectionName,id),reviveFirestoreValues(rawData));
+      }
+      await batch.commit();
+      processed+=chunk.length;
+      setCollectionExportStatus(collectionName,'loading',`${processed} de ${documents.length} documento(s) escritos.`);
+    }
+    setCollectionExportStatus(collectionName,'success',`${processed} documento(s) importado(s) desde ${file.name}.`);
+    alert(`La colección ${collectionName} fue importada correctamente (${processed} documentos).`);
+  }catch(error){
+    console.error(`No fue posible importar ${collectionName}:`,error);
+    setCollectionExportStatus(collectionName,'error',`${error.code||'sin-código'}: ${error.message||String(error)}`);
+    alert(`No fue posible importar la colección ${collectionName}: ${error.message||String(error)}`);
+  }finally{
+    button.disabled=false;
+    button.textContent=originalText;
+  }
+}
+function requestCollectionImport(collectionName,button){
+  pendingImportCollection=collectionName;
+  pendingImportButton=button;
+  const input=$('collectionImportFile');
+  input.value='';
+  input.click();
+}
+function renderCollectionTransferRows(){
+  const container=$('collectionTransferRows');
   if(!container)return;
-  container.innerHTML=FIRESTORE_EXPORT_COLLECTIONS.map(collectionName=>`<button class="btn outline collection-export-btn" type="button" data-collection="${collectionName}">Exportar ${collectionName}</button>`).join('');
+  container.innerHTML=FIRESTORE_EXPORT_COLLECTIONS.map(collectionName=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid #dfe9ea">
+      <b style="min-width:170px">${esc(collectionName)}</b>
+      <div class="actions" style="margin:0">
+        <button class="btn outline collection-export-btn" type="button" data-collection="${collectionName}">Exportar</button>
+        <button class="btn primary collection-import-btn" type="button" data-collection="${collectionName}">Importar JSON</button>
+      </div>
+    </div>`).join('');
   container.querySelectorAll('.collection-export-btn').forEach(button=>{
     button.onclick=()=>exportFirestoreCollection(button.dataset.collection,button);
   });
+  container.querySelectorAll('.collection-import-btn').forEach(button=>{
+    button.onclick=()=>requestCollectionImport(button.dataset.collection,button);
+  });
 }
-renderCollectionExportButtons();
+$('collectionImportFile').addEventListener('change',async event=>{
+  const file=event.target.files?.[0];
+  if(!file||!pendingImportCollection||!pendingImportButton)return;
+  await importFirestoreCollection(pendingImportCollection,file,pendingImportButton);
+  pendingImportCollection='';
+  pendingImportButton=null;
+  event.target.value='';
+});
+renderCollectionTransferRows();
 
 function updateHeaderClock(){const now=new Date();$('headerDate').textContent=now.toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase());$('headerTime').textContent=now.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});const op=getTodayOperation();const closed=op?.status==='closed',opened=op?.status==='open';$('cashStatus').classList.toggle('closed-day',closed||!opened);$('cashStatus').querySelector('span:last-child').textContent=closed?'Día cerrado':opened?'Día abierto':'Día sin abrir'}
 setInterval(updateHeaderClock,1000);
