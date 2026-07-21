@@ -227,47 +227,6 @@ const esc = s => String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>
 const asDate = v => v?.toDate ? v.toDate() : new Date(v);
 const nowIso = () => new Date().toISOString();
 
-const defaults=[
-['Bebidas Calientes','Té',1000],['Bebidas Calientes','Café Tradicional',1000],['Bebidas Calientes','Café en Grano',2000],['Bebidas Calientes','Affogato Negro',3500],['Bebidas Calientes','Affogato Blanco',3500],['Bebidas Calientes','Café de Máquina',1500],['Bebidas Calientes','Leche Caliente',1500],['Bebidas Calientes','Mate',2500],
-['Bebidas Frías y Jugos','Jugos Naturales',2500],['Bebidas Frías y Jugos','Jugo de Naranja',2000],['Bebidas Frías y Jugos','Café Helado',4000],['Bebidas Frías y Jugos','Milkshake',4000],['Bebidas Frías y Jugos','Bebidas en lata',1500],['Bebidas Frías y Jugos','Agua mineral',1500],['Bebidas Frías y Jugos','Leche con Plátano',1500],
-['Desayunos & Sandwiches','Selladitos Jamón Queso',2000],['Desayunos & Sandwiches','Paila de Huevos',2500],['Desayunos & Sandwiches','Tostadas con Palta',2800],['Desayunos & Sandwiches','Tostadas con Palta y Queso Fresco',3500],['Desayunos & Sandwiches','Sandwich Ave Palta',3800],['Desayunos & Sandwiches','Chaparritas',1500],
-['Helados & Repostería','Artesanal 1 sabor',2800],['Helados & Repostería','Artesanal 2 sabores',4000],['Helados & Repostería','Artesanal 3 sabores',5500],['Helados & Repostería','Helado Soft',1000],['Helados & Repostería','Cono / Vaso extra',500],['Helados & Repostería','Agregados Helados',200],['Helados & Repostería','Trozo de Torta',4500],['Helados & Repostería','Brownie',2800],['Helados & Repostería','Galletas',1500],['Helados & Repostería','Alfajores',600]
-];
-const expenseCats=['Fresa','FrioCid','Suministros','Insumos de Aseo','Inmobiliario','Construcción','Municipalidad','SII','GetNet','Redelcom','Aportes JM','Arriendo','Servicios','Bencina','Otro'];
-const defaultProductDescriptions={
-  'Té':'Variedades de té: Ceylán, verde o frutal.',
-  'Café Tradicional':'Café instantáneo clásico.',
-  'Café en Grano':'Preparado con café en grano recién molido.',
-  'Affogato Negro':'Café caliente con helado a elección.',
-  'Affogato Blanco':'Leche caliente con helado a elección.',
-  'Café de Máquina':'Capuccino, mocaccino o chocolate caliente.',
-  'Leche Caliente':'Servida sola, con café o Milo.',
-  'Mate':'Yerba más 1 litro de agua caliente.',
-  'Jugos Naturales':'Frambuesa, frutilla, mango, maracuyá, chirimoya o piña.',
-  'Jugo de Naranja':'Exprimido en el momento.',
-  'Café Helado':'Café frío con helado a elección y crema.',
-  'Milkshake':'Batido helado con leche y frutas o chocolate.',
-  'Bebidas en lata':'Variedades Coca-Cola, Sprite y otras.',
-  'Agua mineral':'Con o sin gas.',
-  'Leche con Plátano':'Bebida cremosa y nutritiva.',
-  'Selladitos Jamón Queso':'Pan de molde caliente con relleno.',
-  'Paila de Huevos':'Huevos revueltos o fritos.',
-  'Tostadas con Palta':'Pan de molde con palta recién preparada.',
-  'Tostadas con Palta y Queso Fresco':'Pan de molde con palta recién preparada y queso fresco.',
-  'Sandwich Ave Palta':'Pollo desmenuzado con palta fresca.',
-  'Chaparritas':'Masa rellena con vienesa y queso.',
-  'Artesanal 1 sabor':'Helado artesanal en cono o vaso, con un sabor a elección.',
-  'Artesanal 2 sabores':'Helado artesanal en cono o vaso, con dos sabores a elección.',
-  'Artesanal 3 sabores':'Helado artesanal en cono o vaso, con tres sabores a elección.',
-  'Helado Soft':'Helado suave y cremoso.',
-  'Cono / Vaso extra':'Cono o vaso adicional para tu helado.',
-  'Agregados Helados':'Chips, salsa o frutos secos.',
-  'Trozo de Torta':'Porción individual de torta.',
-  'Brownie':'Chocolate frambuesa o chocolate dulce de leche.',
-  'Galletas':'Hechas en casa, ideales para acompañar.',
-  'Alfajores':'Dulce de leche con baño de chocolate.'
-};
-
 let state={settings:{tableCount:6,businessName:'Pillilandia',businessSubtitle:'Heladería & Cafetería',currency:'CLP',timeZone:'America/Santiago'},products:[],orders:[],expenses:[],closures:[],staff:[],schedules:[],attendance:[],operations:[]};
 let currentUser=null, selectedStaff=null, cart=[], paymentOrderId=null, creditOrderId=null, selectedTipPercent=10, selectedService={type:'meson',label:'Venta Directa'}, employeeAccessLocked=false;
 let unsubscribers=[];
@@ -406,7 +365,6 @@ onAuthStateChanged(auth,async user=>{
       setEmployeeShiftLock(true,access.message,access.detail);
       return;
     }
-    if(roleIsManager())await seedProductsIfNeeded();
     startRealtime();
   }catch(err){
     showError($('loginError'),err.message||'No fue posible cargar el perfil del usuario.');
@@ -414,25 +372,18 @@ onAuthStateChanged(auth,async user=>{
   }
 });
 
-async function seedProductsIfNeeded(){
-  const snap=await getDocs(collection(firestore,'products'));
-  if(snap.empty){
-    const batch=writeBatch(firestore);
-    defaults.forEach(([category,name,price],index)=>{
-      const ref=doc(collection(firestore,'products'));
-      batch.set(ref,{category,name,description:defaultProductDescriptions[name]||'',price,stock:0,trackStock:false,active:true,displayOrder:index+1,createdAt:nowIso(),updatedAt:nowIso()});
-    });
-    await batch.commit();
-    return;
-  }
-  const missing=snap.docs.filter(d=>{
-    const p=d.data();
-    return !String(p.description||'').trim()&&defaultProductDescriptions[p.name];
-  });
-  if(!missing.length)return;
-  const batch=writeBatch(firestore);
-  missing.forEach(d=>batch.update(d.ref,{description:defaultProductDescriptions[d.data().name],updatedAt:nowIso(),updatedByUid:currentUser.uid,updatedByName:selectedStaff?.name||currentUser.name}));
-  await batch.commit();
+function renderExpenseCategories(){
+  const select=$('expenseCategory');
+  if(!select)return;
+  const current=select.value;
+  const categories=Array.isArray(state.settings.expenseCategories)
+    ? state.settings.expenseCategories.filter(x=>typeof x==='string'&&x.trim()).map(x=>x.trim())
+    : [];
+  select.innerHTML=categories.length
+    ? categories.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')
+    : '<option value="">Sin categorías configuradas</option>';
+  select.disabled=!categories.length;
+  if(categories.includes(current))select.value=current;
 }
 
 function stopRealtime(){unsubscribers.forEach(fn=>fn());unsubscribers=[]}
@@ -440,6 +391,7 @@ function startRealtime(){
   stopRealtime();
   unsubscribers.push(onSnapshot(doc(firestore,'settings','general'),snap=>{
     if(snap.exists())state.settings={...state.settings,...snap.data()};
+    renderExpenseCategories();
     renderAll();
   },firebaseError));
   unsubscribers.push(onSnapshot(collection(firestore,'products'),snap=>{
@@ -693,7 +645,7 @@ window.addItemsToOrder=id=>{const o=state.orders.find(x=>x.id===id);if(!o||!ensu
 window.voidOrder=async id=>{const o=state.orders.find(x=>x.id===id);if(!o||!ensureOrderActionAccess(o,'anular esta cuenta')||!confirm('¿Anular esta cuenta? El stock controlado será devuelto.'))return;const batch=writeBatch(firestore);batch.update(doc(firestore,'orders',id),{status:'void',voidedAt:nowIso(),...auditFields()});for(const i of o.items||[]){const p=state.products.find(x=>x.id===i.productId);if(p?.trackStock)batch.update(doc(firestore,'products',p.id),{stock:Number(p.stock)+Number(i.qty),...auditFields()})}await batch.commit()};
 
 function renderExpenses(){const f=$('expenseFilterDate').value;const xs=state.expenses.filter(x=>!f||x.date===f).sort((a,b)=>String(b.date+b.createdAt).localeCompare(String(a.date+a.createdAt)));$('expenseDayTotal').textContent=fmt(xs.reduce((s,x)=>s+Number(x.amount),0));$('expenseDayCount').textContent=xs.length;$('expenseList').innerHTML=xs.length?xs.map(x=>`<div class="expense-line"><div class="order-head"><div><b>${esc(x.category)}</b><div class="muted tiny">${x.date}${x.description?' · '+esc(x.description):''} · ${esc(x.createdByName||'')}</div></div><div><span class="money">${fmt(x.amount)}</span> <button class="btn danger tiny" onclick="deleteExpense('${x.id}')">Eliminar</button></div></div></div>`).join(''):'<div class="empty">No hay gastos para el día seleccionado</div>'}
-$('expenseForm').onsubmit=async e=>{e.preventDefault();await addDoc(collection(firestore,'expenses'),{date:$('expenseDate').value,category:$('expenseCategory').value,description:$('expenseDescription').value.trim(),amount:Number($('expenseAmount').value),createdAt:nowIso(),...actorFields(),...auditFields()});$('expenseAmount').value='';$('expenseDescription').value='';$('expenseFilterDate').value=$('expenseDate').value};$('expenseFilterDate').onchange=renderExpenses;window.deleteExpense=async id=>{if(confirm('¿Eliminar este gasto?'))await deleteDoc(doc(firestore,'expenses',id))};
+$('expenseForm').onsubmit=async e=>{e.preventDefault();const category=$('expenseCategory').value;if(!category){alert('No hay categorías de gastos configuradas en settings/general.');return;}await addDoc(collection(firestore,'expenses'),{date:$('expenseDate').value,category,description:$('expenseDescription').value.trim(),amount:Number($('expenseAmount').value),createdAt:nowIso(),...actorFields(),...auditFields()});$('expenseAmount').value='';$('expenseDescription').value='';$('expenseFilterDate').value=$('expenseDate').value};$('expenseFilterDate').onchange=renderExpenses;window.deleteExpense=async id=>{if(confirm('¿Eliminar este gasto?'))await deleteDoc(doc(firestore,'expenses',id))};
 
 function productSalesSummary(orders){
   const map=new Map();
