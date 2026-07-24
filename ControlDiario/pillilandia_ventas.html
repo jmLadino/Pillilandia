@@ -394,31 +394,38 @@ onAuthStateChanged(auth,async user=>{
   }
 });
 
-function normalizeExpenseCategories(settings){
-  const candidates=[
-    settings?.expenseCategories,
-    settings?.expense_categories,
-    settings?.expenseCategoryList,
-    settings?.expenses?.categories
+const EXPENSE_CATEGORIES=[
+  'Fresa',
+  'FrioCid',
+  'Suministros',
+  'Insumos de Aseo',
+  'Inmobiliario',
+  'Construcción',
+  'Municipalidad',
+  'SII',
+  'GetNet',
+  'Redelcom',
+  'Aportes JM',
+  'Arriendo',
+  'Servicios',
+  'Bencina',
+  'Otro'
   ];
-  const source=candidates.find(Array.isArray)||[];
-  return [...new Set(source.map(item=>{
-    if(typeof item==='string')return item.trim();
-    if(item&&typeof item==='object')return String(item.name??item.label??item.value??item.category??'').trim();
-    return '';
-  }).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es',{sensitivity:'base'}));
+function normalizeExpenseCategories(){
+  return [...EXPENSE_CATEGORIES];
 }
 function renderExpenseCategories(){
   const select=$('expenseCategory');
   if(!select)return;
   const current=select.value;
-  const categories=normalizeExpenseCategories(state.settings);
-  select.innerHTML=categories.length
-    ? categories.map(category=>{const safe=esc(category);return `<option value="${safe}">${safe}</option>`}).join('')
-    : '<option value="">Sin categorías configuradas en settings/general</option>';
-  select.disabled=categories.length===0;
+  const categories=normalizeExpenseCategories();
+  select.innerHTML=categories.map(category=>{
+    const safe=esc(category);
+    return `<option value="${safe}">${safe}</option>`;
+  }).join('');
+  select.disabled=false;
   if(categories.includes(current))select.value=current;
-  else if(categories.length)select.selectedIndex=0;
+  else select.selectedIndex=0;
 }
 
 function stopRealtime(){unsubscribers.forEach(fn=>fn());unsubscribers=[]}
@@ -437,7 +444,7 @@ function startRealtime(){
   },firebaseError));
   if(roleIsManager()){
     unsubscribers.push(onSnapshot(collection(firestore,'expenses'),snap=>{
-      state.expenses=snap.docs.map(d=>({id:d.id,...d.data()}));renderAll();
+      state.expenses=snap.docs.map(d=>({id:d.id,...d.data()}));renderExpenseCategories();renderAll();
     },firebaseError));
   }else{
     state.expenses=[];
@@ -769,7 +776,7 @@ $('addPaymentPrintBtn').onclick=()=>registerPayment({printAfter:true});
 window.voidOrder=async id=>{const o=state.orders.find(x=>x.id===id);if(!o||!ensureOrderActionAccess(o,'anular esta cuenta')||!confirm('¿Anular esta cuenta? El stock controlado será devuelto.'))return;const batch=writeBatch(firestore);batch.update(doc(firestore,'orders',id),{status:'void',voidedAt:nowIso(),...auditFields()});for(const i of o.items||[]){const p=state.products.find(x=>x.id===i.productId);if(p?.trackStock)batch.update(doc(firestore,'products',p.id),{stock:Number(p.stock)+Number(i.qty),...auditFields()})}await batch.commit()};
 
 function renderExpenses(){const f=$('expenseFilterDate').value;const xs=state.expenses.filter(x=>!f||x.date===f).sort((a,b)=>String(b.date+b.createdAt).localeCompare(String(a.date+a.createdAt)));$('expenseDayTotal').textContent=fmt(xs.reduce((s,x)=>s+Number(x.amount),0));$('expenseDayCount').textContent=xs.length;$('expenseList').innerHTML=xs.length?xs.map(x=>`<div class="expense-line"><div class="order-head"><div><b>${esc(x.category)}</b><div class="muted tiny">${x.date}${x.description?' · '+esc(x.description):''} · ${esc(x.createdByName||'')}</div></div><div><span class="money">${fmt(x.amount)}</span> <button class="btn danger tiny" onclick="deleteExpense('${x.id}')">Eliminar</button></div></div></div>`).join(''):'<div class="empty">No hay gastos para el día seleccionado</div>'}
-$('expenseForm').onsubmit=async e=>{e.preventDefault();const category=$('expenseCategory').value;if(!category){alert('No hay categorías de gastos configuradas en settings/general.');return;}await addDoc(collection(firestore,'expenses'),{date:$('expenseDate').value,category,description:$('expenseDescription').value.trim(),amount:Number($('expenseAmount').value),createdAt:nowIso(),...actorFields(),...auditFields()});$('expenseAmount').value='';$('expenseDescription').value='';$('expenseFilterDate').value=$('expenseDate').value};$('expenseFilterDate').onchange=renderExpenses;window.deleteExpense=async id=>{if(confirm('¿Eliminar este gasto?'))await deleteDoc(doc(firestore,'expenses',id))};
+$('expenseForm').onsubmit=async e=>{e.preventDefault();const category=$('expenseCategory').value;if(!category){alert('Selecciona una categoría de gasto.');return;}await addDoc(collection(firestore,'expenses'),{date:$('expenseDate').value,category,description:$('expenseDescription').value.trim(),amount:Number($('expenseAmount').value),createdAt:nowIso(),...actorFields(),...auditFields()});$('expenseAmount').value='';$('expenseDescription').value='';$('expenseFilterDate').value=$('expenseDate').value};$('expenseFilterDate').onchange=renderExpenses;window.deleteExpense=async id=>{if(confirm('¿Eliminar este gasto?'))await deleteDoc(doc(firestore,'expenses',id))};
 
 function productSalesSummary(orders){
   const map=new Map();
