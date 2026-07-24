@@ -394,18 +394,31 @@ onAuthStateChanged(auth,async user=>{
   }
 });
 
+function normalizeExpenseCategories(settings){
+  const candidates=[
+    settings?.expenseCategories,
+    settings?.expense_categories,
+    settings?.expenseCategoryList,
+    settings?.expenses?.categories
+  ];
+  const source=candidates.find(Array.isArray)||[];
+  return [...new Set(source.map(item=>{
+    if(typeof item==='string')return item.trim();
+    if(item&&typeof item==='object')return String(item.name??item.label??item.value??item.category??'').trim();
+    return '';
+  }).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es',{sensitivity:'base'}));
+}
 function renderExpenseCategories(){
   const select=$('expenseCategory');
   if(!select)return;
   const current=select.value;
-  const categories=Array.isArray(state.settings.expenseCategories)
-    ? state.settings.expenseCategories.filter(x=>typeof x==='string'&&x.trim()).map(x=>x.trim())
-    : [];
+  const categories=normalizeExpenseCategories(state.settings);
   select.innerHTML=categories.length
-    ? categories.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')
-    : '<option value="">Sin categorías configuradas</option>';
-  select.disabled=!categories.length;
+    ? categories.map(category=>{const safe=esc(category);return `<option value="${safe}">${safe}</option>`}).join('')
+    : '<option value="">Sin categorías configuradas en settings/general</option>';
+  select.disabled=categories.length===0;
   if(categories.includes(current))select.value=current;
+  else if(categories.length)select.selectedIndex=0;
 }
 
 function stopRealtime(){unsubscribers.forEach(fn=>fn());unsubscribers=[]}
@@ -836,13 +849,13 @@ function renderProductTable(){
   const products=[...state.products];
   const activeCount=products.filter(p=>p.active!==false).length;
   const inactiveCount=products.length-activeCount;
-  const categoryNames=[...new Set(products.map(p=>(p.category||'Otro').trim()||'Otro'))].sort((a,b)=>a.localeCompare(b,'es',{sensitivity:'base'}));
+  const categoryNames=[...new Set(products.map(p=>String(p.category||'Otro').trim()||'Otro'))].sort((a,b)=>a.localeCompare(b,'es',{sensitivity:'base'}));
   summary.innerHTML=`<div class="product-admin-metric"><small>Productos activos</small><b>${activeCount}</b></div><div class="product-admin-metric"><small>Productos inactivos</small><b>${inactiveCount}</b></div><div class="product-admin-metric"><small>Categorías</small><b>${categoryNames.length}</b></div>`;
   if(!products.length){container.innerHTML='<div class="empty">No hay productos registrados.</div>';return;}
   const savedOpen=JSON.parse(sessionStorage.getItem('pillilandiaOpenProductCategories')||'[]');
   const openSet=new Set(savedOpen);
   container.innerHTML=categoryNames.map((category,index)=>{
-    const categoryProducts=products.filter(p=>((p.category||'Otro').trim()||'Otro')===category).sort((a,b)=>(a.name||'').localeCompare(b.name||'','es',{sensitivity:'base',numeric:true}));
+    const categoryProducts=products.filter(p=>(String(p.category||'Otro').trim()||'Otro')===category).sort((a,b)=>(a.name||'').localeCompare(b.name||'','es',{sensitivity:'base',numeric:true}));
     const shouldOpen=openSet.size?openSet.has(category):index===0;
     return `<details class="product-category-group" data-category="${esc(category)}" ${shouldOpen?'open':''}><summary><span class="product-category-title">${esc(category)}</span><span class="product-category-count">${categoryProducts.length} producto${categoryProducts.length===1?'':'s'}</span></summary><div class="product-category-table"><table><thead><tr><th>Producto</th><th>Descripción</th><th class="right">Precio</th><th class="right">Stock</th><th>Controla stock</th><th>Activo</th><th></th></tr></thead><tbody>${categoryProducts.map(p=>`<tr><td class="product-name-cell">${esc(p.name)}</td><td class="tiny">${esc(p.description||'—')}</td><td class="right">${fmt(p.price)}</td><td class="right">${p.trackStock?p.stock:'—'}</td><td>${p.trackStock?'Sí':'No'}</td><td>${p.active!==false?'Sí':'No'}</td><td><button class="btn secondary tiny" onclick="editProduct('${p.id}')">Editar</button></td></tr>`).join('')}</tbody></table></div></details>`;
   }).join('');
