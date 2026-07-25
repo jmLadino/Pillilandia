@@ -86,6 +86,15 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
   @page{size:58mm auto;margin:0}
 }
 #printReceipt{display:none}
+
+.expense-chart{border:1px solid #b7d5d8;border-radius:14px;padding:14px;background:#f8fcfc}
+.expense-chart h3{margin:0 0 14px}
+.expense-chart-row{margin:10px 0}
+.expense-chart-label{display:flex;justify-content:space-between;gap:12px;margin-bottom:5px;font-size:.92rem}
+.expense-chart-track{height:16px;background:#e2eff0;border-radius:999px;overflow:hidden}
+.expense-chart-bar{height:100%;background:linear-gradient(90deg,#0b6d73,#14949b);border-radius:999px;min-width:4px}
+#expenseList table{min-width:760px}
+#expenseList tfoot td{border-top:2px solid #8ebdc1}
 </style>
 </head>
 <body>
@@ -143,7 +152,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 <button class="tab requires-open" data-tab="orders">Cuentas abiertas</button>
 <button class="tab" data-tab="dashboard">Ventas del día</button>
 <button class="tab manager-only" data-tab="calendar">Calendario y asistencia</button>
-<button class="tab manager-only" data-tab="expenses">Gastos</button>
+<button class="tab manager-only" data-tab="expenses">Gastos Mensual</button>
 <button class="tab manager-only" data-tab="monthly">Gestión Mensual</button>
 <button class="tab manager-only" data-tab="products">Productos / Stock</button>
 <button class="tab admin-only role-hidden" data-tab="dataExport">Exportar datos</button>
@@ -188,7 +197,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 <div class="card span-12"><div class="row"><div><h2>Resumen mensual de asistencia</h2><div class="muted">Comparación entre las horas solicitadas en la planificación y las horas efectivamente registradas.</div></div><div><label>Mes del resumen</label><input id="attendanceSummaryMonth" type="month"></div></div><div id="monthlyAttendanceSummary"></div></div>
 </div></section>
 
-<section id="expenses"><div class="grid"><div class="card span-12"><div class="row"><div><h2>Gastos del día</h2></div><div><label>Fecha de gastos</label><input id="expenseFilterDate" type="date"></div></div><div class="metrics"><div class="metric"><small>Total gastos</small><b id="expenseDayTotal">$0</b></div><div class="metric"><small>Cantidad de gastos</small><b id="expenseDayCount">0</b></div></div></div><div class="card span-5"><h2>Registrar gasto</h2><form id="expenseForm"><div class="row"><div><label>Fecha</label><input id="expenseDate" type="date" required></div><div><label>Monto</label><input id="expenseAmount" type="number" min="1" step="1" required></div></div><label style="margin-top:10px">Categoría</label><select id="expenseCategory"></select><label style="margin-top:10px">Descripción / proveedor</label><input id="expenseDescription" placeholder="Detalle opcional"><button class="btn primary" style="margin-top:12px" type="submit">Guardar gasto</button></form></div><div class="card span-7"><h2>Detalle de gastos</h2><div id="expenseList"></div></div></div></section>
+<section id="expenses"><div class="grid"><div class="card span-12"><h2>Gastos Mensual</h2><div class="metrics"><div class="metric"><small>Total gastos del mes</small><b id="expenseMonthTotal">$0</b></div><div class="metric"><small>Cantidad de gastos</small><b id="expenseMonthCount">0</b></div><div class="metric"><small>Categorías utilizadas</small><b id="expenseMonthCategories">0</b></div></div></div><div class="card span-5"><h2>Registrar gasto</h2><form id="expenseForm"><div class="row"><div><label>Fecha del gasto</label><input id="expenseDate" type="date" required></div><div><label>Monto</label><input id="expenseAmount" type="number" min="1" step="1" required></div></div><label style="margin-top:10px">Categoría</label><select id="expenseCategory"></select><label style="margin-top:10px">Descripción / proveedor</label><input id="expenseDescription" placeholder="Detalle opcional"><button class="btn primary" style="margin-top:12px" type="submit">Guardar gasto</button></form></div><div class="card span-7"><div class="row" style="align-items:flex-end"><div><h2 style="margin-bottom:0">Detalle de gastos</h2></div><div style="min-width:190px"><label>Mes a consultar</label><input id="expenseFilterMonth" type="month"></div></div><div id="expenseCategoryChart" style="margin-top:18px"></div><div id="expenseList" style="margin-top:18px"></div></div></div></section>
 
 <section id="monthly"><div class="grid"><div class="card span-12 no-print"><div class="row"><div><label>Mes de gestión</label><input id="monthlyPeriod" type="month"></div><div><button class="btn outline" onclick="window.print()">Imprimir gestión mensual</button></div></div></div><div class="card span-12"><h2>Gestión mensual</h2><div class="metrics"><div class="metric"><small>Ventas cobradas</small><b id="monthlySales">$0</b></div><div class="metric"><small>Gastos</small><b id="monthlyExpenses">$0</b></div><div class="metric"><small>Resultado</small><b id="monthlyNet">$0</b></div><div class="metric"><small>Margen sobre ventas</small><b id="monthlyMargin">0%</b></div></div></div><div class="card span-6"><h3>Ventas por medio de pago</h3><div id="monthlyPaymentSummary"></div></div><div class="card span-6"><h3>Gastos por categoría</h3><div id="monthlyExpenseSummary"></div></div><div class="card span-12"><h3>Propinas por empleado propietario</h3><div id="monthlyTipsByOwner"></div></div><div class="card span-12"><h3>Productos vendidos del mes</h3><div id="monthlyProductSales"></div></div><div class="card span-12"><h3>Resumen diario del mes</h3><div id="monthlyDailySummary"></div></div></div></section>
 
@@ -790,8 +799,26 @@ $('addPaymentBtn').onclick=()=>registerPayment({printAfter:false});
 $('addPaymentPrintBtn').onclick=()=>registerPayment({printAfter:true});
 window.voidOrder=async id=>{const o=state.orders.find(x=>x.id===id);if(!o||!ensureOrderActionAccess(o,'anular esta cuenta')||!confirm('¿Anular esta cuenta? El stock controlado será devuelto.'))return;const batch=writeBatch(firestore);batch.update(doc(firestore,'orders',id),{status:'void',voidedAt:nowIso(),...auditFields()});for(const i of o.items||[]){const p=state.products.find(x=>x.id===i.productId);if(p?.trackStock)batch.update(doc(firestore,'products',p.id),{stock:Number(p.stock)+Number(i.qty),...auditFields()})}await batch.commit()};
 
-function renderExpenses(){const f=$('expenseFilterDate').value;const xs=state.expenses.filter(x=>!f||x.date===f).sort((a,b)=>String(b.date+b.createdAt).localeCompare(String(a.date+a.createdAt)));$('expenseDayTotal').textContent=fmt(xs.reduce((s,x)=>s+Number(x.amount),0));$('expenseDayCount').textContent=xs.length;$('expenseList').innerHTML=xs.length?xs.map(x=>`<div class="expense-line"><div class="order-head"><div><b>${esc(x.category)}</b><div class="muted tiny">${x.date}${x.description?' · '+esc(x.description):''} · ${esc(x.createdByName||'')}</div></div><div><span class="money">${fmt(x.amount)}</span> <button class="btn danger tiny" onclick="deleteExpense('${x.id}')">Eliminar</button></div></div></div>`).join(''):'<div class="empty">No hay gastos para el día seleccionado</div>'}
-$('expenseForm').onsubmit=async e=>{e.preventDefault();const category=$('expenseCategory').value;if(!category){alert('Selecciona una categoría de gasto.');return;}await addDoc(collection(firestore,'expenses'),{date:$('expenseDate').value,category,description:$('expenseDescription').value.trim(),amount:Number($('expenseAmount').value),createdAt:nowIso(),...actorFields(),...auditFields()});$('expenseAmount').value='';$('expenseDescription').value='';$('expenseFilterDate').value=$('expenseDate').value};$('expenseFilterDate').onchange=renderExpenses;window.deleteExpense=async id=>{if(confirm('¿Eliminar este gasto?'))await deleteDoc(doc(firestore,'expenses',id))};
+function renderExpenses(){
+  const period=$('expenseFilterMonth').value;
+  const xs=state.expenses
+    .filter(x=>!period||(x.date&&x.date.startsWith(period)))
+    .sort((a,b)=>String((b.date||'')+(b.createdAt||'')).localeCompare(String((a.date||'')+(a.createdAt||''))));
+  const total=xs.reduce((s,x)=>s+Number(x.amount||0),0);
+  const categories=[...new Set(xs.map(x=>String(x.category||'Sin categoría').trim()).filter(Boolean))];
+  $('expenseMonthTotal').textContent=fmt(total);
+  $('expenseMonthCount').textContent=xs.length;
+  $('expenseMonthCategories').textContent=categories.length;
+
+  const totalsByCategory=new Map();
+  xs.forEach(x=>{const c=String(x.category||'Sin categoría').trim()||'Sin categoría';totalsByCategory.set(c,(totalsByCategory.get(c)||0)+Number(x.amount||0))});
+  const chartData=[...totalsByCategory.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'es'));
+  const maxValue=Math.max(0,...chartData.map(x=>x[1]));
+  $('expenseCategoryChart').innerHTML=chartData.length?`<div class="expense-chart"><h3>Gastos agrupados por categoría</h3>${chartData.map(([category,amount])=>`<div class="expense-chart-row"><div class="expense-chart-label"><span>${esc(category)}</span><b>${fmt(amount)}</b></div><div class="expense-chart-track"><div class="expense-chart-bar" style="width:${maxValue?Math.max(4,(amount/maxValue)*100):0}%"></div></div></div>`).join('')}</div>`:'<div class="empty">Sin gastos para el mes seleccionado</div>';
+
+  $('expenseList').innerHTML=xs.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción / proveedor</th><th>Registrado por</th><th class="right">Monto</th><th class="right no-print">Acciones</th></tr></thead><tbody>${xs.map(x=>`<tr><td>${esc(x.date||'')}</td><td><b>${esc(x.category||'Sin categoría')}</b></td><td>${esc(x.description||'—')}</td><td>${esc(x.createdByName||'—')}</td><td class="right money">${fmt(x.amount)}</td><td class="right no-print"><button class="btn danger tiny" onclick="deleteExpense('${x.id}')">Eliminar</button></td></tr>`).join('')}</tbody><tfoot><tr><td colspan="4"><b>Total del mes</b></td><td class="right money"><b>${fmt(total)}</b></td><td class="no-print"></td></tr></tfoot></table></div>`:'<div class="empty">No hay gastos para el mes seleccionado</div>';
+}
+$('expenseForm').onsubmit=async e=>{e.preventDefault();const category=$('expenseCategory').value;if(!category){alert('Selecciona una categoría de gasto.');return;}await addDoc(collection(firestore,'expenses'),{date:$('expenseDate').value,category,description:$('expenseDescription').value.trim(),amount:Number($('expenseAmount').value),createdAt:nowIso(),...actorFields(),...auditFields()});$('expenseAmount').value='';$('expenseDescription').value='';showToast('Gasto registrado correctamente.','success')};$('expenseFilterMonth').onchange=renderExpenses;window.deleteExpense=async id=>{if(confirm('¿Eliminar este gasto?'))await deleteDoc(doc(firestore,'expenses',id))};
 
 function productSalesSummary(orders){
   const map=new Map();
@@ -1370,7 +1397,7 @@ function updateHeaderClock(){const now=new Date();$('headerDate').textContent=no
 setInterval(updateHeaderClock,1000);
 setInterval(()=>{if(document.querySelector('section#calendar.active'))renderScheduleList()},60000);
 function renderAll(){renderServiceButtons();renderProductButtons();renderCart();renderOrders();renderExpenses();renderProductTable();renderDashboard();renderMonthly();renderCloseDay();renderScheduleStaffChecks();renderScheduleList();renderAttendance();renderMonthlyAttendanceSummary();renderOperation();updateAccessState();updateHeaderClock()}
-$('reportDate').value=today();$('expenseDate').value=today();$('expenseFilterDate').value=today();$('monthlyPeriod').value=today().slice(0,7);$('scheduleMonth').value=today().slice(0,7);$('attendanceSummaryMonth').value=today().slice(0,7);$('scheduleDateFrom').value=today();$('scheduleDateTo').value=today();$('attendanceDate').value=today();renderExpenseCategories();renderAll();applyPermissions();
+$('reportDate').value=today();$('expenseDate').value=today();$('expenseFilterMonth').value=today().slice(0,7);$('monthlyPeriod').value=today().slice(0,7);$('scheduleMonth').value=today().slice(0,7);$('attendanceSummaryMonth').value=today().slice(0,7);$('scheduleDateFrom').value=today();$('scheduleDateTo').value=today();$('attendanceDate').value=today();renderExpenseCategories();renderAll();applyPermissions();
 </script>
 
 </body>
