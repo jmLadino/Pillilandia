@@ -103,6 +103,13 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 .expense-audit-item span{display:block;color:var(--muted);font-size:.78rem;margin-bottom:2px}
 .expense-audit-item b{display:block;font-size:.88rem}
 @media(max-width:640px){.expense-audit-grid{grid-template-columns:1fr}}
+.expense-deleted-row{background:#fff0f0!important;color:#8f1d1d}
+.expense-deleted-row td{border-color:#efb9b9!important}
+.expense-deleted-row .money{color:#9b1c1c}
+.expense-deleted-badge{display:inline-flex;align-items:center;gap:5px;margin-left:7px;padding:3px 8px;border-radius:999px;background:#b42318;color:#fff;font-size:.72rem;font-weight:800;letter-spacing:.02em;vertical-align:middle}
+.expense-deleted-info{display:block;margin-top:4px;color:#a12626;font-size:.76rem;font-weight:600}
+.expense-admin-note{margin:0 0 12px;padding:10px 12px;border:1px solid #efb9b9;border-radius:12px;background:#fff5f5;color:#8f1d1d;font-size:.86rem}
+
 </style>
 </head>
 <body>
@@ -815,22 +822,38 @@ window.voidOrder=async id=>{const o=state.orders.find(x=>x.id===id);if(!o||!ensu
 
 function renderExpenses(){
   const period=$('expenseFilterMonth').value;
-  const xs=state.expenses
-    .filter(x=>x.deleted!==true&&(!period||(x.date&&x.date.startsWith(period))))
+  const isAdmin=roleIsAdmin();
+  const monthExpenses=state.expenses
+    .filter(x=>(!period||(x.date&&x.date.startsWith(period))))
     .sort((a,b)=>String((b.date||'')+(b.createdAt||'')).localeCompare(String((a.date||'')+(a.createdAt||''))));
-  const total=xs.reduce((s,x)=>s+Number(x.amount||0),0);
-  const categories=[...new Set(xs.map(x=>String(x.category||'Sin categoría').trim()).filter(Boolean))];
+  const xs=isAdmin?monthExpenses:monthExpenses.filter(x=>x.deleted!==true);
+  const activeXs=xs.filter(x=>x.deleted!==true);
+  const deletedXs=xs.filter(x=>x.deleted===true);
+  const total=activeXs.reduce((sum,x)=>sum+Number(x.amount||0),0);
+  const categories=[...new Set(activeXs.map(x=>String(x.category||'Sin categoría').trim()).filter(Boolean))];
   $('expenseMonthTotal').textContent=fmt(total);
-  $('expenseMonthCount').textContent=xs.length;
+  $('expenseMonthCount').textContent=activeXs.length;
   $('expenseMonthCategories').textContent=categories.length;
 
   const totalsByCategory=new Map();
-  xs.forEach(x=>{const c=String(x.category||'Sin categoría').trim()||'Sin categoría';totalsByCategory.set(c,(totalsByCategory.get(c)||0)+Number(x.amount||0))});
+  activeXs.forEach(x=>{const c=String(x.category||'Sin categoría').trim()||'Sin categoría';totalsByCategory.set(c,(totalsByCategory.get(c)||0)+Number(x.amount||0))});
   const chartData=[...totalsByCategory.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'es'));
   const maxValue=Math.max(0,...chartData.map(x=>x[1]));
-  $('expenseCategoryChart').innerHTML=chartData.length?`<div class="expense-chart"><h3>Gastos agrupados por categoría</h3>${chartData.map(([category,amount])=>`<div class="expense-chart-row"><div class="expense-chart-label"><span>${esc(category)}</span><b>${fmt(amount)}</b></div><div class="expense-chart-track"><div class="expense-chart-bar" style="width:${maxValue?Math.max(4,(amount/maxValue)*100):0}%"></div></div></div>`).join('')}</div>`:'<div class="empty">Sin gastos para el mes seleccionado</div>';
+  $('expenseCategoryChart').innerHTML=chartData.length?`<div class="expense-chart"><h3>Gastos agrupados por categoría</h3>${chartData.map(([category,amount])=>`<div class="expense-chart-row"><div class="expense-chart-label"><span>${esc(category)}</span><b>${fmt(amount)}</b></div><div class="expense-chart-track"><div class="expense-chart-bar" style="width:${maxValue?Math.max(4,(amount/maxValue)*100):0}%"></div></div></div>`).join('')}</div>`:'<div class="empty">Sin gastos vigentes para el mes seleccionado</div>';
 
-  $('expenseList').innerHTML=xs.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción / proveedor</th><th>Registrado por</th><th>Modificado por</th><th class="right">Monto</th><th class="right no-print">Acciones</th></tr></thead><tbody>${xs.map(x=>{const modifiedName=x.modifiedByName||'—';const modifiedWhen=x.modifiedAt?formatDateTimeDisplay(x.modifiedAt):'';return `<tr><td>${formatDateDisplay(x.date)}</td><td><b>${esc(x.category||'Sin categoría')}</b></td><td>${esc(x.description||'—')}</td><td title="${esc(x.createdAt?formatDateTimeDisplay(x.createdAt):'')}">${esc(x.createdByName||'—')}</td><td title="${esc(modifiedWhen)}">${esc(modifiedName)}</td><td class="right money">${fmt(x.amount)}</td><td class="right no-print"><div class="actions" style="justify-content:flex-end;margin:0;gap:6px"><button class="btn secondary tiny" onclick="editExpense('${x.id}')">Editar</button><button class="btn danger tiny" onclick="deleteExpense('${x.id}')">Eliminar</button></div></td></tr>`}).join('')}</tbody><tfoot><tr><td colspan="5"><b>Total del mes</b></td><td class="right money"><b>${fmt(total)}</b></td><td class="no-print"></td></tr></tfoot></table></div>`:'<div class="empty">No hay gastos para el mes seleccionado</div>';
+  const adminNote=isAdmin&&deletedXs.length?`<div class="expense-admin-note"><b>Vista de administrador:</b> se muestran ${deletedXs.length} gasto${deletedXs.length===1?' eliminado':'s eliminados'} lógicamente en rojo. Estos registros no se incluyen en los totales ni en el gráfico.</div>`:'';
+  $('expenseList').innerHTML=xs.length?`${adminNote}<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción / proveedor</th><th>Registrado por</th><th>Modificado por</th><th class="right">Monto</th><th class="right no-print">Acciones</th></tr></thead><tbody>${xs.map(x=>{
+    const modifiedName=x.modifiedByName||'—';
+    const modifiedWhen=x.modifiedAt?formatDateTimeDisplay(x.modifiedAt):'';
+    const deleted=x.deleted===true;
+    const deletedWhen=x.deletedAt?formatDateTimeDisplay(x.deletedAt):'Fecha no disponible';
+    const deletedBy=x.deletedByName||'Sin identificar';
+    const statusMark=deleted?`<span class="expense-deleted-badge">ELIMINADO</span><span class="expense-deleted-info">Por ${esc(deletedBy)} · ${esc(deletedWhen)}</span>`:'';
+    const actions=deleted
+      ?`<button class="btn danger tiny" onclick="deleteExpense('${x.id}')">Eliminar definitivamente</button>`
+      :`<button class="btn secondary tiny" onclick="editExpense('${x.id}')">Editar</button><button class="btn danger tiny" onclick="deleteExpense('${x.id}')">Eliminar</button>`;
+    return `<tr class="${deleted?'expense-deleted-row':''}"><td>${formatDateDisplay(x.date)}${statusMark}</td><td><b>${esc(x.category||'Sin categoría')}</b></td><td>${esc(x.description||'—')}</td><td title="${esc(x.createdAt?formatDateTimeDisplay(x.createdAt):'')}">${esc(x.createdByName||'—')}</td><td title="${esc(modifiedWhen)}">${esc(modifiedName)}</td><td class="right money">${fmt(x.amount)}</td><td class="right no-print"><div class="actions" style="justify-content:flex-end;margin:0;gap:6px">${actions}</div></td></tr>`
+  }).join('')}</tbody><tfoot><tr><td colspan="5"><b>Total vigente del mes</b></td><td class="right money"><b>${fmt(total)}</b></td><td class="no-print"></td></tr></tfoot></table></div>`:'<div class="empty">No hay gastos para el mes seleccionado</div>';
 }
 function openExpenseDialog(expense=null){
   const editing=Boolean(expense);
