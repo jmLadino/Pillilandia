@@ -96,6 +96,13 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 #expenseList table{min-width:760px}
 #expenseList tfoot td{border-top:2px solid #8ebdc1}
 .expense-toolbar{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;flex-wrap:wrap;margin-bottom:18px}.expense-toolbar h2{margin:0}.expense-toolbar .month-field{width:min(300px,100%)}.expense-modal{max-width:560px}.expense-modal .dialog-body{padding:22px}.expense-amount-wrap{position:relative}.expense-amount-prefix{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-weight:900;color:var(--brand2);pointer-events:none}.expense-amount-wrap input{padding-left:30px;font-weight:800;font-size:1.05rem}
+
+.expense-audit{margin-top:14px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--soft);font-size:.9rem}
+.expense-audit-title{font-weight:800;margin-bottom:8px;color:var(--ink)}
+.expense-audit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.expense-audit-item span{display:block;color:var(--muted);font-size:.78rem;margin-bottom:2px}
+.expense-audit-item b{display:block;font-size:.88rem}
+@media(max-width:640px){.expense-audit-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -216,7 +223,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 </div>
 
 <div id="printReceipt" aria-hidden="true"></div>
-<dialog id="expenseDialog" class="expense-modal"><div class="dialog-body"><div class="dialog-head"><h2 id="expenseDialogTitle">Registrar nuevo gasto</h2><button class="x" type="button" onclick="expenseDialog.close()">×</button></div><form id="expenseForm"><input id="editExpenseId" type="hidden"><div class="row"><div><label>Fecha del gasto</label><input id="expenseDate" type="date" required></div><div><label>Monto</label><div class="expense-amount-wrap"><span class="expense-amount-prefix">$</span><input id="expenseAmount" type="text" inputmode="numeric" autocomplete="off" placeholder="0" required></div></div></div><label style="margin-top:10px">Categoría</label><select id="expenseCategory" required></select><label style="margin-top:10px">Descripción / proveedor</label><input id="expenseDescription" placeholder="Detalle opcional"><div class="actions"><button class="btn primary" id="saveExpenseBtn" type="submit">Guardar gasto</button><button class="btn secondary" type="button" onclick="expenseDialog.close()">Cancelar</button></div></form></div></dialog>
+<dialog id="expenseDialog" class="expense-modal"><div class="dialog-body"><div class="dialog-head"><h2 id="expenseDialogTitle">Registrar nuevo gasto</h2><button class="x" type="button" onclick="expenseDialog.close()">×</button></div><form id="expenseForm"><input id="editExpenseId" type="hidden"><div class="row"><div><label>Fecha del gasto</label><input id="expenseDate" type="date" required></div><div><label>Monto</label><div class="expense-amount-wrap"><span class="expense-amount-prefix">$</span><input id="expenseAmount" type="text" inputmode="numeric" autocomplete="off" placeholder="0" required></div></div></div><label style="margin-top:10px">Categoría</label><select id="expenseCategory" required></select><label style="margin-top:10px">Descripción / proveedor</label><input id="expenseDescription" placeholder="Detalle opcional"><div id="expenseAuditInfo" class="expense-audit hidden"></div><div class="actions"><button class="btn primary" id="saveExpenseBtn" type="submit">Guardar gasto</button><button class="btn secondary" type="button" onclick="expenseDialog.close()">Cancelar</button></div></form></div></dialog>
 
 <dialog id="paymentDialog"><div class="dialog-body"><div class="dialog-head"><h2>Registrar pago</h2><button class="x" onclick="paymentDialog.close()">×</button></div><div id="paymentOrderInfo"></div><div id="tipPicker" class="tip-picker"><label>Propina sugerida</label><div class="tip-options"><button type="button" class="tip-btn" data-tip="0">Sin propina</button><button type="button" class="tip-btn" data-tip="5">5%</button><button type="button" class="tip-btn" data-tip="10">10%</button><button type="button" class="tip-btn" data-tip="15">15%</button><button type="button" class="tip-btn" data-tip="20">20%</button></div><div id="tipHelp" class="muted tiny" style="margin-top:8px"></div></div><div class="row" style="margin-top:12px"><div><label>Medio de pago</label><select id="paymentMethod"><option>Efectivo</option><option>Débito</option><option>Crédito</option><option>Transferencia</option></select></div><div><label>Monto</label><input id="paymentAmount" type="number" min="1" step="1"></div></div><div class="actions"><button class="btn primary" id="addPaymentBtn">Agregar pago</button><button class="btn secondary" id="addPaymentPrintBtn">Agregar pago e imprimir</button><button class="btn secondary" onclick="paymentDialog.close()">Cerrar</button></div><div id="paymentsExisting"></div></div></dialog>
 
@@ -228,7 +235,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 
 <dialog id="productDialog"><div class="dialog-body"><div class="dialog-head"><h2 id="productDialogTitle">Producto</h2><button class="x" onclick="productDialog.close()">×</button></div><input id="editProductId" type="hidden"><label>Nombre</label><input id="editProductName"><label style="margin-top:10px">Descripción para el menú público</label><textarea id="editProductDescription" rows="2" placeholder="Ej.: Preparado con café en grano recién molido."></textarea><div class="row" style="margin-top:10px"><div><label>Categoría</label><input id="editProductCategory"></div><div><label>Precio</label><input id="editProductPrice" type="number" min="0"></div></div><div class="row" style="margin-top:10px"><div><label>Stock actual</label><input id="editProductStock" type="number" step="1"></div><div><label>Control de stock</label><select id="editProductTrack"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Activo</label><select id="editProductActive"><option value="true">Sí</option><option value="false">No</option></select></div></div><button class="btn primary" style="margin-top:12px" id="saveProductBtn">Guardar producto</button></div></dialog>
 
-<!-- Versión 3.26: rol administrador, exportación e importación unitaria por colección -->
+<!-- Versión 3.27: auditoría de creación y modificación de gastos -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import {
@@ -823,7 +830,7 @@ function renderExpenses(){
   const maxValue=Math.max(0,...chartData.map(x=>x[1]));
   $('expenseCategoryChart').innerHTML=chartData.length?`<div class="expense-chart"><h3>Gastos agrupados por categoría</h3>${chartData.map(([category,amount])=>`<div class="expense-chart-row"><div class="expense-chart-label"><span>${esc(category)}</span><b>${fmt(amount)}</b></div><div class="expense-chart-track"><div class="expense-chart-bar" style="width:${maxValue?Math.max(4,(amount/maxValue)*100):0}%"></div></div></div>`).join('')}</div>`:'<div class="empty">Sin gastos para el mes seleccionado</div>';
 
-  $('expenseList').innerHTML=xs.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción / proveedor</th><th>Registrado por</th><th class="right">Monto</th><th class="right no-print">Acciones</th></tr></thead><tbody>${xs.map(x=>`<tr><td>${formatDateDisplay(x.date)}</td><td><b>${esc(x.category||'Sin categoría')}</b></td><td>${esc(x.description||'—')}</td><td>${esc(x.createdByName||'—')}</td><td class="right money">${fmt(x.amount)}</td><td class="right no-print"><div class="actions" style="justify-content:flex-end;margin:0;gap:6px"><button class="btn secondary tiny" onclick="editExpense('${x.id}')">Editar</button><button class="btn danger tiny" onclick="deleteExpense('${x.id}')">Eliminar</button></div></td></tr>`).join('')}</tbody><tfoot><tr><td colspan="4"><b>Total del mes</b></td><td class="right money"><b>${fmt(total)}</b></td><td class="no-print"></td></tr></tfoot></table></div>`:'<div class="empty">No hay gastos para el mes seleccionado</div>';
+  $('expenseList').innerHTML=xs.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción / proveedor</th><th>Registrado por</th><th>Modificado por</th><th class="right">Monto</th><th class="right no-print">Acciones</th></tr></thead><tbody>${xs.map(x=>{const modifiedName=x.modifiedByName||'—';const modifiedWhen=x.modifiedAt?formatDateTimeDisplay(x.modifiedAt):'';return `<tr><td>${formatDateDisplay(x.date)}</td><td><b>${esc(x.category||'Sin categoría')}</b></td><td>${esc(x.description||'—')}</td><td title="${esc(x.createdAt?formatDateTimeDisplay(x.createdAt):'')}">${esc(x.createdByName||'—')}</td><td title="${esc(modifiedWhen)}">${esc(modifiedName)}</td><td class="right money">${fmt(x.amount)}</td><td class="right no-print"><div class="actions" style="justify-content:flex-end;margin:0;gap:6px"><button class="btn secondary tiny" onclick="editExpense('${x.id}')">Editar</button><button class="btn danger tiny" onclick="deleteExpense('${x.id}')">Eliminar</button></div></td></tr>`}).join('')}</tbody><tfoot><tr><td colspan="5"><b>Total del mes</b></td><td class="right money"><b>${fmt(total)}</b></td><td class="no-print"></td></tr></tfoot></table></div>`:'<div class="empty">No hay gastos para el mes seleccionado</div>';
 }
 function openExpenseDialog(expense=null){
   const editing=Boolean(expense);
@@ -835,6 +842,16 @@ function openExpenseDialog(expense=null){
   $('expenseDescription').value=expense?.description||'';
   renderExpenseCategories();
   if(expense?.category)$('expenseCategory').value=expense.category;
+  const audit=$('expenseAuditInfo');
+  if(editing){
+    const createdWhen=expense.createdAt?formatDateTimeDisplay(expense.createdAt):'Fecha no disponible';
+    const modifiedWhen=expense.modifiedAt?formatDateTimeDisplay(expense.modifiedAt):'Sin modificaciones anteriores';
+    audit.innerHTML=`<div class="expense-audit-title">Trazabilidad del gasto</div><div class="expense-audit-grid"><div class="expense-audit-item"><span>Creado por</span><b>${esc(expense.createdByName||'Sin identificar')}</b><small>${esc(createdWhen)}</small></div><div class="expense-audit-item"><span>Última modificación</span><b>${esc(expense.modifiedByName||'Sin modificaciones')}</b><small>${esc(modifiedWhen)}</small></div></div>`;
+    audit.classList.remove('hidden');
+  }else{
+    audit.innerHTML='';
+    audit.classList.add('hidden');
+  }
   expenseDialog.showModal();
 }
 $('newExpenseBtn').onclick=()=>openExpenseDialog();
@@ -847,12 +864,13 @@ $('expenseForm').onsubmit=async e=>{
   const amount=parseCurrencyInput($('expenseAmount').value);
   if(!category){alert('Selecciona una categoría de gasto.');return;}
   if(amount<=0){alert('Ingresa un monto válido.');return;}
-  const data={date:$('expenseDate').value,category,description:$('expenseDescription').value.trim(),amount,...auditFields()};
+  const baseData={date:$('expenseDate').value,category,description:$('expenseDescription').value.trim(),amount};
   if(id){
-    await updateDoc(doc(firestore,'expenses',id),data);
+    const actorName=selectedStaff?.name||currentUser.name;
+    await updateDoc(doc(firestore,'expenses',id),{...baseData,...auditFields(),modifiedAt:nowIso(),modifiedByUid:currentUser.uid,modifiedByName:actorName});
     showToast('Gasto actualizado correctamente.','success');
   }else{
-    await addDoc(collection(firestore,'expenses'),{...data,createdAt:nowIso(),...actorFields()});
+    await addDoc(collection(firestore,'expenses'),{...baseData,createdAt:nowIso(),...actorFields(),updatedAt:null,updatedByUid:null,updatedByName:null,modifiedAt:null,modifiedByUid:null,modifiedByName:null});
     showToast('Gasto registrado correctamente.','success');
   }
   $('editExpenseId').value='';
