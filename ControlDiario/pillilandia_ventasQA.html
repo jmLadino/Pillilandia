@@ -193,6 +193,14 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 <div id="serviceButtons" class="service-buttons"></div>
 
 </div>
+<div id="retroactiveSalePanel" class="manager-only role-hidden notice" style="margin-bottom:12px">
+  <b>Carga retroactiva temporal — julio de 2026</b>
+  <div class="row" style="margin-top:10px">
+    <div><label>Fecha comercial de la venta</label><input id="saleBusinessDate" type="date" min="2026-07-01" max="2026-07-26"></div>
+    <div><label>Hora aproximada</label><input id="saleBusinessTime" type="time" value="12:00"></div>
+  </div>
+  <div id="retroactiveSaleNotice" class="tiny" style="margin-top:8px">Al elegir una fecha anterior, la venta quedará marcada como retroactiva, con auditoría del usuario que la ingresó. No modificará el stock actual.</div>
+</div>
 <div><label>Referencia adicional (opcional)</label><input id="orderLabel" placeholder="Ej.: nombre del cliente o detalle del grupo"></div>
 
 <div id="productButtons" class="products" style="margin-top:12px"></div></div>
@@ -275,6 +283,8 @@ const $ = id => document.getElementById(id);
 const fmt = n => new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(Number(n||0));
 const uid = () => crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2);
 const today = () => new Date().toLocaleDateString('en-CA',{timeZone:'America/Santiago'});
+const RETROACTIVE_SALES_START='2026-07-01';
+const RETROACTIVE_SALES_END='2026-07-31';
 const esc = s => String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const asDate = v => v?.toDate ? v.toDate() : new Date(v);
 const nowIso = () => new Date().toISOString();
@@ -303,6 +313,29 @@ function normalizeRole(r){
   if(r==='administrador'||r==='admin'||r==='administrator')return 'administrador';
   if(r==='gerente'||r==='manager')return 'gerente';
   return 'empleado';
+}
+function retroactiveSalesEnabled(){return today()>=RETROACTIVE_SALES_START&&today()<=RETROACTIVE_SALES_END}
+function selectedSaleContext(){
+  const current=today();
+  const date=roleIsManager()&&retroactiveSalesEnabled()?($('saleBusinessDate')?.value||current):current;
+  const time=roleIsManager()&&retroactiveSalesEnabled()?($('saleBusinessTime')?.value||'12:00'):new Intl.DateTimeFormat('en-GB',{timeZone:state.settings.timeZone||'America/Santiago',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date());
+  const retroactive=date<current;
+  return {date,time,retroactive,createdAt:retroactive?`${date}T${time}:00-04:00`:nowIso()};
+}
+function validateSaleContext(context){
+  if(!context.retroactive)return '';
+  if(!roleIsManager())return 'Solo administrador y gerente pueden registrar ventas retroactivas.';
+  if(!retroactiveSalesEnabled())return 'La carga retroactiva temporal ya no está habilitada.';
+  if(context.date<RETROACTIVE_SALES_START||context.date>today())return `La fecha debe estar entre ${RETROACTIVE_SALES_START} y ${today()}.`;
+  return '';
+}
+function renderRetroactiveSaleControls(){
+  const panel=$('retroactiveSalePanel'),dateInput=$('saleBusinessDate');
+  if(!panel||!dateInput)return;
+  const available=roleIsManager()&&retroactiveSalesEnabled();
+  panel.classList.toggle('role-hidden',!available);
+  dateInput.min=RETROACTIVE_SALES_START;dateInput.max=today();
+  if(!dateInput.value||dateInput.value>today()||dateInput.value<RETROACTIVE_SALES_START)dateInput.value=today();
 }
 function roleLabel(role){
   const normalized=normalizeRole(role);
@@ -603,7 +636,9 @@ function renderCart(){const box=$('cart');box.innerHTML=!cart.length?'<div class
 function validateStock(items){for(const i of items){if(!i.productId)continue;const p=state.products.find(x=>x.id===i.productId);if(p?.trackStock&&Number(p.stock)<i.qty)return `No hay stock suficiente de ${p.name}. Disponible: ${p.stock}`;}return''}
 async function createOrder(shouldPay){
   if(!cart.length)return alert('Agrega al menos un producto.');
-  const err=validateStock(cart);if(err)return alert(err);
+  const saleContext=selectedSaleContext();
+  const contextError=validateSaleContext(saleContext);if(contextError)return alert(contextError);
+  const err=saleContext.retroactive?'':validateStock(cart);if(err)return alert(err);
   if(selectedService.type==='mesa'){
     const openOrder=getOpenOrderForTable(selectedService.label);
     if(openOrder){
@@ -614,11 +649,14 @@ async function createOrder(shouldPay){
   const extra=$('orderLabel').value.trim(),baseLabel=selectedService.label,finalLabel=extra?`${baseLabel} · ${extra}`:baseLabel;
   const number=Math.max(0,...state.orders.map(x=>Number(x.number)||0))+1;
   const ref=doc(collection(firestore,'orders'));
-  const o={number,createdAt:nowIso(),businessDate:today(),serviceType:selectedService.type,label:finalLabel,notes:$('orderNotes').value.trim(),items:cart.map(x=>({...x})),payments:[],status:'open',ownerStaffId:currentStaffId(),ownerStaffName:selectedStaff?.name||currentUser.name,ownerHistory:[],...actorFields(),...auditFields()};
+  const o={number,createdAt:saleContext.createdAt,businessDate:saleContext.date,serviceType:selectedService.type,label:finalLabel,notes:$('orderNotes').value.trim(),items:cart.map(x=>({...x})),payments:[],status:'open',ownerStaffId:currentStaffId(),ownerStaffName:selectedStaff?.name||currentUser.name,ownerHistory:[],entryMode:saleContext.retroactive?'retroactive':'normal',retroactiveEntry:saleContext.retroactive,retroactivelyEnteredAt:saleContext.retroactive?nowIso():null,retroactivelyEnteredByUid:saleContext.retroactive?currentUser.uid:null,retroactivelyEnteredByName:saleContext.retroactive?(selectedStaff?.name||currentUser.name):null,stockAdjusted:saleContext.retroactive?false:true,...actorFields(),...auditFields()};
   const batch=writeBatch(firestore);batch.set(ref,o);
-  for(const i of cart){const p=state.products.find(x=>x.id===i.productId);if(p?.trackStock)batch.update(doc(firestore,'products',p.id),{stock:Number(p.stock)-i.qty,...auditFields()})}
-  await batch.commit();cart=[];$('orderLabel').value='';$('orderNotes').value='';selectedService={type:'meson',label:'Venta Directa'};renderCart();
-  if(shouldPay)openPayment(ref.id);else{switchTab('orders');alert('Pedido guardado como cuenta pendiente.')}
+  if(!saleContext.retroactive){for(const i of cart){const p=state.products.find(x=>x.id===i.productId);if(p?.trackStock)batch.update(doc(firestore,'products',p.id),{stock:Number(p.stock)-i.qty,...auditFields()})}}
+  await batch.commit();
+  state.orders.push({id:ref.id,...o});
+  cart=[];$('orderLabel').value='';$('orderNotes').value='';selectedService={type:'meson',label:'Venta Directa'};renderCart();
+  if(saleContext.retroactive)showToast(`Venta retroactiva registrada para ${formatDateDisplay(saleContext.date)}. El stock actual no fue modificado.`,'success',5000);
+  if(shouldPay)openPayment(ref.id);else{switchTab('orders');alert(saleContext.retroactive?'Venta retroactiva guardada como cuenta pendiente.':'Pedido guardado como cuenta pendiente.')}
 }
 $('savePending').onclick=()=>createOrder(false);$('payNow').onclick=()=>createOrder(true);$('clearCart').onclick=()=>{if(confirm('¿Limpiar el pedido actual?')){cart=[];renderCart()}};
 
@@ -739,7 +777,8 @@ $('confirmCreditBtn').onclick=async()=>{
   alert('Cuenta autorizada como fiado. La mesa quedó disponible.');
 };
 window.openPayment=id=>{
-  if(!ensureOpenDay())return;
+  const candidate=state.orders.find(x=>x.id===id);
+  if(!(roleIsManager()&&candidate?.retroactiveEntry)&&!ensureOpenDay())return;
   paymentOrderId=id;
   const o=state.orders.find(x=>x.id===id);
   if(!o||!ensureOrderActionAccess(o,'registrar pagos en esta cuenta'))return;
@@ -806,11 +845,13 @@ async function registerPayment({printAfter=false}={}){
   const currentPaid=paidTotal(o);
   const currentBalance=Math.max(0,total-currentPaid);
   if(amount>currentBalance)return alert(`El monto supera el saldo de ${fmt(currentBalance)}.`);
-  const payment={id:uid(),method:$('paymentMethod').value,amount,createdAt:nowIso(),businessDate:today(),staffId:selectedStaff?.id||null,staffName:selectedStaff?.name||null};
+  const paymentDate=o.retroactiveEntry?o.businessDate:today();
+  const paymentCreatedAt=o.retroactiveEntry?(o.createdAt||`${o.businessDate}T12:00:00-04:00`):nowIso();
+  const payment={id:uid(),method:$('paymentMethod').value,amount,createdAt:paymentCreatedAt,businessDate:paymentDate,retroactiveEntry:o.retroactiveEntry===true,enteredAt:nowIso(),enteredByUid:currentUser.uid,enteredByName:selectedStaff?.name||currentUser.name,staffId:selectedStaff?.id||null,staffName:selectedStaff?.name||null};
   const payments=[...(o.payments||[]),payment];
   const newBalance=Math.max(0,total-payments.reduce((s,p)=>s+Number(p.amount),0));
   const pendingStatus=(o.status==='credit'||o.onCredit===true)?'credit':'open';
-  await updateDoc(doc(firestore,'orders',o.id),{payments,tipPercent:percent,tipAmount:tip,status:newBalance===0?'closed':pendingStatus,closedAt:newBalance===0?nowIso():null,...auditFields()});
+  await updateDoc(doc(firestore,'orders',o.id),{payments,tipPercent:percent,tipAmount:tip,status:newBalance===0?'closed':pendingStatus,closedAt:newBalance===0?(o.retroactiveEntry?(o.createdAt||nowIso()):nowIso()):null,...auditFields()});
   if(printAfter){
     $('printReceipt').innerHTML=buildReceiptHtml(o,payment,percent,tip,total,newBalance);
     setTimeout(()=>window.print(),120);
@@ -1503,8 +1544,8 @@ renderCollectionTransferRows();
 function updateHeaderClock(){const now=new Date();$('headerDate').textContent=now.toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase());$('headerTime').textContent=now.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});const op=getTodayOperation();const closed=op?.status==='closed',opened=op?.status==='open';$('cashStatus').classList.toggle('closed-day',closed||!opened);$('cashStatus').querySelector('span:last-child').textContent=closed?'Día cerrado':opened?'Día abierto':'Día sin abrir'}
 setInterval(updateHeaderClock,1000);
 setInterval(()=>{if(document.querySelector('section#calendar.active'))renderScheduleList()},60000);
-function renderAll(){renderServiceButtons();renderProductButtons();renderCart();renderOrders();renderExpenses();renderProductTable();renderDashboard();renderMonthly();renderCloseDay();renderScheduleStaffChecks();renderScheduleList();renderAttendance();renderMonthlyAttendanceSummary();renderOperation();updateAccessState();updateHeaderClock()}
-$('reportDate').value=today();$('expenseDate').value=today();$('expenseFilterMonth').value=today().slice(0,7);$('monthlyPeriod').value=today().slice(0,7);$('scheduleMonth').value=today().slice(0,7);$('attendanceSummaryMonth').value=today().slice(0,7);$('scheduleDateFrom').value=today();$('scheduleDateTo').value=today();$('attendanceDate').value=today();renderExpenseCategories();renderAll();applyPermissions();
+function renderAll(){renderRetroactiveSaleControls();renderServiceButtons();renderProductButtons();renderCart();renderOrders();renderExpenses();renderProductTable();renderDashboard();renderMonthly();renderCloseDay();renderScheduleStaffChecks();renderScheduleList();renderAttendance();renderMonthlyAttendanceSummary();renderOperation();updateAccessState();updateHeaderClock()}
+$('saleBusinessDate').value=today();$('reportDate').value=today();$('expenseDate').value=today();$('expenseFilterMonth').value=today().slice(0,7);$('monthlyPeriod').value=today().slice(0,7);$('scheduleMonth').value=today().slice(0,7);$('attendanceSummaryMonth').value=today().slice(0,7);$('scheduleDateFrom').value=today();$('scheduleDateTo').value=today();$('attendanceDate').value=today();renderExpenseCategories();renderAll();applyPermissions();
 </script>
 
 </body>
