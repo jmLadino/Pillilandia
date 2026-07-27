@@ -201,7 +201,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 <section id="calendar"><div class="grid">
 <div class="card span-12"><div class="row"><div><h2>Asistencia real</h2></div><div><label>Fecha</label><input id="attendanceDate" type="date"></div></div><div class="notice">La entrada y la salida se guardan por separado. Puedes registrar primero la entrada y completar la salida más tarde, incluso después del cierre del día.</div><div id="attendanceSaveNotice" class="oknotice hidden" style="margin-bottom:12px"></div><div id="attendanceList"></div><div id="attendanceSummary" class="hidden"></div></div>
 <div class="card span-5"><h3 id="scheduleFormTitle">Planificar turno</h3><input id="editScheduleId" type="hidden"><div class="schedule-grid"><div><label>Fecha desde</label><input id="scheduleDateFrom" type="date"></div><div><label>Fecha hasta</label><input id="scheduleDateTo" type="date"></div><div><label>Horario de inicio</label><input id="scheduleStart" type="time" value="10:00"></div><div><label>Horario de término</label><input id="scheduleEnd" type="time" value="20:00"></div></div><label style="margin-top:12px">Persona</label><select id="scheduleStaff"><option value="">Seleccionar persona</option></select><div id="scheduleFormNotice" class="notice" style="margin-top:12px">Se creará un turno por cada día del rango. Los sábados se omitirán automáticamente. Los empleados podrán abrir o cerrar el local dentro de su turno, considerando 30 minutos de tolerancia antes y después.</div><div class="actions"><button id="saveScheduleBtn" class="btn primary" style="margin-top:12px">Guardar planificación</button><button id="cancelScheduleEditBtn" class="btn secondary hidden" style="margin-top:12px" type="button">Cancelar edición</button></div></div>
-<div class="card span-7"><div class="row"><div><h3>Planificación del mes</h3></div><div><label>Mes</label><input id="scheduleMonth" type="month"></div></div><div class="notice">Los días pendientes del mes se muestran primero. Los días ya transcurridos quedan al final.</div><div id="scheduleList"></div></div>
+<div class="card span-7"><div class="row"><div><h3>Planificación del mes</h3></div><div style="min-width:260px"><label>Mes</label><input id="scheduleMonth" type="month"><label style="margin-top:10px">Persona</label><select id="schedulePersonFilter"><option value="all">Todos</option></select></div></div><div class="notice">Los días pendientes del mes se muestran primero. Los días ya transcurridos quedan al final.</div><div id="scheduleList"></div></div>
 <div class="card span-12"><div class="row"><div><h2>Resumen mensual de asistencia</h2><div class="muted">Comparación entre las horas solicitadas en la planificación y las horas efectivamente registradas.</div></div><div><label>Mes del resumen</label><input id="attendanceSummaryMonth" type="month"></div></div><div id="monthlyAttendanceSummary"></div></div>
 </div></section>
 
@@ -1057,6 +1057,15 @@ function renderScheduleStaffChecks(){
   const currentValue=$('scheduleStaff').value;
   $('scheduleStaff').innerHTML=`<option value="">Seleccionar persona</option>`+state.staff.map(p=>`<option value="${esc(p.id)}">${esc(p.name)} · ${roleLabel(p.role)}</option>`).join('');
   if(state.staff.some(p=>p.id===currentValue))$('scheduleStaff').value=currentValue;
+
+  if($('schedulePersonFilter')){
+    const filterValue=$('schedulePersonFilter').value||'all';
+    $('schedulePersonFilter').innerHTML=`<option value="all">Todos</option>`+state.staff
+      .filter(p=>p.active!==false)
+      .sort((a,b)=>(a.name||'').localeCompare(b.name||'','es',{sensitivity:'base'}))
+      .map(p=>`<option value="${esc(p.id)}">${esc(p.name)} · ${roleLabel(p.role)}</option>`).join('');
+    $('schedulePersonFilter').value=state.staff.some(p=>p.id===filterValue&&p.active!==false)?filterValue:'all';
+  }
 }
 function scheduleDisplayState(schedule,currentDate,currentMinutes){
   const date=String(schedule.date||'');
@@ -1068,9 +1077,9 @@ function scheduleDisplayState(schedule,currentDate,currentMinutes){
 }
 function renderScheduleList(){
   if(!$('scheduleList'))return;
-  const month=$('scheduleMonth').value,currentDate=today(),currentMinutes=minutesNow();
+  const month=$('scheduleMonth').value,personFilter=$('schedulePersonFilter')?.value||'all',currentDate=today(),currentMinutes=minutesNow();
   const xs=state.schedules
-    .filter(x=>x.month===month||String(x.date||'').startsWith(month))
+    .filter(x=>(x.month===month||String(x.date||'').startsWith(month))&&(personFilter==='all'||x.staffId===personFilter))
     .map(x=>({...x,_displayState:scheduleDisplayState(x,currentDate,currentMinutes)}))
     .sort((a,b)=>{
       if(a._displayState.priority!==b._displayState.priority)return a._displayState.priority-b._displayState.priority;
@@ -1170,6 +1179,7 @@ $('saveScheduleBtn').onclick=async()=>{
   alert(`Planificación guardada correctamente: ${dates.length} jornada(s) para ${p.name}.`);
 };
 $('scheduleMonth').onchange=()=>{renderScheduleList();if($('attendanceSummaryMonth')){$('attendanceSummaryMonth').value=$('scheduleMonth').value;renderMonthlyAttendanceSummary();}};
+$('schedulePersonFilter').onchange=renderScheduleList;
 $('attendanceSummaryMonth').onchange=renderMonthlyAttendanceSummary;
 
 function minutesBetweenTimes(start,end){
