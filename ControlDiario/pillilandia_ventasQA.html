@@ -816,7 +816,7 @@ window.voidOrder=async id=>{const o=state.orders.find(x=>x.id===id);if(!o||!ensu
 function renderExpenses(){
   const period=$('expenseFilterMonth').value;
   const xs=state.expenses
-    .filter(x=>!period||(x.date&&x.date.startsWith(period)))
+    .filter(x=>x.deleted!==true&&(!period||(x.date&&x.date.startsWith(period))))
     .sort((a,b)=>String((b.date||'')+(b.createdAt||'')).localeCompare(String((a.date||'')+(a.createdAt||''))));
   const total=xs.reduce((s,x)=>s+Number(x.amount||0),0);
   const categories=[...new Set(xs.map(x=>String(x.category||'Sin categoría').trim()).filter(Boolean))];
@@ -879,7 +879,29 @@ $('expenseForm').onsubmit=async e=>{
   expenseDialog.close();
 };
 $('expenseFilterMonth').onchange=renderExpenses;
-window.deleteExpense=async id=>{if(confirm('¿Eliminar este gasto?'))await deleteDoc(doc(firestore,'expenses',id))};
+window.deleteExpense=async id=>{
+  const expense=state.expenses.find(x=>x.id===id);
+  if(!expense)return alert('No fue posible encontrar el gasto seleccionado.');
+  const actorName=selectedStaff?.name||currentUser?.name||currentUser?.email||'Usuario';
+  if(roleIsAdmin()){
+    if(!confirm('¿Eliminar definitivamente este gasto? Esta acción lo quitará de la base de datos y no se podrá recuperar.'))return;
+    await deleteDoc(doc(firestore,'expenses',id));
+    showToast('Gasto eliminado definitivamente.','success');
+    return;
+  }
+  if(!roleIsManager()||!confirm('¿Eliminar este gasto?'))return;
+  await updateDoc(doc(firestore,'expenses',id),{
+    deleted:true,
+    deletedAt:nowIso(),
+    deletedByUid:currentUser.uid,
+    deletedByName:actorName,
+    modifiedAt:nowIso(),
+    modifiedByUid:currentUser.uid,
+    modifiedByName:actorName,
+    ...auditFields()
+  });
+  showToast('Gasto eliminado correctamente.','success');
+};
 
 function productSalesSummary(orders){
   const map=new Map();
@@ -950,7 +972,7 @@ window.viewSaleDetail=id=>{
   $('saleDetailDialog').showModal();
 };
 $('reportDate').onchange=renderDashboard;
-function renderMonthly(){const period=$('monthlyPeriod').value;if(!period)return;const monthOrders=state.orders.filter(o=>o.status!=='void'&&o.businessDate&&o.businessDate.startsWith(period));const monthPayments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate&&p.businessDate.startsWith(period)));const monthExpenses=state.expenses.filter(x=>x.date&&x.date.startsWith(period));const sales=monthPayments.reduce((s,p)=>s+Number(p.amount),0),expenses=monthExpenses.reduce((s,x)=>s+Number(x.amount),0),net=sales-expenses,margin=sales?Math.round((net/sales)*100):0;$('monthlySales').textContent=fmt(sales);$('monthlyExpenses').textContent=fmt(expenses);$('monthlyNet').textContent=fmt(net);$('monthlyMargin').textContent=margin+'%';const methods=['Efectivo','Débito','Crédito','Transferencia'];$('monthlyPaymentSummary').innerHTML=methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(monthPayments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('');const cats=[...new Set(monthExpenses.map(x=>x.category))].sort();$('monthlyExpenseSummary').innerHTML=cats.length?cats.map(c=>`<div class="payment-line"><span>${esc(c)}</span><span class="money" style="float:right">${fmt(monthExpenses.filter(x=>x.category===c).reduce((s,x)=>s+Number(x.amount),0))}</span></div>`).join(''):'<div class="empty">Sin gastos en el mes</div>';const tipsByOwner=new Map();monthOrders.forEach(o=>{const tip=tipAmount(o);if(tip<=0)return;const ownerId=o.ownerStaffId||o.staffId||o.createdByUid||o.createdByName||'sin-asignar';const owner=ownerName(o);const current=tipsByOwner.get(ownerId)||{owner,sales:0,tips:0};current.sales+=1;current.tips+=tip;tipsByOwner.set(ownerId,current)});const ownerTips=[...tipsByOwner.values()].sort((a,b)=>b.tips-a.tips||a.owner.localeCompare(b.owner,'es'));const totalOwnerTips=ownerTips.reduce((sum,x)=>sum+x.tips,0);$('monthlyTipsByOwner').innerHTML=ownerTips.length?`<div style="overflow:auto"><table><thead><tr><th>Empleado propietario</th><th class="right">Ventas con propina</th><th class="right">Total propinas</th></tr></thead><tbody>${ownerTips.map(x=>`<tr><td>${esc(x.owner)}</td><td class="right">${x.sales}</td><td class="right"><b>${fmt(x.tips)}</b></td></tr>`).join('')}<tr><td><b>Total mensual</b></td><td class="right"><b>${ownerTips.reduce((sum,x)=>sum+x.sales,0)}</b></td><td class="right"><b>${fmt(totalOwnerTips)}</b></td></tr></tbody></table></div>`:'<div class="empty">Sin propinas registradas en el mes</div>';const days=[...new Set([...monthPayments.map(p=>p.businessDate),...monthExpenses.map(x=>x.date)])].sort();$('monthlyDailySummary').innerHTML=days.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th class="right">Ventas</th><th class="right">Gastos</th><th class="right">Resultado</th></tr></thead><tbody>${days.map(d=>{const vs=monthPayments.filter(p=>p.businessDate===d).reduce((s,p)=>s+Number(p.amount),0),gs=monthExpenses.filter(x=>x.date===d).reduce((s,x)=>s+Number(x.amount),0);return `<tr><td>${formatDateDisplay(d)}</td><td class="right">${fmt(vs)}</td><td class="right">${fmt(gs)}</td><td class="right"><b>${fmt(vs-gs)}</b></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Sin movimientos en el mes</div>';renderProductSales('monthlyProductSales',monthOrders,'Sin productos vendidos para el mes seleccionado.')}
+function renderMonthly(){const period=$('monthlyPeriod').value;if(!period)return;const monthOrders=state.orders.filter(o=>o.status!=='void'&&o.businessDate&&o.businessDate.startsWith(period));const monthPayments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate&&p.businessDate.startsWith(period)));const monthExpenses=state.expenses.filter(x=>x.deleted!==true&&x.date&&x.date.startsWith(period));const sales=monthPayments.reduce((s,p)=>s+Number(p.amount),0),expenses=monthExpenses.reduce((s,x)=>s+Number(x.amount),0),net=sales-expenses,margin=sales?Math.round((net/sales)*100):0;$('monthlySales').textContent=fmt(sales);$('monthlyExpenses').textContent=fmt(expenses);$('monthlyNet').textContent=fmt(net);$('monthlyMargin').textContent=margin+'%';const methods=['Efectivo','Débito','Crédito','Transferencia'];$('monthlyPaymentSummary').innerHTML=methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(monthPayments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('');const cats=[...new Set(monthExpenses.map(x=>x.category))].sort();$('monthlyExpenseSummary').innerHTML=cats.length?cats.map(c=>`<div class="payment-line"><span>${esc(c)}</span><span class="money" style="float:right">${fmt(monthExpenses.filter(x=>x.category===c).reduce((s,x)=>s+Number(x.amount),0))}</span></div>`).join(''):'<div class="empty">Sin gastos en el mes</div>';const tipsByOwner=new Map();monthOrders.forEach(o=>{const tip=tipAmount(o);if(tip<=0)return;const ownerId=o.ownerStaffId||o.staffId||o.createdByUid||o.createdByName||'sin-asignar';const owner=ownerName(o);const current=tipsByOwner.get(ownerId)||{owner,sales:0,tips:0};current.sales+=1;current.tips+=tip;tipsByOwner.set(ownerId,current)});const ownerTips=[...tipsByOwner.values()].sort((a,b)=>b.tips-a.tips||a.owner.localeCompare(b.owner,'es'));const totalOwnerTips=ownerTips.reduce((sum,x)=>sum+x.tips,0);$('monthlyTipsByOwner').innerHTML=ownerTips.length?`<div style="overflow:auto"><table><thead><tr><th>Empleado propietario</th><th class="right">Ventas con propina</th><th class="right">Total propinas</th></tr></thead><tbody>${ownerTips.map(x=>`<tr><td>${esc(x.owner)}</td><td class="right">${x.sales}</td><td class="right"><b>${fmt(x.tips)}</b></td></tr>`).join('')}<tr><td><b>Total mensual</b></td><td class="right"><b>${ownerTips.reduce((sum,x)=>sum+x.sales,0)}</b></td><td class="right"><b>${fmt(totalOwnerTips)}</b></td></tr></tbody></table></div>`:'<div class="empty">Sin propinas registradas en el mes</div>';const days=[...new Set([...monthPayments.map(p=>p.businessDate),...monthExpenses.map(x=>x.date)])].sort();$('monthlyDailySummary').innerHTML=days.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th class="right">Ventas</th><th class="right">Gastos</th><th class="right">Resultado</th></tr></thead><tbody>${days.map(d=>{const vs=monthPayments.filter(p=>p.businessDate===d).reduce((s,p)=>s+Number(p.amount),0),gs=monthExpenses.filter(x=>x.date===d).reduce((s,x)=>s+Number(x.amount),0);return `<tr><td>${formatDateDisplay(d)}</td><td class="right">${fmt(vs)}</td><td class="right">${fmt(gs)}</td><td class="right"><b>${fmt(vs-gs)}</b></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Sin movimientos en el mes</div>';renderProductSales('monthlyProductSales',monthOrders,'Sin productos vendidos para el mes seleccionado.')}
 $('monthlyPeriod').onchange=renderMonthly;
 
 function renderProductTable(){
