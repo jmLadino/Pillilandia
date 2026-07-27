@@ -83,6 +83,21 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 .expense-chart-bar{height:100%;background:linear-gradient(90deg,#0b6d73,#14949b);border-radius:999px;min-width:4px}
 #expenseList table{min-width:760px}
 #expenseList tfoot td{border-top:2px solid #8ebdc1}
+.expense-toolbar{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;flex-wrap:wrap;margin-bottom:18px}.expense-toolbar h2{margin:0}.expense-toolbar .month-field{width:min(300px,100%)}.expense-modal{max-width:560px}.expense-modal .dialog-body{padding:22px}.expense-amount-wrap{position:relative}.expense-amount-prefix{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-weight:900;color:var(--brand2);pointer-events:none}.expense-amount-wrap input{padding-left:30px;font-weight:800;font-size:1.05rem}
+
+.expense-audit{margin-top:14px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--soft);font-size:.9rem}
+.expense-audit-title{font-weight:800;margin-bottom:8px;color:var(--ink)}
+.expense-audit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.expense-audit-item span{display:block;color:var(--muted);font-size:.78rem;margin-bottom:2px}
+.expense-audit-item b{display:block;font-size:.88rem}
+@media(max-width:640px){.expense-audit-grid{grid-template-columns:1fr}}
+.expense-deleted-row{background:#fff0f0!important;color:#8f1d1d}
+.expense-deleted-row td{border-color:#efb9b9!important}
+.expense-deleted-row .money{color:#9b1c1c}
+.expense-deleted-badge{display:inline-flex;align-items:center;gap:5px;margin-left:7px;padding:3px 8px;border-radius:999px;background:#b42318;color:#fff;font-size:.72rem;font-weight:800;letter-spacing:.02em;vertical-align:middle}
+.expense-deleted-info{display:block;margin-top:4px;color:#a12626;font-size:.76rem;font-weight:600}
+.expense-admin-note{margin:0 0 12px;padding:10px 12px;border:1px solid #efb9b9;border-radius:12px;background:#fff5f5;color:#8f1d1d;font-size:.86rem}
+
 </style>
 </head>
 <body>
@@ -182,7 +197,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 <div class="card span-12"><div class="row"><div><h2>Resumen mensual de asistencia</h2><div class="muted">Comparación entre las horas solicitadas en la planificación y las horas efectivamente registradas.</div></div><div><label>Mes del resumen</label><input id="attendanceSummaryMonth" type="month"></div></div><div id="monthlyAttendanceSummary"></div></div>
 </div></section>
 
-<section id="expenses"><div class="grid"><div class="card span-12"><h2>Gastos Mensual</h2><div class="metrics"><div class="metric"><small>Total gastos del mes</small><b id="expenseMonthTotal">$0</b></div><div class="metric"><small>Cantidad de gastos</small><b id="expenseMonthCount">0</b></div><div class="metric"><small>Categorías utilizadas</small><b id="expenseMonthCategories">0</b></div></div></div><div class="card span-5"><h2>Registrar gasto</h2><form id="expenseForm"><div class="row"><div><label>Fecha del gasto</label><input id="expenseDate" type="date" required></div><div><label>Monto</label><input id="expenseAmount" type="number" min="1" step="1" required></div></div><label style="margin-top:10px">Categoría</label><select id="expenseCategory"></select><label style="margin-top:10px">Descripción / proveedor</label><input id="expenseDescription" placeholder="Detalle opcional"><button class="btn primary" style="margin-top:12px" type="submit">Guardar gasto</button></form></div><div class="card span-7"><div class="row" style="align-items:flex-end"><div><h2 style="margin-bottom:0">Detalle de gastos</h2></div><div style="min-width:190px"><label>Mes a consultar</label><input id="expenseFilterMonth" type="month"></div></div><div id="expenseCategoryChart" style="margin-top:18px"></div><div id="expenseList" style="margin-top:18px"></div></div></div></section>
+<section id="expenses"><div class="grid"><div class="card span-12"><div class="expense-toolbar"><div><h2>Gastos Mensual</h2><div class="muted tiny" style="margin-top:4px">Consulta y administra todos los gastos registrados durante el mes.</div></div><button class="btn primary" id="newExpenseBtn" type="button">+ Registrar nuevo gasto</button></div><div class="metrics"><div class="metric"><small>Total gastos del mes</small><b id="expenseMonthTotal">$0</b></div><div class="metric"><small>Cantidad de gastos</small><b id="expenseMonthCount">0</b></div><div class="metric"><small>Categorías utilizadas</small><b id="expenseMonthCategories">0</b></div></div></div><div class="card span-12"><div class="expense-toolbar"><h2>Detalle de gastos</h2><div class="month-field"><label>Mes a consultar</label><input id="expenseFilterMonth" type="month"></div></div><div id="expenseCategoryChart"></div><div id="expenseList" style="margin-top:18px"></div></div></div></section>
 
 <section id="monthly"><div class="grid"><div class="card span-12 no-print"><div class="row"><div><label>Mes de gestión</label><input id="monthlyPeriod" type="month"></div><div><button class="btn outline" onclick="window.print()">Imprimir gestión mensual</button></div></div></div><div class="card span-12"><h2>Gestión mensual</h2><div class="metrics"><div class="metric"><small>Ventas cobradas</small><b id="monthlySales">$0</b></div><div class="metric"><small>Gastos</small><b id="monthlyExpenses">$0</b></div><div class="metric"><small>Resultado</small><b id="monthlyNet">$0</b></div><div class="metric"><small>Margen sobre ventas</small><b id="monthlyMargin">0%</b></div></div></div><div class="card span-6"><h3>Ventas por medio de pago</h3><div id="monthlyPaymentSummary"></div></div><div class="card span-6"><h3>Gastos por categoría</h3><div id="monthlyExpenseSummary"></div></div><div class="card span-12"><h3>Propinas por empleado propietario</h3><div id="monthlyTipsByOwner"></div></div><div class="card span-12"><h3>Productos vendidos del mes</h3><div id="monthlyProductSales"></div></div><div class="card span-12"><h3>Resumen diario del mes</h3><div id="monthlyDailySummary"></div></div></div></section>
 
@@ -200,6 +215,8 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 </div>
 
 <div id="printReceipt" aria-hidden="true"></div>
+<dialog id="expenseDialog" class="expense-modal"><div class="dialog-body"><div class="dialog-head"><h2 id="expenseDialogTitle">Registrar nuevo gasto</h2><button class="x" type="button" onclick="expenseDialog.close()">×</button></div><form id="expenseForm"><input id="editExpenseId" type="hidden"><div class="row"><div><label>Fecha del gasto</label><input id="expenseDate" type="date" required></div><div><label>Monto</label><div class="expense-amount-wrap"><span class="expense-amount-prefix">$</span><input id="expenseAmount" type="text" inputmode="numeric" autocomplete="off" placeholder="0" required></div></div></div><label style="margin-top:10px">Categoría</label><select id="expenseCategory" required></select><label style="margin-top:10px">Descripción / proveedor</label><input id="expenseDescription" placeholder="Detalle opcional"><div id="expenseAuditInfo" class="expense-audit hidden"></div><div class="actions"><button class="btn primary" id="saveExpenseBtn" type="submit">Guardar gasto</button><button class="btn secondary" type="button" onclick="expenseDialog.close()">Cancelar</button></div></form></div></dialog>
+
 <dialog id="paymentDialog"><div class="dialog-body"><div class="dialog-head"><h2>Registrar pago</h2><button class="x" onclick="paymentDialog.close()">×</button></div><div id="paymentOrderInfo"></div><div id="tipPicker" class="tip-picker"><label>Propina sugerida</label><div class="tip-options"><button type="button" class="tip-btn" data-tip="0">Sin propina</button><button type="button" class="tip-btn" data-tip="5">5%</button><button type="button" class="tip-btn" data-tip="10">10%</button><button type="button" class="tip-btn" data-tip="15">15%</button><button type="button" class="tip-btn" data-tip="20">20%</button></div><div id="tipHelp" class="muted tiny" style="margin-top:8px"></div></div><div class="row" style="margin-top:12px"><div><label>Medio de pago</label><select id="paymentMethod"><option>Efectivo</option><option>Débito</option><option>Crédito</option><option>Transferencia</option></select></div><div><label>Monto</label><input id="paymentAmount" type="number" min="1" step="1"></div></div><div class="actions"><button class="btn primary" id="addPaymentBtn">Agregar pago</button><button class="btn secondary" id="addPaymentPrintBtn">Agregar pago e imprimir</button><button class="btn secondary" onclick="paymentDialog.close()">Cerrar</button></div><div id="paymentsExisting"></div></div></dialog>
 
 <dialog id="creditDialog"><div class="dialog-body"><div class="dialog-head"><h2>Autorizar cuenta fiada</h2><button class="x" onclick="creditDialog.close()">×</button></div><div id="creditOrderInfo"></div><label>Nombre completo o identificación del cliente</label><input id="creditCustomerName" placeholder="Dato obligatorio para autorizar el fiado"><div class="notice" style="margin-top:12px">Esta acción debe ser realizada por un gerente. La cuenta pasará a “Cuentas pendientes”, liberará la mesa y no bloqueará el cierre diario.</div><div class="actions"><button class="btn primary" id="confirmCreditBtn">Confirmar fiado</button><button class="btn secondary" onclick="creditDialog.close()">Cancelar</button></div></div></dialog>
@@ -210,7 +227,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 
 <dialog id="productDialog"><div class="dialog-body"><div class="dialog-head"><h2 id="productDialogTitle">Producto</h2><button class="x" onclick="productDialog.close()">×</button></div><input id="editProductId" type="hidden"><label>Nombre</label><input id="editProductName"><label style="margin-top:10px">Descripción para el menú público</label><textarea id="editProductDescription" rows="2" placeholder="Ej.: Preparado con café en grano recién molido."></textarea><div class="row" style="margin-top:10px"><div><label>Categoría</label><input id="editProductCategory"></div><div><label>Precio</label><input id="editProductPrice" type="number" min="0"></div></div><div class="row" style="margin-top:10px"><div><label>Stock actual</label><input id="editProductStock" type="number" step="1"></div><div><label>Control de stock</label><select id="editProductTrack"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Activo</label><select id="editProductActive"><option value="true">Sí</option><option value="false">No</option></select></div></div><button class="btn primary" style="margin-top:12px" id="saveProductBtn">Guardar producto</button></div></dialog>
 
-<!-- Versión 3.26: rol administrador, exportación e importación unitaria por colección -->
+<!-- Versión 3.27: auditoría de creación y modificación de gastos -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import {
@@ -495,6 +512,10 @@ function ensureOrderActionAccess(o,actionLabel){if(roleIsManager()||isOrderOwner
 function getTodayOperation(){return state.operations.find(x=>x.id===today()||x.businessDate===today())||null}
 function isDayOpen(){return getTodayOperation()?.status==='open'}
 function localTimeFromIso(value){if(!value)return '';const d=new Date(value);return d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:state.settings.timeZone||'America/Santiago'})}
+function formatDateDisplay(value){if(!value)return '';const raw=String(value);const iso=raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);if(iso)return `${iso[3]}-${iso[2]}-${iso[1]}`;const d=asDate(value);if(Number.isNaN(d.getTime()))return raw;return new Intl.DateTimeFormat('es-CL',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:state.settings.timeZone||'America/Santiago'}).format(d).replaceAll('/','-')}
+function formatDateTimeDisplay(value){if(!value)return '';const d=asDate(value);if(Number.isNaN(d.getTime()))return formatDateDisplay(value);const parts=new Intl.DateTimeFormat('es-CL',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:state.settings.timeZone||'America/Santiago'}).formatToParts(d);const get=t=>parts.find(p=>p.type===t)?.value||'';return `${get('day')}-${get('month')}-${get('year')} ${get('hour')}:${get('minute')}`}
+function parseCurrencyInput(value){return Number(String(value||'').replace(/[^0-9]/g,''))||0}
+function formatCurrencyInput(value){const amount=parseCurrencyInput(value);return amount?new Intl.NumberFormat('es-CL',{maximumFractionDigits:0}).format(amount):''}
 function minutesNow(){const parts=new Intl.DateTimeFormat('en-GB',{timeZone:state.settings.timeZone||'America/Santiago',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date()).split(':');return Number(parts[0])*60+Number(parts[1])}
 function timeToMinutes(v){const [h,m]=String(v||'').split(':').map(Number);return Number.isFinite(h)&&Number.isFinite(m)?h*60+m:null}
 function ownTodaySchedule(){const sid=selectedStaff?.id||currentUser?.staffId;return state.schedules.find(x=>x.date===today()&&x.staffId===sid&&x.active!==false)||null}
@@ -597,7 +618,7 @@ function renderOrders(){
       ?`<button class="btn primary" onclick="openPayment('${o.id}')">Registrar pago</button><button class="btn secondary" onclick="openOrderEditor('${o.id}')">Modificar</button><button class="btn danger" onclick="voidOrder('${o.id}')">Anular</button><button class="btn outline ${roleIsManager()?'':'hidden'}" onclick="openCreditDialog('${o.id}')">Fiar</button>`
       :`<button class="btn secondary" onclick="takeOrderControl('${o.id}')">Tomar control / Asignarme cuenta</button>`;
     const history=(o.ownerHistory||[]),last=history.length?history[history.length-1]:null;
-    return `<div class="order-card"><div class="order-head"><div><b>#${o.number} · ${esc(o.label)}</b><div class="muted tiny">${asDate(o.createdAt).toLocaleString('es-CL')} · ${o.serviceType==='mesa'?'Mesa':'Mesón'} · Creada por ${esc(o.staffName||o.createdByName||'')}</div><div class="tiny" style="margin-top:4px"><b>Propietario actual:</b> ${esc(ownerName(o))}${last?` · Anterior: ${esc(last.previousOwnerName||'Sin asignar')}`:''}</div></div><span class="badge open">Pendiente ${fmt(balance(o))}</span></div><div class="order-items-list">${(o.items||[]).map(i=>`<div class="order-item-row"><span>${Number(i.qty)||0}× ${esc(i.name)}</span><b>${fmt((Number(i.price)||0)*(Number(i.qty)||0))}</b></div>`).join('')}</div><div class="total"><span>Total ${fmt(chargedTotal(o))}</span><span>Pagado ${fmt(paidTotal(o))}</span></div><div class="actions">${actionButtons}</div></div>`;
+    return `<div class="order-card"><div class="order-head"><div><b>#${o.number} · ${esc(o.label)}</b><div class="muted tiny">${formatDateTimeDisplay(o.createdAt)} · ${o.serviceType==='mesa'?'Mesa':'Mesón'} · Creada por ${esc(o.staffName||o.createdByName||'')}</div><div class="tiny" style="margin-top:4px"><b>Propietario actual:</b> ${esc(ownerName(o))}${last?` · Anterior: ${esc(last.previousOwnerName||'Sin asignar')}`:''}</div></div><span class="badge open">Pendiente ${fmt(balance(o))}</span></div><div class="order-items-list">${(o.items||[]).map(i=>`<div class="order-item-row"><span>${Number(i.qty)||0}× ${esc(i.name)}</span><b>${fmt((Number(i.price)||0)*(Number(i.qty)||0))}</b></div>`).join('')}</div><div class="total"><span>Total ${fmt(chargedTotal(o))}</span><span>Pagado ${fmt(paidTotal(o))}</span></div><div class="actions">${actionButtons}</div></div>`;
   }).join(''):'<div class="empty">No hay cuentas abiertas</div>';
   $('creditOrdersCount').textContent=`${creditList.length} pendiente${creditList.length===1?'':'s'}`;
   $('creditOrders').innerHTML=creditList.length?creditList.map(o=>`<div class="order-card"><div class="order-head"><div><b>#${o.number} · ${esc(o.label)}</b><div class="muted tiny">Cliente: <b>${esc(o.creditCustomerName||'Sin identificar')}</b> · Autorizada por ${esc(o.creditedByName||o.updatedByName||'Gerente')}</div></div><span class="badge open">Por cobrar ${fmt(balance(o))}</span></div><div class="order-items-list">${(o.items||[]).map(i=>`<div class="order-item-row"><span>${Number(i.qty)||0}× ${esc(i.name)}</span><b>${fmt((Number(i.price)||0)*(Number(i.qty)||0))}</b></div>`).join('')}</div><div class="total"><span>Total ${fmt(chargedTotal(o))}</span><span>Pagado ${fmt(paidTotal(o))}</span></div><div class="actions"><button class="btn primary" onclick="openPayment('${o.id}')">Registrar pago</button><button class="btn danger ${roleIsManager()?'':'hidden'}" onclick="voidOrder('${o.id}')">Anular</button></div></div>`).join(''):'<div class="empty">No hay cuentas pendientes</div>';
@@ -734,7 +755,7 @@ function renderPaymentDialog(){
   });
   $('tipHelp').textContent=hasPayments?'La propina quedó fijada al registrar el primer pago.':`Monto de propina seleccionado: ${fmt(tip)}.`;
   $('paymentAmount').value=pending||'';
-  $('paymentsExisting').innerHTML=(o.payments||[]).length?`<h3 style="margin-top:16px">Pagos registrados</h3>`+o.payments.map(p=>`<div class="payment-line"><b>${esc(p.method)}</b> · ${fmt(p.amount)} <span class="muted tiny">${asDate(p.createdAt).toLocaleString('es-CL')}</span></div>`).join(''):'';
+  $('paymentsExisting').innerHTML=(o.payments||[]).length?`<h3 style="margin-top:16px">Pagos registrados</h3>`+o.payments.map(p=>`<div class="payment-line"><b>${esc(p.method)}</b> · ${fmt(p.amount)} <span class="muted tiny">${formatDateTimeDisplay(p.createdAt)}</span></div>`).join(''):'';
 }
 function buildReceiptHtml(o,payment,percent,tip,total,newBalance){
   const items=(o.items||[]).map(i=>`<div class="receipt-row"><span>${Number(i.qty)||0} x ${esc(i.name)}</span><b>${fmt((Number(i.price)||0)*(Number(i.qty)||0))}</b></div>`).join('');
@@ -743,7 +764,8 @@ function buildReceiptHtml(o,payment,percent,tip,total,newBalance){
     <div class="receipt-center">Comprobante de pago</div>
     <div class="receipt-sep"></div>
     <div>Cuenta: #${o.number} · ${esc(o.label)}</div>
-    <div>Fecha: ${new Date().toLocaleString('es-CL',{hour12:false})}</div>
+    <div>Fecha: ${formatDateTimeDisplay(new Date())}</div>
+    
     <div class="receipt-sep"></div>
     ${items}
     <div class="receipt-sep"></div>
@@ -786,24 +808,109 @@ window.voidOrder=async id=>{const o=state.orders.find(x=>x.id===id);if(!o||!ensu
 
 function renderExpenses(){
   const period=$('expenseFilterMonth').value;
-  const xs=state.expenses
-    .filter(x=>!period||(x.date&&x.date.startsWith(period)))
+  const isAdmin=roleIsAdmin();
+  const monthExpenses=state.expenses
+    .filter(x=>(!period||(x.date&&x.date.startsWith(period))))
     .sort((a,b)=>String((b.date||'')+(b.createdAt||'')).localeCompare(String((a.date||'')+(a.createdAt||''))));
-  const total=xs.reduce((s,x)=>s+Number(x.amount||0),0);
-  const categories=[...new Set(xs.map(x=>String(x.category||'Sin categoría').trim()).filter(Boolean))];
+  const xs=isAdmin?monthExpenses:monthExpenses.filter(x=>x.deleted!==true);
+  const activeXs=xs.filter(x=>x.deleted!==true);
+  const deletedXs=xs.filter(x=>x.deleted===true);
+  const total=activeXs.reduce((sum,x)=>sum+Number(x.amount||0),0);
+  const categories=[...new Set(activeXs.map(x=>String(x.category||'Sin categoría').trim()).filter(Boolean))];
   $('expenseMonthTotal').textContent=fmt(total);
-  $('expenseMonthCount').textContent=xs.length;
+  $('expenseMonthCount').textContent=activeXs.length;
   $('expenseMonthCategories').textContent=categories.length;
 
   const totalsByCategory=new Map();
-  xs.forEach(x=>{const c=String(x.category||'Sin categoría').trim()||'Sin categoría';totalsByCategory.set(c,(totalsByCategory.get(c)||0)+Number(x.amount||0))});
+  activeXs.forEach(x=>{const c=String(x.category||'Sin categoría').trim()||'Sin categoría';totalsByCategory.set(c,(totalsByCategory.get(c)||0)+Number(x.amount||0))});
   const chartData=[...totalsByCategory.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'es'));
   const maxValue=Math.max(0,...chartData.map(x=>x[1]));
-  $('expenseCategoryChart').innerHTML=chartData.length?`<div class="expense-chart"><h3>Gastos agrupados por categoría</h3>${chartData.map(([category,amount])=>`<div class="expense-chart-row"><div class="expense-chart-label"><span>${esc(category)}</span><b>${fmt(amount)}</b></div><div class="expense-chart-track"><div class="expense-chart-bar" style="width:${maxValue?Math.max(4,(amount/maxValue)*100):0}%"></div></div></div>`).join('')}</div>`:'<div class="empty">Sin gastos para el mes seleccionado</div>';
+  $('expenseCategoryChart').innerHTML=chartData.length?`<div class="expense-chart"><h3>Gastos agrupados por categoría</h3>${chartData.map(([category,amount])=>`<div class="expense-chart-row"><div class="expense-chart-label"><span>${esc(category)}</span><b>${fmt(amount)}</b></div><div class="expense-chart-track"><div class="expense-chart-bar" style="width:${maxValue?Math.max(4,(amount/maxValue)*100):0}%"></div></div></div>`).join('')}</div>`:'<div class="empty">Sin gastos vigentes para el mes seleccionado</div>';
 
-  $('expenseList').innerHTML=xs.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción / proveedor</th><th>Registrado por</th><th class="right">Monto</th><th class="right no-print">Acciones</th></tr></thead><tbody>${xs.map(x=>`<tr><td>${esc(x.date||'')}</td><td><b>${esc(x.category||'Sin categoría')}</b></td><td>${esc(x.description||'—')}</td><td>${esc(x.createdByName||'—')}</td><td class="right money">${fmt(x.amount)}</td><td class="right no-print"><button class="btn danger tiny" onclick="deleteExpense('${x.id}')">Eliminar</button></td></tr>`).join('')}</tbody><tfoot><tr><td colspan="4"><b>Total del mes</b></td><td class="right money"><b>${fmt(total)}</b></td><td class="no-print"></td></tr></tfoot></table></div>`:'<div class="empty">No hay gastos para el mes seleccionado</div>';
+  const adminNote=isAdmin&&deletedXs.length?`<div class="expense-admin-note"><b>Vista de administrador:</b> se muestran ${deletedXs.length} gasto${deletedXs.length===1?' eliminado':'s eliminados'} lógicamente en rojo. Estos registros no se incluyen en los totales ni en el gráfico.</div>`:'';
+  $('expenseList').innerHTML=xs.length?`${adminNote}<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción / proveedor</th><th>Registrado por</th><th>Modificado por</th><th class="right">Monto</th><th class="right no-print">Acciones</th></tr></thead><tbody>${xs.map(x=>{
+    const modifiedName=x.modifiedByName||'—';
+    const modifiedWhen=x.modifiedAt?formatDateTimeDisplay(x.modifiedAt):'';
+    const deleted=x.deleted===true;
+    const deletedWhen=x.deletedAt?formatDateTimeDisplay(x.deletedAt):'Fecha no disponible';
+    const deletedBy=x.deletedByName||'Sin identificar';
+    const statusMark=deleted?`<span class="expense-deleted-badge">ELIMINADO</span><span class="expense-deleted-info">Por ${esc(deletedBy)} · ${esc(deletedWhen)}</span>`:'';
+    const actions=deleted
+      ?`<button class="btn danger tiny" onclick="deleteExpense('${x.id}')">Eliminar definitivamente</button>`
+      :`<button class="btn secondary tiny" onclick="editExpense('${x.id}')">Editar</button><button class="btn danger tiny" onclick="deleteExpense('${x.id}')">Eliminar</button>`;
+    return `<tr class="${deleted?'expense-deleted-row':''}"><td>${formatDateDisplay(x.date)}${statusMark}</td><td><b>${esc(x.category||'Sin categoría')}</b></td><td>${esc(x.description||'—')}</td><td title="${esc(x.createdAt?formatDateTimeDisplay(x.createdAt):'')}">${esc(x.createdByName||'—')}</td><td title="${esc(modifiedWhen)}">${esc(modifiedName)}</td><td class="right money">${fmt(x.amount)}</td><td class="right no-print"><div class="actions" style="justify-content:flex-end;margin:0;gap:6px">${actions}</div></td></tr>`
+  }).join('')}</tbody><tfoot><tr><td colspan="5"><b>Total vigente del mes</b></td><td class="right money"><b>${fmt(total)}</b></td><td class="no-print"></td></tr></tfoot></table></div>`:'<div class="empty">No hay gastos para el mes seleccionado</div>';
 }
-$('expenseForm').onsubmit=async e=>{e.preventDefault();const category=$('expenseCategory').value;if(!category){alert('Selecciona una categoría de gasto.');return;}await addDoc(collection(firestore,'expenses'),{date:$('expenseDate').value,category,description:$('expenseDescription').value.trim(),amount:Number($('expenseAmount').value),createdAt:nowIso(),...actorFields(),...auditFields()});$('expenseAmount').value='';$('expenseDescription').value='';showToast('Gasto registrado correctamente.','success')};$('expenseFilterMonth').onchange=renderExpenses;window.deleteExpense=async id=>{if(confirm('¿Eliminar este gasto?'))await deleteDoc(doc(firestore,'expenses',id))};
+function openExpenseDialog(expense=null){
+  const editing=Boolean(expense);
+  $('editExpenseId').value=expense?.id||'';
+  $('expenseDialogTitle').textContent=editing?'Editar gasto':'Registrar nuevo gasto';
+  $('saveExpenseBtn').textContent=editing?'Guardar cambios':'Guardar gasto';
+  $('expenseDate').value=expense?.date||today();
+  $('expenseAmount').value=expense?new Intl.NumberFormat('es-CL',{maximumFractionDigits:0}).format(Number(expense.amount||0)):'';
+  $('expenseDescription').value=expense?.description||'';
+  renderExpenseCategories();
+  if(expense?.category)$('expenseCategory').value=expense.category;
+  const audit=$('expenseAuditInfo');
+  if(editing){
+    const createdWhen=expense.createdAt?formatDateTimeDisplay(expense.createdAt):'Fecha no disponible';
+    const modifiedWhen=expense.modifiedAt?formatDateTimeDisplay(expense.modifiedAt):'Sin modificaciones anteriores';
+    audit.innerHTML=`<div class="expense-audit-title">Trazabilidad del gasto</div><div class="expense-audit-grid"><div class="expense-audit-item"><span>Creado por</span><b>${esc(expense.createdByName||'Sin identificar')}</b><small>${esc(createdWhen)}</small></div><div class="expense-audit-item"><span>Última modificación</span><b>${esc(expense.modifiedByName||'Sin modificaciones')}</b><small>${esc(modifiedWhen)}</small></div></div>`;
+    audit.classList.remove('hidden');
+  }else{
+    audit.innerHTML='';
+    audit.classList.add('hidden');
+  }
+  expenseDialog.showModal();
+}
+$('newExpenseBtn').onclick=()=>openExpenseDialog();
+window.editExpense=id=>{const expense=state.expenses.find(x=>x.id===id);if(!expense)return alert('No fue posible encontrar el gasto seleccionado.');openExpenseDialog(expense)};
+$('expenseAmount').addEventListener('input',e=>{const digits=String(e.target.value||'').replace(/[^0-9]/g,'');e.target.value=digits?new Intl.NumberFormat('es-CL',{maximumFractionDigits:0}).format(Number(digits)):''});
+$('expenseForm').onsubmit=async e=>{
+  e.preventDefault();
+  const id=$('editExpenseId').value;
+  const category=$('expenseCategory').value;
+  const amount=parseCurrencyInput($('expenseAmount').value);
+  if(!category){alert('Selecciona una categoría de gasto.');return;}
+  if(amount<=0){alert('Ingresa un monto válido.');return;}
+  const baseData={date:$('expenseDate').value,category,description:$('expenseDescription').value.trim(),amount};
+  if(id){
+    const actorName=selectedStaff?.name||currentUser.name;
+    await updateDoc(doc(firestore,'expenses',id),{...baseData,...auditFields(),modifiedAt:nowIso(),modifiedByUid:currentUser.uid,modifiedByName:actorName});
+    showToast('Gasto actualizado correctamente.','success');
+  }else{
+    await addDoc(collection(firestore,'expenses'),{...baseData,createdAt:nowIso(),...actorFields(),updatedAt:null,updatedByUid:null,updatedByName:null,modifiedAt:null,modifiedByUid:null,modifiedByName:null});
+    showToast('Gasto registrado correctamente.','success');
+  }
+  $('editExpenseId').value='';
+  $('expenseAmount').value='';
+  $('expenseDescription').value='';
+  expenseDialog.close();
+};
+$('expenseFilterMonth').onchange=renderExpenses;
+window.deleteExpense=async id=>{
+  const expense=state.expenses.find(x=>x.id===id);
+  if(!expense)return alert('No fue posible encontrar el gasto seleccionado.');
+  const actorName=selectedStaff?.name||currentUser?.name||currentUser?.email||'Usuario';
+  if(roleIsAdmin()){
+    if(!confirm('¿Eliminar definitivamente este gasto? Esta acción lo quitará de la base de datos y no se podrá recuperar.'))return;
+    await deleteDoc(doc(firestore,'expenses',id));
+    showToast('Gasto eliminado definitivamente.','success');
+    return;
+  }
+  if(!roleIsManager()||!confirm('¿Eliminar este gasto?'))return;
+  await updateDoc(doc(firestore,'expenses',id),{
+    deleted:true,
+    deletedAt:nowIso(),
+    deletedByUid:currentUser.uid,
+    deletedByName:actorName,
+    modifiedAt:nowIso(),
+    modifiedByUid:currentUser.uid,
+    modifiedByName:actorName,
+    ...auditFields()
+  });
+  showToast('Gasto eliminado correctamente.','success');
+};
 
 function productSalesSummary(orders){
   const map=new Map();
@@ -839,7 +946,7 @@ function renderDashboard(){
   const methods=['Efectivo','Débito','Crédito','Transferencia'];
   $('paymentSummary').innerHTML=methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(payments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('');
   $('activitySummary').innerHTML=`<div class="payment-line">Pedidos creados <b style="float:right">${orders.length}</b></div><div class="payment-line">Cuentas cerradas <b style="float:right">${orders.filter(o=>o.status==='closed').length}</b></div><div class="payment-line">Cuentas abiertas <b style="float:right">${orders.filter(o=>o.status==='open'||o.status==='credit'||o.onCredit===true).length}</b></div><div class="payment-line">Saldo pendiente <b style="float:right">${fmt(pending)}</b></div>`;
-  $('dailyOrders').innerHTML=orders.length?`<div style="overflow:auto"><table><thead><tr><th>N°</th><th>Fecha y hora</th><th>Referencia</th><th>Atendido por</th><th>Estado</th><th class="right">Consumo</th><th class="right">Propina</th><th class="right">Total</th><th class="right">Pagado</th><th>Detalle</th></tr></thead><tbody>${orders.map(o=>`<tr><td>#${esc(String(o.number??o.id?.slice(-6)??''))}</td><td>${asDate(o.createdAt).toLocaleString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:state.settings.timeZone||'America/Santiago'})}</td><td>${esc(o.label)}</td><td>${esc(o.staffName||o.createdByName||'')}</td><td><span class="badge ${o.status==='closed'?'closed':'open'}">${o.status==='closed'?'Pagada':(o.status==='credit'||o.onCredit===true?'Fiada':'Abierta')}</span></td><td class="right">${fmt(orderTotal(o))}</td><td class="right">${fmt(tipAmount(o))}</td><td class="right">${fmt(chargedTotal(o))}</td><td class="right">${fmt(paidTotal(o))}</td><td><button type="button" class="btn secondary" onclick="viewSaleDetail('${o.id}')">Ver</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sin ventas registradas</div>';
+  $('dailyOrders').innerHTML=orders.length?`<div style="overflow:auto"><table><thead><tr><th>N°</th><th>Fecha y hora</th><th>Referencia</th><th>Atendido por</th><th>Estado</th><th class="right">Consumo</th><th class="right">Propina</th><th class="right">Total</th><th class="right">Pagado</th><th>Detalle</th></tr></thead><tbody>${orders.map(o=>`<tr><td>#${esc(String(o.number??o.id?.slice(-6)??''))}</td><td>${formatDateTimeDisplay(o.createdAt)}</td><td>${esc(o.label)}</td><td>${esc(o.staffName||o.createdByName||'')}</td><td><span class="badge ${o.status==='closed'?'closed':'open'}">${o.status==='closed'?'Pagada':(o.status==='credit'||o.onCredit===true?'Fiada':'Abierta')}</span></td><td class="right">${fmt(orderTotal(o))}</td><td class="right">${fmt(tipAmount(o))}</td><td class="right">${fmt(chargedTotal(o))}</td><td class="right">${fmt(paidTotal(o))}</td><td><button type="button" class="btn secondary" onclick="viewSaleDetail('${o.id}')">Ver</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sin ventas registradas</div>';
   renderProductSales('dailyProductSales',orders,'Sin productos vendidos para la fecha seleccionada.');
 }
 
@@ -847,11 +954,11 @@ window.viewSaleDetail=id=>{
   const o=state.orders.find(x=>x.id===id);
   if(!o)return alert('No se encontró la venta seleccionada.');
   const status=o.status==='closed'?'Pagada':(o.status==='credit'||o.onCredit===true?'Fiada':o.status==='void'?'Anulada':'Abierta');
-  const created=asDate(o.createdAt).toLocaleString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:state.settings.timeZone||'America/Santiago'});
+  const created=formatDateTimeDisplay(o.createdAt);
   const items=o.items||[];
   const payments=o.payments||[];
   const itemsHtml=items.length?`<div style="overflow:auto"><table><thead><tr><th>Producto</th><th class="right">Cantidad</th><th class="right">Precio unitario</th><th class="right">Subtotal</th></tr></thead><tbody>${items.map(i=>`<tr><td>${esc(i.name||'Producto')}</td><td class="right">${Number(i.qty)||0}</td><td class="right">${fmt(Number(i.price)||0)}</td><td class="right">${fmt((Number(i.price)||0)*(Number(i.qty)||0))}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Esta venta no tiene productos registrados.</div>';
-  const paymentsHtml=payments.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha y hora</th><th>Medio de pago</th><th class="right">Monto</th></tr></thead><tbody>${payments.map(p=>`<tr><td>${p.createdAt?asDate(p.createdAt).toLocaleString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false,timeZone:state.settings.timeZone||'America/Santiago'}):(p.businessDate||'')}</td><td>${esc(p.method||'Sin especificar')}</td><td class="right">${fmt(Number(p.amount)||0)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No hay pagos registrados.</div>';
+  const paymentsHtml=payments.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha y hora</th><th>Medio de pago</th><th class="right">Monto</th></tr></thead><tbody>${payments.map(p=>`<tr><td>${p.createdAt?formatDateTimeDisplay(p.createdAt):formatDateDisplay(p.businessDate)}</td><td>${esc(p.method||'Sin especificar')}</td><td class="right">${fmt(Number(p.amount)||0)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No hay pagos registrados.</div>';
   $('saleDetailContent').innerHTML=`
     <div class="sale-detail-grid">
       <div class="sale-detail-field"><span>Identificador</span><b>#${esc(String(o.number??o.id?.slice(-6)??''))}</b></div>
@@ -874,7 +981,7 @@ window.viewSaleDetail=id=>{
   $('saleDetailDialog').showModal();
 };
 $('reportDate').onchange=renderDashboard;
-function renderMonthly(){const period=$('monthlyPeriod').value;if(!period)return;const monthOrders=state.orders.filter(o=>o.status!=='void'&&o.businessDate&&o.businessDate.startsWith(period));const monthPayments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate&&p.businessDate.startsWith(period)));const monthExpenses=state.expenses.filter(x=>x.date&&x.date.startsWith(period));const sales=monthPayments.reduce((s,p)=>s+Number(p.amount),0),expenses=monthExpenses.reduce((s,x)=>s+Number(x.amount),0),net=sales-expenses,margin=sales?Math.round((net/sales)*100):0;$('monthlySales').textContent=fmt(sales);$('monthlyExpenses').textContent=fmt(expenses);$('monthlyNet').textContent=fmt(net);$('monthlyMargin').textContent=margin+'%';const methods=['Efectivo','Débito','Crédito','Transferencia'];$('monthlyPaymentSummary').innerHTML=methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(monthPayments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('');const cats=[...new Set(monthExpenses.map(x=>x.category))].sort();$('monthlyExpenseSummary').innerHTML=cats.length?cats.map(c=>`<div class="payment-line"><span>${esc(c)}</span><span class="money" style="float:right">${fmt(monthExpenses.filter(x=>x.category===c).reduce((s,x)=>s+Number(x.amount),0))}</span></div>`).join(''):'<div class="empty">Sin gastos en el mes</div>';const tipsByOwner=new Map();monthOrders.forEach(o=>{const tip=tipAmount(o);if(tip<=0)return;const ownerId=o.ownerStaffId||o.staffId||o.createdByUid||o.createdByName||'sin-asignar';const owner=ownerName(o);const current=tipsByOwner.get(ownerId)||{owner,sales:0,tips:0};current.sales+=1;current.tips+=tip;tipsByOwner.set(ownerId,current)});const ownerTips=[...tipsByOwner.values()].sort((a,b)=>b.tips-a.tips||a.owner.localeCompare(b.owner,'es'));const totalOwnerTips=ownerTips.reduce((sum,x)=>sum+x.tips,0);$('monthlyTipsByOwner').innerHTML=ownerTips.length?`<div style="overflow:auto"><table><thead><tr><th>Empleado propietario</th><th class="right">Ventas con propina</th><th class="right">Total propinas</th></tr></thead><tbody>${ownerTips.map(x=>`<tr><td>${esc(x.owner)}</td><td class="right">${x.sales}</td><td class="right"><b>${fmt(x.tips)}</b></td></tr>`).join('')}<tr><td><b>Total mensual</b></td><td class="right"><b>${ownerTips.reduce((sum,x)=>sum+x.sales,0)}</b></td><td class="right"><b>${fmt(totalOwnerTips)}</b></td></tr></tbody></table></div>`:'<div class="empty">Sin propinas registradas en el mes</div>';const days=[...new Set([...monthPayments.map(p=>p.businessDate),...monthExpenses.map(x=>x.date)])].sort();$('monthlyDailySummary').innerHTML=days.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th class="right">Ventas</th><th class="right">Gastos</th><th class="right">Resultado</th></tr></thead><tbody>${days.map(d=>{const vs=monthPayments.filter(p=>p.businessDate===d).reduce((s,p)=>s+Number(p.amount),0),gs=monthExpenses.filter(x=>x.date===d).reduce((s,x)=>s+Number(x.amount),0);return `<tr><td>${d}</td><td class="right">${fmt(vs)}</td><td class="right">${fmt(gs)}</td><td class="right"><b>${fmt(vs-gs)}</b></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Sin movimientos en el mes</div>';renderProductSales('monthlyProductSales',monthOrders,'Sin productos vendidos para el mes seleccionado.')}
+function renderMonthly(){const period=$('monthlyPeriod').value;if(!period)return;const monthOrders=state.orders.filter(o=>o.status!=='void'&&o.businessDate&&o.businessDate.startsWith(period));const monthPayments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate&&p.businessDate.startsWith(period)));const monthExpenses=state.expenses.filter(x=>x.deleted!==true&&x.date&&x.date.startsWith(period));const sales=monthPayments.reduce((s,p)=>s+Number(p.amount),0),expenses=monthExpenses.reduce((s,x)=>s+Number(x.amount),0),net=sales-expenses,margin=sales?Math.round((net/sales)*100):0;$('monthlySales').textContent=fmt(sales);$('monthlyExpenses').textContent=fmt(expenses);$('monthlyNet').textContent=fmt(net);$('monthlyMargin').textContent=margin+'%';const methods=['Efectivo','Débito','Crédito','Transferencia'];$('monthlyPaymentSummary').innerHTML=methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(monthPayments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('');const cats=[...new Set(monthExpenses.map(x=>x.category))].sort();$('monthlyExpenseSummary').innerHTML=cats.length?cats.map(c=>`<div class="payment-line"><span>${esc(c)}</span><span class="money" style="float:right">${fmt(monthExpenses.filter(x=>x.category===c).reduce((s,x)=>s+Number(x.amount),0))}</span></div>`).join(''):'<div class="empty">Sin gastos en el mes</div>';const tipsByOwner=new Map();monthOrders.forEach(o=>{const tip=tipAmount(o);if(tip<=0)return;const ownerId=o.ownerStaffId||o.staffId||o.createdByUid||o.createdByName||'sin-asignar';const owner=ownerName(o);const current=tipsByOwner.get(ownerId)||{owner,sales:0,tips:0};current.sales+=1;current.tips+=tip;tipsByOwner.set(ownerId,current)});const ownerTips=[...tipsByOwner.values()].sort((a,b)=>b.tips-a.tips||a.owner.localeCompare(b.owner,'es'));const totalOwnerTips=ownerTips.reduce((sum,x)=>sum+x.tips,0);$('monthlyTipsByOwner').innerHTML=ownerTips.length?`<div style="overflow:auto"><table><thead><tr><th>Empleado propietario</th><th class="right">Ventas con propina</th><th class="right">Total propinas</th></tr></thead><tbody>${ownerTips.map(x=>`<tr><td>${esc(x.owner)}</td><td class="right">${x.sales}</td><td class="right"><b>${fmt(x.tips)}</b></td></tr>`).join('')}<tr><td><b>Total mensual</b></td><td class="right"><b>${ownerTips.reduce((sum,x)=>sum+x.sales,0)}</b></td><td class="right"><b>${fmt(totalOwnerTips)}</b></td></tr></tbody></table></div>`:'<div class="empty">Sin propinas registradas en el mes</div>';const days=[...new Set([...monthPayments.map(p=>p.businessDate),...monthExpenses.map(x=>x.date)])].sort();$('monthlyDailySummary').innerHTML=days.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th class="right">Ventas</th><th class="right">Gastos</th><th class="right">Resultado</th></tr></thead><tbody>${days.map(d=>{const vs=monthPayments.filter(p=>p.businessDate===d).reduce((s,p)=>s+Number(p.amount),0),gs=monthExpenses.filter(x=>x.date===d).reduce((s,x)=>s+Number(x.amount),0);return `<tr><td>${formatDateDisplay(d)}</td><td class="right">${fmt(vs)}</td><td class="right">${fmt(gs)}</td><td class="right"><b>${fmt(vs-gs)}</b></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Sin movimientos en el mes</div>';renderProductSales('monthlyProductSales',monthOrders,'Sin productos vendidos para el mes seleccionado.')}
 $('monthlyPeriod').onchange=renderMonthly;
 
 function renderProductTable(){
@@ -938,7 +1045,7 @@ function renderScheduleList(){
     `<b>${pendingCount}</b> pendiente(s)`,
     `<b>${xs.length-pendingCount}</b> transcurrido(s)`
   ].filter(Boolean).join(' · ');
-  $('scheduleList').innerHTML=xs.length?`<div class="tiny muted" style="margin-bottom:8px">${summary}</div><div style="overflow:auto"><table><thead><tr><th>Estado</th><th>Fecha</th><th>Persona</th><th>Rol</th><th>Horario</th><th>Acciones</th></tr></thead><tbody>${xs.map(x=>`<tr><td><span class="badge ${x._displayState.css}">${x._displayState.label}</span></td><td>${esc(x.date)}</td><td>${esc(x.staffName)}</td><td>${roleLabel(x.role)}</td><td>${esc(x.startTime)}–${esc(x.endTime)}</td><td><div class="actions" style="margin-top:0;flex-wrap:nowrap"><button class="btn secondary tiny" onclick="editSchedule('${x.id}')">Editar</button><button class="btn danger tiny" onclick="deleteSchedule('${x.id}')">Eliminar</button></div></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sin turnos planificados para este mes</div>';
+  $('scheduleList').innerHTML=xs.length?`<div class="tiny muted" style="margin-bottom:8px">${summary}</div><div style="overflow:auto"><table><thead><tr><th>Estado</th><th>Fecha</th><th>Persona</th><th>Rol</th><th>Horario</th><th>Acciones</th></tr></thead><tbody>${xs.map(x=>`<tr><td><span class="badge ${x._displayState.css}">${x._displayState.label}</span></td><td>${formatDateDisplay(x.date)}</td><td>${esc(x.staffName)}</td><td>${roleLabel(x.role)}</td><td>${esc(x.startTime)}–${esc(x.endTime)}</td><td><div class="actions" style="margin-top:0;flex-wrap:nowrap"><button class="btn secondary tiny" onclick="editSchedule('${x.id}')">Editar</button><button class="btn danger tiny" onclick="deleteSchedule('${x.id}')">Eliminar</button></div></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sin turnos planificados para este mes</div>';
 }
 function resetScheduleForm(){
   $('editScheduleId').value='';
@@ -1060,7 +1167,7 @@ function renderMonthlyAttendanceSummary(){
       const isUnplanned=!sc&&Boolean(a);
       const status=isUnplanned?'No planificada':a?.actualStart&&a?.actualEnd?'Completa':a?.actualStart||a?.actualEnd?'Parcial':sc?'Sin registro':'—';
       const statusClass=isUnplanned?'unplanned':status==='Completa'?'complete':status==='Parcial'?'partial':'absent';
-      const formattedDate=new Date(`${date}T12:00:00`).toLocaleDateString('es-CL',{weekday:'short',day:'2-digit',month:'2-digit'});
+      const formattedDate=formatDateDisplay(date);
       return `<tr><td>${esc(formattedDate)}</td><td>${sc?`${esc(sc.startTime)}–${esc(sc.endTime)}`:'—'}</td><td>${a?.actualStart||a?.actualEnd?`${esc(a.actualStart||'—')}–${esc(a.actualEnd||'—')}`:'—'}</td><td class="right">${formatHours(planned)}</td><td class="right">${formatHours(worked)}</td><td class="right"><b class="attendance-difference ${dayDiff>0?'positive':dayDiff<0?'negative':'neutral'}">${dayDiffText}</b></td><td><span class="attendance-day-status ${statusClass}">${status}</span></td></tr>`;
     }).join('');
     const detailId=`attendancePersonDetail_${index}`;
@@ -1100,7 +1207,7 @@ function attendanceUpdatedLabel(a){
   const raw=a.updatedAt||a.createdAt;
   if(!raw)return esc(a.updatedByName||a.createdByName||'—');
   const d=asDate(raw);
-  const when=Number.isNaN(d.getTime())?'':d.toLocaleString('es-CL',{dateStyle:'short',timeStyle:'short'});
+  const when=Number.isNaN(d.getTime())?'':formatDateTimeDisplay(d);
   return `${esc(a.updatedByName||a.createdByName||'—')}${when?` · ${esc(when)}`:''}`;
 }
 function renderAttendance(){
