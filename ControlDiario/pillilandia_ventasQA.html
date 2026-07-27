@@ -56,8 +56,6 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 .tip-picker{margin-top:12px;padding:12px;border:2px solid #9fc2c6;border-radius:11px;background:#f4fbfb}.tip-options{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.tip-btn{min-width:58px;border:2px solid #8db8bd;border-radius:9px;padding:9px 12px;background:#fff;color:#173c40;font-weight:850;cursor:pointer}.tip-btn:hover{background:#e4f4f5}.tip-btn.active{background:var(--brand2);border-color:var(--brand2);color:#fff}.tip-line{display:flex;justify-content:space-between;gap:12px;padding:7px 0}.tip-line.total-line{border-top:2px solid var(--line);margin-top:5px;padding-top:10px;font-size:1.05rem;font-weight:900}
 @media(max-width:850px){.schedule-grid{grid-template-columns:1fr}}
 
-
-.settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.settings-card{border:2px solid #c2dadd;border-radius:14px;padding:16px;background:#fbfefe}.settings-card h3{margin:0 0 5px;color:var(--brand2)}.settings-card textarea{min-height:180px;resize:vertical;font-family:inherit;line-height:1.45}.settings-card .row{align-items:end}.settings-wide{grid-column:1/-1}.settings-savebar{position:sticky;bottom:10px;z-index:5;display:flex;justify-content:flex-end;gap:10px;margin-top:16px;padding:12px;background:rgba(255,255,255,.96);border:2px solid #b9d6d9;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.12)}.settings-status{margin-right:auto;align-self:center;font-weight:800}.settings-help{font-size:.82rem;color:var(--muted);margin-bottom:9px}.settings-audit{margin-top:12px;padding:11px;background:#eef7f8;border-radius:10px;font-size:.83rem}@media(max-width:800px){.settings-grid{grid-template-columns:1fr}.settings-wide{grid-column:auto}}
 @media print{header,nav,.no-print{display:none!important}body{background:#fff}.card{box-shadow:none;border:0}.wrap{max-width:none}}
 
 
@@ -172,7 +170,6 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 <button class="tab manager-only" data-tab="expenses">Gastos Mensual</button>
 <button class="tab manager-only" data-tab="monthly">Gestión Mensual</button>
 <button class="tab manager-only" data-tab="products">Productos / Stock</button>
-<button class="tab admin-only role-hidden" data-tab="settings">⚙️ Configuración General</button>
 <button class="tab admin-only role-hidden" data-tab="dataExport">Exportar datos</button>
 <button class="tab" data-tab="backup">Apertura / Cierre del día</button>
 </nav>
@@ -210,7 +207,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 
 <section id="calendar"><div class="grid">
 <div class="card span-12"><div class="row"><div><h2>Asistencia real</h2></div><div><label>Fecha</label><input id="attendanceDate" type="date"></div></div><div class="notice">La entrada y la salida se guardan por separado. Puedes registrar primero la entrada y completar la salida más tarde, incluso después del cierre del día.</div><div id="attendanceSaveNotice" class="oknotice hidden" style="margin-bottom:12px"></div><div id="attendanceList"></div><div id="attendanceSummary" class="hidden"></div></div>
-<div class="card span-5"><h3 id="scheduleFormTitle">Planificar turno</h3><input id="editScheduleId" type="hidden"><div class="schedule-grid"><div><label>Fecha desde</label><input id="scheduleDateFrom" type="date"></div><div><label>Fecha hasta</label><input id="scheduleDateTo" type="date"></div><div><label>Horario de inicio</label><input id="scheduleStart" type="time" value="10:00"></div><div><label>Horario de término</label><input id="scheduleEnd" type="time" value="20:00"></div></div><label style="margin-top:12px">Persona</label><select id="scheduleStaff"><option value="">Seleccionar persona</option></select><div id="scheduleFormNotice" class="notice" style="margin-top:12px">Se creará un turno por cada día del rango. Los sábados se omitirán automáticamente. Los empleados podrán abrir o cerrar el local dentro de su turno, considerando la tolerancia configurada antes y después.</div><div class="actions"><button id="saveScheduleBtn" class="btn primary" style="margin-top:12px">Guardar planificación</button><button id="cancelScheduleEditBtn" class="btn secondary hidden" style="margin-top:12px" type="button">Cancelar edición</button></div></div>
+<div class="card span-5"><h3 id="scheduleFormTitle">Planificar turno</h3><input id="editScheduleId" type="hidden"><div class="schedule-grid"><div><label>Fecha desde</label><input id="scheduleDateFrom" type="date"></div><div><label>Fecha hasta</label><input id="scheduleDateTo" type="date"></div><div><label>Horario de inicio</label><input id="scheduleStart" type="time" value="10:00"></div><div><label>Horario de término</label><input id="scheduleEnd" type="time" value="20:00"></div></div><label style="margin-top:12px">Persona</label><select id="scheduleStaff"><option value="">Seleccionar persona</option></select><div id="scheduleFormNotice" class="notice" style="margin-top:12px">Se creará un turno por cada día del rango. Los sábados se omitirán automáticamente. Los empleados podrán abrir o cerrar el local dentro de su turno, considerando 30 minutos de tolerancia antes y después.</div><div class="actions"><button id="saveScheduleBtn" class="btn primary" style="margin-top:12px">Guardar planificación</button><button id="cancelScheduleEditBtn" class="btn secondary hidden" style="margin-top:12px" type="button">Cancelar edición</button></div></div>
 <div class="card span-7"><div class="row"><div><h3>Planificación del mes</h3></div><div><label>Mes</label><input id="scheduleMonth" type="month"></div></div><div class="notice">Los días pendientes del mes se muestran primero. Los días ya transcurridos quedan al final.</div><div id="scheduleList"></div></div>
 <div class="card span-12"><div class="row"><div><h2>Resumen mensual de asistencia</h2><div class="muted">Comparación entre las horas solicitadas en la planificación y las horas efectivamente registradas.</div></div><div><label>Mes del resumen</label><input id="attendanceSummaryMonth" type="month"></div></div><div id="monthlyAttendanceSummary"></div></div>
 </div></section>
@@ -220,19 +217,6 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 <section id="monthly"><div class="grid"><div class="card span-12 no-print"><div class="row"><div><label>Mes de gestión</label><input id="monthlyPeriod" type="month"></div><div><button class="btn outline" onclick="window.print()">Imprimir gestión mensual</button></div></div></div><div class="card span-12"><h2>Gestión mensual</h2><div class="metrics"><div class="metric"><small>Ventas cobradas</small><b id="monthlySales">$0</b></div><div class="metric"><small>Gastos</small><b id="monthlyExpenses">$0</b></div><div class="metric"><small>Resultado</small><b id="monthlyNet">$0</b></div><div class="metric"><small>Margen sobre ventas</small><b id="monthlyMargin">0%</b></div></div></div><div class="card span-6"><h3>Ventas por medio de pago</h3><div id="monthlyPaymentSummary"></div></div><div class="card span-6"><h3>Gastos por categoría</h3><div id="monthlyExpenseSummary"></div></div><div class="card span-12"><h3>Propinas por empleado propietario</h3><div id="monthlyTipsByOwner"></div></div><div class="card span-12"><h3>Productos vendidos del mes</h3><div id="monthlyProductSales"></div></div><div class="card span-12"><h3>Resumen diario del mes</h3><div id="monthlyDailySummary"></div></div></div></section>
 
 <section id="products"><div class="card"><div class="notice">El stock de esta primera versión es por producto vendido (unidades). Para controlar ingredientes —leche, café, helado por sabor, vasos— se necesitará definir recetas y unidades de medida en una segunda etapa.</div><div class="row"><div><h2>Productos y stock simple</h2><div class="muted">Los productos están agrupados por categoría y ordenados alfabéticamente.</div></div><div><button class="btn primary" id="newProductBtn">Agregar producto</button></div></div><div id="productAdminSummary" class="product-admin-summary"></div><div id="productCategoryGroups"></div></div></section>
-
-
-<section id="settings" class="admin-only role-hidden"><div class="grid"><div class="card span-12"><div class="row"><div><h2>⚙️ Configuración General</h2><div class="muted">Todos estos parámetros se almacenan en <b>settings/general</b> de Firestore y se aplican al sistema completo.</div></div><button class="btn secondary" type="button" id="reloadSettingsBtn">Recargar</button></div><div class="notice" style="margin-top:12px">Escribe un valor por línea en las listas. Los cambios estarán disponibles para todos los usuarios conectados después de guardar.</div></div>
-<div class="card span-12"><div class="settings-grid">
-<div class="settings-card"><h3>Categorías de gastos</h3><div class="settings-help">Usadas al registrar gastos y en reportes.</div><textarea id="cfgExpenseCategories"></textarea></div>
-<div class="settings-card"><h3>Categorías de productos</h3><div class="settings-help">Usadas en el formulario de productos.</div><textarea id="cfgProductCategories"></textarea></div>
-<div class="settings-card"><h3>Medios de pago</h3><div class="settings-help">Usados al cobrar y en resúmenes.</div><textarea id="cfgPaymentMethods"></textarea></div>
-<div class="settings-card"><h3>Porcentajes de propina</h3><div class="settings-help">Un porcentaje por línea, sin símbolo %. Incluye 0 para “Sin propina”.</div><textarea id="cfgTipPercentages"></textarea><div class="row"><div><label>Propina predeterminada</label><input id="cfgDefaultTip" type="number" min="0" max="100" step="1"></div></div></div>
-<div class="settings-card"><h3>Mesas y atención</h3><div class="settings-help">La cantidad define M1, M2, M3… La Venta Directa se agrega automáticamente.</div><label>Cantidad de mesas</label><input id="cfgTableCount" type="number" min="0" max="100" step="1"></div>
-<div class="settings-card"><h3>Horario y asistencia</h3><div class="row"><div><label>Hora inicio</label><input id="cfgShiftStart" type="time"></div><div><label>Hora término</label><input id="cfgShiftEnd" type="time"></div></div><label style="margin-top:10px">Tolerancia (minutos)</label><input id="cfgTolerance" type="number" min="0" max="240" step="1"></div>
-<div class="settings-card settings-wide"><h3>Datos del negocio y comprobante</h3><div class="settings-grid"><div><label>Nombre</label><input id="cfgBusinessName"></div><div><label>Subtítulo</label><input id="cfgBusinessSubtitle"></div><div><label>Dirección</label><input id="cfgBusinessAddress"></div><div><label>Teléfono</label><input id="cfgBusinessPhone"></div><div><label>Instagram</label><input id="cfgBusinessInstagram" placeholder="@pillilandia"></div><div><label>Mensaje de agradecimiento</label><input id="cfgReceiptThanks"></div></div><label style="margin-top:10px">Aviso del comprobante</label><input id="cfgReceiptLegal"></div>
-<div class="settings-card settings-wide"><h3>Impresora térmica</h3><div class="settings-grid"><div><label>Ancho de papel</label><select id="cfgPrinterWidth"><option value="58">58 mm</option><option value="80">80 mm</option></select></div><div><label>Imprimir logo</label><select id="cfgPrintLogo"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Imprimir Instagram</label><select id="cfgPrintInstagram"><option value="true">Sí</option><option value="false">No</option></select></div><div><label>Abrir cajón</label><select id="cfgOpenDrawer"><option value="false">No</option><option value="true">Sí</option></select></div></div></div>
-</div><div id="settingsAudit" class="settings-audit"></div><div class="settings-savebar"><span id="settingsStatus" class="settings-status"></span><button class="btn primary" type="button" id="saveSettingsBtn">Guardar configuración</button></div></div></div></section>
 
 <section id="dataExport" class="admin-only role-hidden"><div class="grid">
 <div class="card span-12"><h2>Exportación e importación de datos por colección</h2><div class="notice">Cada colección se procesa de forma independiente. La importación conserva el ID de cada documento y reemplaza el contenido de los documentos incluidos en el JSON, pero no elimina documentos adicionales que ya existan en el ambiente de destino.</div><div id="collectionTransferRows" style="margin-top:14px"></div><input id="collectionImportFile" type="file" accept="application/json,.json" class="hidden"></div>
@@ -256,9 +240,9 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 
 <dialog id="saleDetailDialog"><div class="dialog-body"><div class="dialog-head"><h2>Detalle de la venta</h2><button class="x" onclick="saleDetailDialog.close()">×</button></div><div id="saleDetailContent"></div><div class="actions"><button class="btn secondary" onclick="saleDetailDialog.close()">Cerrar</button></div></div></dialog>
 
-<dialog id="productDialog"><div class="dialog-body"><div class="dialog-head"><h2 id="productDialogTitle">Producto</h2><button class="x" onclick="productDialog.close()">×</button></div><input id="editProductId" type="hidden"><label>Nombre</label><input id="editProductName"><label style="margin-top:10px">Descripción para el menú público</label><textarea id="editProductDescription" rows="2" placeholder="Ej.: Preparado con café en grano recién molido."></textarea><div class="row" style="margin-top:10px"><div><label>Categoría</label><select id="editProductCategory"></select></div><div><label>Precio</label><input id="editProductPrice" type="number" min="0"></div></div><div class="row" style="margin-top:10px"><div><label>Stock actual</label><input id="editProductStock" type="number" step="1"></div><div><label>Control de stock</label><select id="editProductTrack"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Activo</label><select id="editProductActive"><option value="true">Sí</option><option value="false">No</option></select></div></div><button class="btn primary" style="margin-top:12px" id="saveProductBtn">Guardar producto</button></div></dialog>
+<dialog id="productDialog"><div class="dialog-body"><div class="dialog-head"><h2 id="productDialogTitle">Producto</h2><button class="x" onclick="productDialog.close()">×</button></div><input id="editProductId" type="hidden"><label>Nombre</label><input id="editProductName"><label style="margin-top:10px">Descripción para el menú público</label><textarea id="editProductDescription" rows="2" placeholder="Ej.: Preparado con café en grano recién molido."></textarea><div class="row" style="margin-top:10px"><div><label>Categoría</label><input id="editProductCategory"></div><div><label>Precio</label><input id="editProductPrice" type="number" min="0"></div></div><div class="row" style="margin-top:10px"><div><label>Stock actual</label><input id="editProductStock" type="number" step="1"></div><div><label>Control de stock</label><select id="editProductTrack"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Activo</label><select id="editProductActive"><option value="true">Sí</option><option value="false">No</option></select></div></div><button class="btn primary" style="margin-top:12px" id="saveProductBtn">Guardar producto</button></div></dialog>
 
-<!-- Versión 3.30: configuración general centralizada en Firestore -->
+<!-- Versión 3.27: auditoría de creación y modificación de gastos -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import {
@@ -306,8 +290,7 @@ function showToast(message,type='info',duration=3500){
 }
 window.alert=message=>showToast(message,'warning',4200);
 
-const DEFAULT_SETTINGS={tableCount:6,businessName:'Pillilandia',businessSubtitle:'Heladería & Cafetería',businessAddress:'',businessPhone:'',businessInstagram:'@pillilandia',receiptThanks:'¡Gracias por preferirnos!',receiptLegal:'Comprobante no válido como boleta.',currency:'CLP',timeZone:'America/Santiago',expenseCategories:['Fresa','FrioCid','Suministros','Insumos de Aseo','Inmobiliario','Construcción','Municipalidad','SII','GetNet','Redelcom','Aportes JM','Arriendo','Servicios','Bencina','Otro'],productCategories:['Helados & Repostería','Bebidas Calientes','Desayunos & Sandwiches','Bebidas Frías y Jugos','Otro'],paymentMethods:['Efectivo','Débito','Crédito','Transferencia'],tipPercentages:[0,5,10,15,20],defaultTipPercent:10,defaultShiftStart:'10:00',defaultShiftEnd:'20:00',attendanceToleranceMinutes:30,printer:{paperWidthMm:58,printLogo:false,printInstagram:true,openDrawer:false}};
-let state={settings:structuredClone(DEFAULT_SETTINGS),products:[],orders:[],expenses:[],closures:[],staff:[],schedules:[],attendance:[],operations:[]};
+let state={settings:{tableCount:6,businessName:'Pillilandia',businessSubtitle:'Heladería & Cafetería',currency:'CLP',timeZone:'America/Santiago'},products:[],orders:[],expenses:[],closures:[],staff:[],schedules:[],attendance:[],operations:[]};
 let currentUser=null, selectedStaff=null, cart=[], paymentOrderId=null, creditOrderId=null, editOrderId=null, editOrderCart=[], selectedTipPercent=10, selectedService={type:'meson',label:'Venta Directa'}, employeeAccessLocked=false;
 let unsubscribers=[];
 const pendingUnplannedByDate=new Map();
@@ -452,41 +435,46 @@ onAuthStateChanged(auth,async user=>{
   }
 });
 
-function cleanStringList(value,fallback=[]){
-  const source=Array.isArray(value)?value:[];
-  const seen=new Set();
-  return source.map(x=>String(x??'').trim()).filter(x=>x&&!seen.has(x.toLocaleLowerCase('es'))&&(seen.add(x.toLocaleLowerCase('es')),true));
+const EXPENSE_CATEGORIES=[
+  'Fresa',
+  'FrioCid',
+  'Suministros',
+  'Insumos de Aseo',
+  'Inmobiliario',
+  'Construcción',
+  'Municipalidad',
+  'SII',
+  'GetNet',
+  'Redelcom',
+  'Aportes JM',
+  'Arriendo',
+  'Servicios',
+  'Bencina',
+  'Otro'
+];
+function normalizeExpenseCategories(){
+  return [...EXPENSE_CATEGORIES];
 }
-function normalizeExpenseCategories(){return cleanStringList(state.settings.expenseCategories,DEFAULT_SETTINGS.expenseCategories)}
-function normalizeProductCategories(){return cleanStringList(state.settings.productCategories,DEFAULT_SETTINGS.productCategories)}
-function normalizePaymentMethods(){return cleanStringList(state.settings.paymentMethods,DEFAULT_SETTINGS.paymentMethods)}
-function normalizeTipPercentages(){const xs=(Array.isArray(state.settings.tipPercentages)?state.settings.tipPercentages:DEFAULT_SETTINGS.tipPercentages).map(Number).filter(x=>Number.isFinite(x)&&x>=0&&x<=100);return [...new Set(xs)].sort((a,b)=>a-b)}
 function renderExpenseCategories(){
-  const select=$('expenseCategory');if(!select)return;
-  const current=select.value,categories=normalizeExpenseCategories();
-  select.innerHTML=categories.map(category=>`<option value="${esc(category)}">${esc(category)}</option>`).join('');
-  select.disabled=!categories.length;if(categories.includes(current))select.value=current;
-}
-function renderPaymentSettings(){
-  const method=$('paymentMethod'),current=method?.value||'';
-  if(method){const methods=normalizePaymentMethods();method.innerHTML=methods.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');if(methods.includes(current))method.value=current;}
-  const tipBox=document.querySelector('#tipPicker .tip-options');
-  if(tipBox)tipBox.innerHTML=normalizeTipPercentages().map(x=>`<button type="button" class="tip-btn" data-tip="${x}">${x===0?'Sin propina':x+'%'}</button>`).join('');
-}
-function renderProductCategoryOptions(selected=''){
-  const select=$('editProductCategory');if(!select)return;
-  const categories=normalizeProductCategories();
-  if(selected&&!categories.includes(selected))categories.push(selected);
-  select.innerHTML=categories.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
-  select.value=selected&&categories.includes(selected)?selected:(categories[0]||'Otro');
+  const select=$('expenseCategory');
+  if(!select)return;
+  const current=select.value;
+  const categories=normalizeExpenseCategories();
+  select.innerHTML=categories.map(category=>{
+    const safe=esc(category);
+    return `<option value="${safe}">${safe}</option>`;
+  }).join('');
+  select.disabled=false;
+  if(categories.includes(current))select.value=current;
+  else select.selectedIndex=0;
 }
 
 function stopRealtime(){unsubscribers.forEach(fn=>fn());unsubscribers=[]}
 function startRealtime(){
   stopRealtime();
   unsubscribers.push(onSnapshot(doc(firestore,'settings','general'),snap=>{
-    if(snap.exists()){const data=snap.data();state.settings={...DEFAULT_SETTINGS,...data,printer:{...DEFAULT_SETTINGS.printer,...(data.printer||{})}};}else state.settings=structuredClone(DEFAULT_SETTINGS);
-    renderExpenseCategories();renderPaymentSettings();applySettingsToUi();renderSettingsForm();
+    if(snap.exists())state.settings={...state.settings,...snap.data()};
+    renderExpenseCategories();
     renderAll();
   },firebaseError));
   unsubscribers.push(onSnapshot(collection(firestore,'products'),snap=>{
@@ -546,7 +534,7 @@ function formatCurrencyInput(value){const amount=parseCurrencyInput(value);retur
 function minutesNow(){const parts=new Intl.DateTimeFormat('en-GB',{timeZone:state.settings.timeZone||'America/Santiago',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date()).split(':');return Number(parts[0])*60+Number(parts[1])}
 function timeToMinutes(v){const [h,m]=String(v||'').split(':').map(Number);return Number.isFinite(h)&&Number.isFinite(m)?h*60+m:null}
 function ownTodaySchedule(){const sid=selectedStaff?.id||currentUser?.staffId;return state.schedules.find(x=>x.date===today()&&x.staffId===sid&&x.active!==false)||null}
-function employeeWithinSchedule(){if(roleIsManager())return true;const sc=ownTodaySchedule();if(!sc)return false;const start=timeToMinutes(sc.startTime),end=timeToMinutes(sc.endTime),now=minutesNow();return start!==null&&end!==null&&now>=start-Number(state.settings.attendanceToleranceMinutes??30)&&now<=end+Number(state.settings.attendanceToleranceMinutes??30)}
+function employeeWithinSchedule(){if(roleIsManager())return true;const sc=ownTodaySchedule();if(!sc)return false;const start=timeToMinutes(sc.startTime),end=timeToMinutes(sc.endTime),now=minutesNow();return start!==null&&end!==null&&now>=start-30&&now<=end+30}
 function updateAccessState(){
   const open=isDayOpen();
   document.querySelectorAll('.requires-open').forEach(el=>el.classList.toggle('restricted-tab',!open));
@@ -556,7 +544,7 @@ function updateAccessState(){
 function ensureOpenDay(){if(isDayOpen())return true;alert('Primero debes realizar la apertura del día.');switchTab('backup');return false}
 function switchTab(id){
   if(!roleIsManager()&&['calendar','expenses','monthly','products'].includes(id))id=isDayOpen()?'sale':'backup';
-  if(['dataExport','settings'].includes(id)&&!roleIsAdmin())id=isDayOpen()?'sale':'backup';
+  if(id==='dataExport'&&!roleIsAdmin())id=isDayOpen()?'sale':'backup';
   if(['sale','orders'].includes(id)&&!isDayOpen())id='backup';
   document.querySelectorAll('section').forEach(x=>x.classList.toggle('active',x.id===id));
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));
@@ -755,7 +743,7 @@ window.openPayment=id=>{
   paymentOrderId=id;
   const o=state.orders.find(x=>x.id===id);
   if(!o||!ensureOrderActionAccess(o,'registrar pagos en esta cuenta'))return;
-  selectedTipPercent=Number.isFinite(Number(o.tipPercent))?Number(o.tipPercent):((o.payments||[]).length?0:Number(state.settings.defaultTipPercent??10));
+  selectedTipPercent=Number.isFinite(Number(o.tipPercent))?Number(o.tipPercent):((o.payments||[]).length?0:10);
   $('paymentDialog').showModal();
   renderPaymentDialog();
 };
@@ -786,13 +774,13 @@ function renderPaymentDialog(){
 }
 function buildReceiptHtml(o,payment,percent,tip,total,newBalance){
   const items=(o.items||[]).map(i=>`<div class="receipt-row"><span>${Number(i.qty)||0} x ${esc(i.name)}</span><b>${fmt((Number(i.price)||0)*(Number(i.qty)||0))}</b></div>`).join('');
-  return `<div class="receipt-title">${esc(state.settings.businessName||'Pillilandia').toUpperCase()}</div>
-    <div class="receipt-center">${esc(state.settings.businessSubtitle||'Heladería y Cafetería')}</div>
+  return `<div class="receipt-title">PILLILANDIA</div>
+    <div class="receipt-center">Heladería y Cafetería</div>
     <div class="receipt-center">Comprobante de pago</div>
     <div class="receipt-sep"></div>
     <div>Cuenta: #${o.number} · ${esc(o.label)}</div>
     <div>Fecha: ${formatDateTimeDisplay(new Date())}</div>
-
+    
     <div class="receipt-sep"></div>
     ${items}
     <div class="receipt-sep"></div>
@@ -803,9 +791,10 @@ function buildReceiptHtml(o,payment,percent,tip,total,newBalance){
     <div class="receipt-row"><span>${esc(payment.method)}</span><b>${fmt(payment.amount)}</b></div>
     <div class="receipt-row"><span>Saldo pendiente</span><b>${fmt(newBalance)}</b></div>
     <div class="receipt-sep"></div>
-    <div class="receipt-center">${esc(state.settings.receiptThanks||'¡Gracias por preferirnos!')}</div>
-    <div class="receipt-center" style="margin-top:8px;font-weight:700">${esc(state.settings.receiptLegal||'Comprobante no válido como boleta.')}</div>
-    ${state.settings.printer?.printInstagram!==false&&state.settings.businessInstagram?`<div class="receipt-center" style="margin-top:8px">Síguenos en Instagram:</div><div class="receipt-center" style="font-weight:700">${esc(state.settings.businessInstagram)}</div>`:''}`;
+    <div class="receipt-center">¡Gracias por preferirnos!</div>
+    <div class="receipt-center" style="margin-top:8px;font-weight:700">Comprobante no válido como boleta.</div>
+    <div class="receipt-center" style="margin-top:8px">Síguenos en Instagram:</div>
+    <div class="receipt-center" style="font-weight:700">@pillilandia</div>`;
 }
 async function registerPayment({printAfter=false}={}){
   const o=state.orders.find(x=>x.id===paymentOrderId),amount=Number($('paymentAmount').value);
@@ -969,7 +958,7 @@ function renderDashboard(){
   const payments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate===d));
   const sales=payments.reduce((s,p)=>s+Number(p.amount),0),consumption=orders.reduce((s,o)=>s+orderTotal(o),0),tips=orders.reduce((s,o)=>s+tipAmount(o),0),pending=orders.filter(o=>o.status==='open'||o.status==='credit'||o.onCredit===true).reduce((s,o)=>s+balance(o),0);
   $('mConsumption').textContent=fmt(consumption);$('mTips').textContent=fmt(tips);$('mSales').textContent=fmt(sales);$('mPending').textContent=fmt(pending);$('mOrders').textContent=orders.length;$('mClosed').textContent=orders.filter(o=>o.status==='closed').length;
-  const methods=normalizePaymentMethods();
+  const methods=['Efectivo','Débito','Crédito','Transferencia'];
   $('paymentSummary').innerHTML=methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(payments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('');
   $('activitySummary').innerHTML=`<div class="payment-line">Pedidos creados <b style="float:right">${orders.length}</b></div><div class="payment-line">Cuentas cerradas <b style="float:right">${orders.filter(o=>o.status==='closed').length}</b></div><div class="payment-line">Cuentas abiertas <b style="float:right">${orders.filter(o=>o.status==='open'||o.status==='credit'||o.onCredit===true).length}</b></div><div class="payment-line">Saldo pendiente <b style="float:right">${fmt(pending)}</b></div>`;
   $('dailyOrders').innerHTML=orders.length?`<div style="overflow:auto"><table><thead><tr><th>N°</th><th>Fecha y hora</th><th>Referencia</th><th>Atendido por</th><th>Estado</th><th class="right">Consumo</th><th class="right">Propina</th><th class="right">Total</th><th class="right">Pagado</th><th>Detalle</th></tr></thead><tbody>${orders.map(o=>`<tr><td>#${esc(String(o.number??o.id?.slice(-6)??''))}</td><td>${formatDateTimeDisplay(o.createdAt)}</td><td>${esc(o.label)}</td><td>${esc(o.staffName||o.createdByName||'')}</td><td><span class="badge ${o.status==='closed'?'closed':'open'}">${o.status==='closed'?'Pagada':(o.status==='credit'||o.onCredit===true?'Fiada':'Abierta')}</span></td><td class="right">${fmt(orderTotal(o))}</td><td class="right">${fmt(tipAmount(o))}</td><td class="right">${fmt(chargedTotal(o))}</td><td class="right">${fmt(paidTotal(o))}</td><td><button type="button" class="btn secondary" onclick="viewSaleDetail('${o.id}')">Ver</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sin ventas registradas</div>';
@@ -1007,7 +996,7 @@ window.viewSaleDetail=id=>{
   $('saleDetailDialog').showModal();
 };
 $('reportDate').onchange=renderDashboard;
-function renderMonthly(){const period=$('monthlyPeriod').value;if(!period)return;const monthOrders=state.orders.filter(o=>o.status!=='void'&&o.businessDate&&o.businessDate.startsWith(period));const monthPayments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate&&p.businessDate.startsWith(period)));const monthExpenses=state.expenses.filter(x=>x.deleted!==true&&x.date&&x.date.startsWith(period));const sales=monthPayments.reduce((s,p)=>s+Number(p.amount),0),expenses=monthExpenses.reduce((s,x)=>s+Number(x.amount),0),net=sales-expenses,margin=sales?Math.round((net/sales)*100):0;$('monthlySales').textContent=fmt(sales);$('monthlyExpenses').textContent=fmt(expenses);$('monthlyNet').textContent=fmt(net);$('monthlyMargin').textContent=margin+'%';const methods=normalizePaymentMethods();$('monthlyPaymentSummary').innerHTML=methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(monthPayments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('');const cats=[...new Set(monthExpenses.map(x=>x.category))].sort();$('monthlyExpenseSummary').innerHTML=cats.length?cats.map(c=>`<div class="payment-line"><span>${esc(c)}</span><span class="money" style="float:right">${fmt(monthExpenses.filter(x=>x.category===c).reduce((s,x)=>s+Number(x.amount),0))}</span></div>`).join(''):'<div class="empty">Sin gastos en el mes</div>';const tipsByOwner=new Map();monthOrders.forEach(o=>{const tip=tipAmount(o);if(tip<=0)return;const ownerId=o.ownerStaffId||o.staffId||o.createdByUid||o.createdByName||'sin-asignar';const owner=ownerName(o);const current=tipsByOwner.get(ownerId)||{owner,sales:0,tips:0};current.sales+=1;current.tips+=tip;tipsByOwner.set(ownerId,current)});const ownerTips=[...tipsByOwner.values()].sort((a,b)=>b.tips-a.tips||a.owner.localeCompare(b.owner,'es'));const totalOwnerTips=ownerTips.reduce((sum,x)=>sum+x.tips,0);$('monthlyTipsByOwner').innerHTML=ownerTips.length?`<div style="overflow:auto"><table><thead><tr><th>Empleado propietario</th><th class="right">Ventas con propina</th><th class="right">Total propinas</th></tr></thead><tbody>${ownerTips.map(x=>`<tr><td>${esc(x.owner)}</td><td class="right">${x.sales}</td><td class="right"><b>${fmt(x.tips)}</b></td></tr>`).join('')}<tr><td><b>Total mensual</b></td><td class="right"><b>${ownerTips.reduce((sum,x)=>sum+x.sales,0)}</b></td><td class="right"><b>${fmt(totalOwnerTips)}</b></td></tr></tbody></table></div>`:'<div class="empty">Sin propinas registradas en el mes</div>';const days=[...new Set([...monthPayments.map(p=>p.businessDate),...monthExpenses.map(x=>x.date)])].sort();$('monthlyDailySummary').innerHTML=days.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th class="right">Ventas</th><th class="right">Gastos</th><th class="right">Resultado</th></tr></thead><tbody>${days.map(d=>{const vs=monthPayments.filter(p=>p.businessDate===d).reduce((s,p)=>s+Number(p.amount),0),gs=monthExpenses.filter(x=>x.date===d).reduce((s,x)=>s+Number(x.amount),0);return `<tr><td>${formatDateDisplay(d)}</td><td class="right">${fmt(vs)}</td><td class="right">${fmt(gs)}</td><td class="right"><b>${fmt(vs-gs)}</b></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Sin movimientos en el mes</div>';renderProductSales('monthlyProductSales',monthOrders,'Sin productos vendidos para el mes seleccionado.')}
+function renderMonthly(){const period=$('monthlyPeriod').value;if(!period)return;const monthOrders=state.orders.filter(o=>o.status!=='void'&&o.businessDate&&o.businessDate.startsWith(period));const monthPayments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate&&p.businessDate.startsWith(period)));const monthExpenses=state.expenses.filter(x=>x.deleted!==true&&x.date&&x.date.startsWith(period));const sales=monthPayments.reduce((s,p)=>s+Number(p.amount),0),expenses=monthExpenses.reduce((s,x)=>s+Number(x.amount),0),net=sales-expenses,margin=sales?Math.round((net/sales)*100):0;$('monthlySales').textContent=fmt(sales);$('monthlyExpenses').textContent=fmt(expenses);$('monthlyNet').textContent=fmt(net);$('monthlyMargin').textContent=margin+'%';const methods=['Efectivo','Débito','Crédito','Transferencia'];$('monthlyPaymentSummary').innerHTML=methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(monthPayments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('');const cats=[...new Set(monthExpenses.map(x=>x.category))].sort();$('monthlyExpenseSummary').innerHTML=cats.length?cats.map(c=>`<div class="payment-line"><span>${esc(c)}</span><span class="money" style="float:right">${fmt(monthExpenses.filter(x=>x.category===c).reduce((s,x)=>s+Number(x.amount),0))}</span></div>`).join(''):'<div class="empty">Sin gastos en el mes</div>';const tipsByOwner=new Map();monthOrders.forEach(o=>{const tip=tipAmount(o);if(tip<=0)return;const ownerId=o.ownerStaffId||o.staffId||o.createdByUid||o.createdByName||'sin-asignar';const owner=ownerName(o);const current=tipsByOwner.get(ownerId)||{owner,sales:0,tips:0};current.sales+=1;current.tips+=tip;tipsByOwner.set(ownerId,current)});const ownerTips=[...tipsByOwner.values()].sort((a,b)=>b.tips-a.tips||a.owner.localeCompare(b.owner,'es'));const totalOwnerTips=ownerTips.reduce((sum,x)=>sum+x.tips,0);$('monthlyTipsByOwner').innerHTML=ownerTips.length?`<div style="overflow:auto"><table><thead><tr><th>Empleado propietario</th><th class="right">Ventas con propina</th><th class="right">Total propinas</th></tr></thead><tbody>${ownerTips.map(x=>`<tr><td>${esc(x.owner)}</td><td class="right">${x.sales}</td><td class="right"><b>${fmt(x.tips)}</b></td></tr>`).join('')}<tr><td><b>Total mensual</b></td><td class="right"><b>${ownerTips.reduce((sum,x)=>sum+x.sales,0)}</b></td><td class="right"><b>${fmt(totalOwnerTips)}</b></td></tr></tbody></table></div>`:'<div class="empty">Sin propinas registradas en el mes</div>';const days=[...new Set([...monthPayments.map(p=>p.businessDate),...monthExpenses.map(x=>x.date)])].sort();$('monthlyDailySummary').innerHTML=days.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th class="right">Ventas</th><th class="right">Gastos</th><th class="right">Resultado</th></tr></thead><tbody>${days.map(d=>{const vs=monthPayments.filter(p=>p.businessDate===d).reduce((s,p)=>s+Number(p.amount),0),gs=monthExpenses.filter(x=>x.date===d).reduce((s,x)=>s+Number(x.amount),0);return `<tr><td>${formatDateDisplay(d)}</td><td class="right">${fmt(vs)}</td><td class="right">${fmt(gs)}</td><td class="right"><b>${fmt(vs-gs)}</b></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Sin movimientos en el mes</div>';renderProductSales('monthlyProductSales',monthOrders,'Sin productos vendidos para el mes seleccionado.')}
 $('monthlyPeriod').onchange=renderMonthly;
 
 function renderProductTable(){
@@ -1031,7 +1020,7 @@ function renderProductTable(){
     sessionStorage.setItem('pillilandiaOpenProductCategories',JSON.stringify(opened));
   }));
 }
-window.editProduct=id=>{const defaultCategory=normalizeProductCategories()[0]||'Otro';const p=id?state.products.find(x=>x.id===id):{id:'',name:'',description:'',category:defaultCategory,price:0,stock:0,trackStock:false,active:true};$('editProductId').value=p.id;$('editProductName').value=p.name;$('editProductDescription').value=p.description||'';renderProductCategoryOptions(p.category||defaultCategory);$('editProductPrice').value=p.price;$('editProductStock').value=p.stock;$('editProductTrack').value=String(p.trackStock);$('editProductActive').value=String(p.active!==false);$('productDialogTitle').textContent=id?'Editar producto':'Nuevo producto';$('productDialog').showModal()};
+window.editProduct=id=>{const p=id?state.products.find(x=>x.id===id):{id:'',name:'',description:'',category:'Otro',price:0,stock:0,trackStock:false,active:true};$('editProductId').value=p.id;$('editProductName').value=p.name;$('editProductDescription').value=p.description||'';$('editProductCategory').value=p.category;$('editProductPrice').value=p.price;$('editProductStock').value=p.stock;$('editProductTrack').value=String(p.trackStock);$('editProductActive').value=String(p.active!==false);$('productDialogTitle').textContent=id?'Editar producto':'Nuevo producto';$('productDialog').showModal()};
 $('newProductBtn').onclick=()=>editProduct('');$('saveProductBtn').onclick=async()=>{const id=$('editProductId').value;const data={name:$('editProductName').value.trim(),description:$('editProductDescription').value.trim(),category:$('editProductCategory').value.trim()||'Otro',price:Number($('editProductPrice').value),stock:Number($('editProductStock').value)||0,trackStock:$('editProductTrack').value==='true',active:$('editProductActive').value==='true',...auditFields()};if(!data.name||data.price<0)return alert('Revisa nombre y precio.');if(id)await updateDoc(doc(firestore,'products',id),data);else await addDoc(collection(firestore,'products'),{...data,displayOrder:Math.max(0,...state.products.map(p=>Number(p.displayOrder)||0))+1,createdAt:nowIso()});$('productDialog').close()};
 
 function renderCloseDay(){const d=today(),orders=state.orders.filter(o=>o.status!=='void'&&o.businessDate===d),payments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate===d)),sales=payments.reduce((s,p)=>s+Number(p.amount),0),open=state.orders.filter(o=>o.status==='open'&&!o.onCredit),creditOpen=state.orders.filter(o=>(o.status==='credit'||o.onCredit===true)&&o.status!=='closed'&&o.status!=='void'),methods=['Efectivo','Débito','Crédito','Transferencia'];$('closeCreditNotice')?.classList.toggle('hidden',creditOpen.length===0);$('closeDaySummary').innerHTML=`<div class="metrics" style="margin-bottom:12px"><div class="metric"><small>Total cobrado hoy</small><b>${fmt(sales)}</b></div><div class="metric"><small>Pedidos del día</small><b>${orders.length}</b></div><div class="metric"><small>Cuentas cerradas</small><b>${orders.filter(o=>o.status==='closed').length}</b></div><div class="metric"><small>Cuentas fiadas pendientes</small><b>${creditOpen.length}</b></div></div><div class="card" style="box-shadow:none"><h3>Medios de pago</h3>${methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(payments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('')}</div>${open.length?`<div class="dangernotice" style="margin-top:12px"><b>Atención:</b> existen ${open.length} cuenta(s) abierta(s) normal(es) por ${fmt(open.reduce((s,o)=>s+balance(o),0))}. Deben pagarse, anularse o ser autorizadas como fiado por un gerente.</div>`:'<div class="oknotice" style="margin-top:12px">No existen cuentas abiertas que bloqueen el cierre.</div>'}${creditOpen.length?`<div class="notice" style="margin-top:12px">Hay ${creditOpen.length} cuenta(s) fiada(s) por ${fmt(creditOpen.reduce((s,o)=>s+balance(o),0))}. No bloquean el cierre diario.</div>`:''}`}
@@ -1081,7 +1070,7 @@ function resetScheduleForm(){
   $('scheduleDateFrom').disabled=false;
   $('scheduleDateTo').disabled=false;
   $('scheduleStaff').disabled=false;
-  $('scheduleFormNotice').innerHTML='Se creará un turno por cada día del rango. Los sábados se omitirán automáticamente. Los empleados podrán abrir o cerrar el local dentro de su turno, considerando la tolerancia configurada antes y después.';
+  $('scheduleFormNotice').innerHTML='Se creará un turno por cada día del rango. Los sábados se omitirán automáticamente. Los empleados podrán abrir o cerrar el local dentro de su turno, considerando 30 minutos de tolerancia antes y después.';
 }
 window.editSchedule=id=>{
   if(!roleIsManager())return;
@@ -1514,57 +1503,7 @@ renderCollectionTransferRows();
 function updateHeaderClock(){const now=new Date();$('headerDate').textContent=now.toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase());$('headerTime').textContent=now.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});const op=getTodayOperation();const closed=op?.status==='closed',opened=op?.status==='open';$('cashStatus').classList.toggle('closed-day',closed||!opened);$('cashStatus').querySelector('span:last-child').textContent=closed?'Día cerrado':opened?'Día abierto':'Día sin abrir'}
 setInterval(updateHeaderClock,1000);
 setInterval(()=>{if(document.querySelector('section#calendar.active'))renderScheduleList()},60000);
-
-function listToTextarea(value){return (Array.isArray(value)?value:[]).join('\n')}
-function textareaToList(id){return cleanStringList($(id).value.split(/\r?\n/))}
-function renderSettingsForm(){
-  if(!roleIsAdmin()||!$('cfgExpenseCategories'))return;
-  $('cfgExpenseCategories').value=listToTextarea(normalizeExpenseCategories());
-  $('cfgProductCategories').value=listToTextarea(normalizeProductCategories());
-  $('cfgPaymentMethods').value=listToTextarea(normalizePaymentMethods());
-  $('cfgTipPercentages').value=normalizeTipPercentages().join('\n');
-  $('cfgDefaultTip').value=Number(state.settings.defaultTipPercent??10);
-  $('cfgTableCount').value=Number(state.settings.tableCount??6);
-  $('cfgShiftStart').value=state.settings.defaultShiftStart||'10:00';
-  $('cfgShiftEnd').value=state.settings.defaultShiftEnd||'20:00';
-  $('cfgTolerance').value=Number(state.settings.attendanceToleranceMinutes??30);
-  $('cfgBusinessName').value=state.settings.businessName||'';
-  $('cfgBusinessSubtitle').value=state.settings.businessSubtitle||'';
-  $('cfgBusinessAddress').value=state.settings.businessAddress||'';
-  $('cfgBusinessPhone').value=state.settings.businessPhone||'';
-  $('cfgBusinessInstagram').value=state.settings.businessInstagram||'';
-  $('cfgReceiptThanks').value=state.settings.receiptThanks||'';
-  $('cfgReceiptLegal').value=state.settings.receiptLegal||'';
-  $('cfgPrinterWidth').value=String(state.settings.printer?.paperWidthMm||58);
-  $('cfgPrintLogo').value=String(state.settings.printer?.printLogo===true);
-  $('cfgPrintInstagram').value=String(state.settings.printer?.printInstagram!==false);
-  $('cfgOpenDrawer').value=String(state.settings.printer?.openDrawer===true);
-  const updated=state.settings.updatedAt?formatDateTimeDisplay(state.settings.updatedAt):'Sin modificaciones registradas';
-  $('settingsAudit').innerHTML=`<b>Última modificación:</b> ${esc(updated)}${state.settings.updatedByName?` · ${esc(state.settings.updatedByName)}`:''}`;
-}
-function applySettingsToUi(){
-  const brandName=document.querySelector('.brand-text h1'),brandSubtitle=document.querySelector('.brand-text p');
-  if(brandName)brandName.textContent=state.settings.businessName||'Pillilandia';
-  if(brandSubtitle)brandSubtitle.textContent=`${state.settings.businessSubtitle||'Heladería & Cafetería'} · Gestión del local`;
-  if($('scheduleStart')&&!$('editScheduleId')?.value)$('scheduleStart').value=state.settings.defaultShiftStart||'10:00';
-  if($('scheduleEnd')&&!$('editScheduleId')?.value)$('scheduleEnd').value=state.settings.defaultShiftEnd||'20:00';
-  const notice=$('scheduleFormNotice');if(notice)notice.textContent=`Se creará un turno por cada día del rango. Los sábados se omitirán automáticamente. Los empleados podrán abrir o cerrar el local dentro de su turno, considerando ${Number(state.settings.attendanceToleranceMinutes??30)} minutos de tolerancia antes y después.`;
-}
-async function saveGeneralSettings(){
-  if(!roleIsAdmin())return alert('Solo un administrador puede modificar la configuración general.');
-  const expenseCategories=textareaToList('cfgExpenseCategories'),productCategories=textareaToList('cfgProductCategories'),paymentMethods=textareaToList('cfgPaymentMethods');
-  const tipPercentages=[...new Set($('cfgTipPercentages').value.split(/\r?\n|,/).map(x=>Number(String(x).replace('%','').trim())).filter(x=>Number.isFinite(x)&&x>=0&&x<=100))].sort((a,b)=>a-b);
-  if(!expenseCategories.length||!productCategories.length||!paymentMethods.length||!tipPercentages.length)return alert('Las listas principales no pueden quedar vacías.');
-  const defaultTip=Number($('cfgDefaultTip').value||0);if(!tipPercentages.includes(defaultTip))return alert('La propina predeterminada debe existir en la lista de porcentajes.');
-  const data={expenseCategories,productCategories,paymentMethods,tipPercentages,defaultTipPercent:defaultTip,tableCount:Math.max(0,Number($('cfgTableCount').value||0)),defaultShiftStart:$('cfgShiftStart').value||'10:00',defaultShiftEnd:$('cfgShiftEnd').value||'20:00',attendanceToleranceMinutes:Math.max(0,Number($('cfgTolerance').value||0)),businessName:$('cfgBusinessName').value.trim()||'Pillilandia',businessSubtitle:$('cfgBusinessSubtitle').value.trim(),businessAddress:$('cfgBusinessAddress').value.trim(),businessPhone:$('cfgBusinessPhone').value.trim(),businessInstagram:$('cfgBusinessInstagram').value.trim(),receiptThanks:$('cfgReceiptThanks').value.trim(),receiptLegal:$('cfgReceiptLegal').value.trim(),printer:{paperWidthMm:Number($('cfgPrinterWidth').value)||58,printLogo:$('cfgPrintLogo').value==='true',printInstagram:$('cfgPrintInstagram').value==='true',openDrawer:$('cfgOpenDrawer').value==='true'},updatedAt:nowIso(),updatedByUid:currentUser.uid,updatedByName:selectedStaff?.name||currentUser.name||currentUser.email};
-  $('saveSettingsBtn').disabled=true;$('settingsStatus').textContent='Guardando...';
-  try{await setDoc(doc(firestore,'settings','general'),data,{merge:true});$('settingsStatus').textContent='✓ Configuración guardada';showToast('Configuración general actualizada.','success');}
-  catch(err){$('settingsStatus').textContent='No fue posible guardar';firebaseError(err)}finally{$('saveSettingsBtn').disabled=false;setTimeout(()=>{if($('settingsStatus').textContent.startsWith('✓'))$('settingsStatus').textContent=''},3000)}
-}
-$('saveSettingsBtn').onclick=saveGeneralSettings;
-$('reloadSettingsBtn').onclick=renderSettingsForm;
-
-function renderAll(){renderPaymentSettings();applySettingsToUi();renderServiceButtons();renderProductButtons();renderCart();renderOrders();renderExpenses();renderProductTable();renderDashboard();renderMonthly();renderCloseDay();renderScheduleStaffChecks();renderScheduleList();renderAttendance();renderMonthlyAttendanceSummary();renderOperation();updateAccessState();updateHeaderClock()}
+function renderAll(){renderServiceButtons();renderProductButtons();renderCart();renderOrders();renderExpenses();renderProductTable();renderDashboard();renderMonthly();renderCloseDay();renderScheduleStaffChecks();renderScheduleList();renderAttendance();renderMonthlyAttendanceSummary();renderOperation();updateAccessState();updateHeaderClock()}
 $('reportDate').value=today();$('expenseDate').value=today();$('expenseFilterMonth').value=today().slice(0,7);$('monthlyPeriod').value=today().slice(0,7);$('scheduleMonth').value=today().slice(0,7);$('attendanceSummaryMonth').value=today().slice(0,7);$('scheduleDateFrom').value=today();$('scheduleDateTo').value=today();$('attendanceDate').value=today();renderExpenseCategories();renderAll();applyPermissions();
 </script>
 
