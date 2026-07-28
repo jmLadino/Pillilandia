@@ -290,10 +290,37 @@ const RETROACTIVE_SALES_END='2026-07-31';
 const esc = s => String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const asDate = v => v?.toDate ? v.toDate() : new Date(v);
 const nowIso = () => new Date().toISOString();
+function saleBusinessDate(order){
+  if(order?.businessDate&&/^\d{4}-\d{2}-\d{2}$/.test(String(order.businessDate)))return String(order.businessDate);
+  const raw=order?.createdAt;
+  if(raw?.toDate){
+    const d=raw.toDate();
+    return d.toLocaleDateString('en-CA',{timeZone:'America/Santiago'});
+  }
+  if(raw){
+    const d=new Date(raw);
+    if(!Number.isNaN(d.getTime()))return d.toLocaleDateString('en-CA',{timeZone:'America/Santiago'});
+  }
+  return '';
+}
 function saleDisplayNumber(order){
   if(order?.saleNumber)return String(order.saleNumber);
-  if(order?.number!==undefined&&order?.number!==null)return `#${order.number}`;
+  if(order?.number!==undefined&&order?.number!==null){
+    const date=saleBusinessDate(order);
+    const match=date.match(/^(\d{4})-(\d{2})-/);
+    if(match)return buildMonthlySaleNumber(Number(match[1]),match[2],Number(order.number));
+    return `#${order.number}`;
+  }
   return order?.id?`#${String(order.id).slice(-6)}`:'Sin folio';
+}
+function legacySequenceFloor(periodKey){
+  return state.orders.reduce((max,order)=>{
+    if(order?.saleNumber||order?.monthlySequence)return max;
+    const date=saleBusinessDate(order);
+    if(!date.startsWith(`${periodKey}-`))return max;
+    const value=Number(order?.number||0);
+    return Number.isFinite(value)?Math.max(max,value):max;
+  },0);
 }
 function monthlySalePeriod(businessDate){
   const match=String(businessDate||'').match(/^(\d{4})-(\d{2})-/);
@@ -667,6 +694,9 @@ async function createOrder(shouldPay){
   const ref=doc(collection(firestore,'orders'));
   const period=monthlySalePeriod(saleContext.date);
   const counterRef=doc(firestore,'salesCounters',period.periodKey);
+  // Para el primer folio mensual del período, continúa desde el mayor correlativo legado.
+  // Ejemplo: si las ventas antiguas llegan hasta 79, la primera nueva será 80.
+  const legacyFloor=legacySequenceFloor(period.periodKey);
   let o=null;
   try{
     await runTransaction(firestore,async transaction=>{
@@ -679,7 +709,8 @@ async function createOrder(shouldPay){
           productReads.push({item,productRef,snapshot:await transaction.get(productRef)});
         }
       }
-      const currentValue=counterSnap.exists()?Number(counterSnap.data().currentValue||0):0;
+      const storedCounter=counterSnap.exists()?Number(counterSnap.data().currentValue||0):0;
+      const currentValue=Math.max(storedCounter,legacyFloor);
       const monthlySequence=currentValue+1;
       const saleNumber=buildMonthlySaleNumber(period.year,period.monthText,monthlySequence);
       for(const entry of productReads){
