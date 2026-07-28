@@ -262,7 +262,7 @@ import {
 import {
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
   collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc,
-  onSnapshot, query, where, writeBatch, Timestamp
+  onSnapshot, query, where, writeBatch, runTransaction, Timestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -290,6 +290,19 @@ const RETROACTIVE_SALES_END='2026-07-31';
 const esc = s => String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const asDate = v => v?.toDate ? v.toDate() : new Date(v);
 const nowIso = () => new Date().toISOString();
+function saleDisplayNumber(order){
+  if(order?.saleNumber)return String(order.saleNumber);
+  if(order?.number!==undefined&&order?.number!==null)return `#${order.number}`;
+  return order?.id?`#${String(order.id).slice(-6)}`:'Sin folio';
+}
+function monthlySalePeriod(businessDate){
+  const match=String(businessDate||'').match(/^(\d{4})-(\d{2})-/);
+  if(!match)throw new Error('La fecha comercial no permite generar el correlativo mensual.');
+  return {year:Number(match[1]),month:Number(match[2]),monthText:match[2],periodKey:`${match[1]}-${match[2]}`};
+}
+function buildMonthlySaleNumber(year,monthText,sequence){
+  return `V-${year}${monthText}-${String(sequence).padStart(6,'0')}`;
+}
 function showToast(message,type='info',duration=3500){
   const container=$('toastContainer');
   if(!container||!message)return;
@@ -604,7 +617,7 @@ function renderServiceButtons(){
     const isActive=selectedService.type==='mesa'&&selectedService.label===label;
     const classes=['service-button',openOrder?'occupied':'',isActive?'active':''].filter(Boolean).join(' ');
     const text=openOrder?`${label} · Pendiente`:label;
-    const title=openOrder?`Cuenta #${openOrder.number} pendiente por ${fmt(balance(openOrder))}`:`Seleccionar ${label}`;
+    const title=openOrder?`Cuenta ${saleDisplayNumber(openOrder)} pendiente por ${fmt(balance(openOrder))}`:`Seleccionar ${label}`;
     html+=`<button type="button" class="${classes}" onclick="selectService('mesa','${label}')" title="${esc(title)}" aria-disabled="${openOrder?'true':'false'}">${esc(text)}</button>`;
   }
   html+=`<div class="table-status-legend"><span class="legend-dot"></span>Las mesas en color naranjo tienen una cuenta pendiente.</div>`;
@@ -614,7 +627,7 @@ window.selectService=(type,label)=>{
   if(type==='mesa'){
     const openOrder=getOpenOrderForTable(label);
     if(openOrder){
-      alert(`${label} ya tiene la cuenta #${openOrder.number} abierta, con un saldo de ${fmt(balance(openOrder))}. Para agregar productos, utiliza "Cuentas abiertas".`);
+      alert(`${label} ya tiene la cuenta ${saleDisplayNumber(openOrder)} abierta, con un saldo de ${fmt(balance(openOrder))}. Para agregar productos, utiliza "Cuentas abiertas".`);
       return;
     }
   }
@@ -646,18 +659,53 @@ async function createOrder(shouldPay){
     const openOrder=getOpenOrderForTable(selectedService.label);
     if(openOrder){
       renderServiceButtons();
-      return alert(`${selectedService.label} ya tiene la cuenta #${openOrder.number} abierta, con un saldo de ${fmt(balance(openOrder))}. No se puede crear otra venta para la misma mesa. Utiliza "Cuentas abiertas" para agregar productos o cobrar.`);
+      return alert(`${selectedService.label} ya tiene la cuenta ${saleDisplayNumber(openOrder)} abierta, con un saldo de ${fmt(balance(openOrder))}. No se puede crear otra venta para la misma mesa. Utiliza "Cuentas abiertas" para agregar productos o cobrar.`);
     }
   }
   const extra=$('orderLabel').value.trim(),baseLabel=selectedService.label,finalLabel=extra?`${baseLabel} · ${extra}`:baseLabel;
-  const number=Math.max(0,...state.orders.map(x=>Number(x.number)||0))+1;
+  const legacyNumber=Math.max(0,...state.orders.map(x=>Number(x.number)||0))+1;
   const ref=doc(collection(firestore,'orders'));
-  const o={number,createdAt:saleContext.createdAt,businessDate:saleContext.date,serviceType:selectedService.type,label:finalLabel,notes:$('orderNotes').value.trim(),items:cart.map(x=>({...x})),payments:[],status:'open',ownerStaffId:currentStaffId(),ownerStaffName:selectedStaff?.name||currentUser.name,ownerHistory:[],entryMode:saleContext.retroactive?'retroactive':'normal',retroactiveEntry:saleContext.retroactive,retroactivelyEnteredAt:saleContext.retroactive?nowIso():null,retroactivelyEnteredByUid:saleContext.retroactive?currentUser.uid:null,retroactivelyEnteredByName:saleContext.retroactive?(selectedStaff?.name||currentUser.name):null,stockAdjusted:saleContext.retroactive?false:true,...actorFields(),...auditFields()};
-  const batch=writeBatch(firestore);batch.set(ref,o);
-  if(!saleContext.retroactive){for(const i of cart){const p=state.products.find(x=>x.id===i.productId);if(p?.trackStock)batch.update(doc(firestore,'products',p.id),{stock:Number(p.stock)-i.qty,...auditFields()})}}
-  await batch.commit();
+  const period=monthlySalePeriod(saleContext.date);
+  const counterRef=doc(firestore,'salesCounters',period.periodKey);
+  let o=null;
+  try{
+    await runTransaction(firestore,async transaction=>{
+      const counterSnap=await transaction.get(counterRef);
+      const productReads=[];
+      if(!saleContext.retroactive){
+        for(const item of cart){
+          if(!item.productId)continue;
+          const productRef=doc(firestore,'products',item.productId);
+          productReads.push({item,productRef,snapshot:await transaction.get(productRef)});
+        }
+      }
+      const currentValue=counterSnap.exists()?Number(counterSnap.data().currentValue||0):0;
+      const monthlySequence=currentValue+1;
+      const saleNumber=buildMonthlySaleNumber(period.year,period.monthText,monthlySequence);
+      for(const entry of productReads){
+        if(!entry.snapshot.exists())throw new Error(`El producto ${entry.item.name} ya no existe.`);
+        const productData=entry.snapshot.data();
+        if(productData.trackStock&&Number(productData.stock||0)<Number(entry.item.qty||0)){
+          throw new Error(`No hay stock suficiente de ${entry.item.name}. Disponible: ${Number(productData.stock||0)}`);
+        }
+      }
+      o={number:legacyNumber,monthlySequence,sequencePeriod:period.periodKey,saleNumber,createdAt:saleContext.createdAt,businessDate:saleContext.date,serviceType:selectedService.type,label:finalLabel,notes:$('orderNotes').value.trim(),items:cart.map(x=>({...x})),payments:[],status:'open',ownerStaffId:currentStaffId(),ownerStaffName:selectedStaff?.name||currentUser.name,ownerHistory:[],entryMode:saleContext.retroactive?'retroactive':'normal',retroactiveEntry:saleContext.retroactive,retroactivelyEnteredAt:saleContext.retroactive?nowIso():null,retroactivelyEnteredByUid:saleContext.retroactive?currentUser.uid:null,retroactivelyEnteredByName:saleContext.retroactive?(selectedStaff?.name||currentUser.name):null,stockAdjusted:saleContext.retroactive?false:true,...actorFields(),...auditFields()};
+      transaction.set(counterRef,{currentValue:monthlySequence,year:period.year,month:period.month,period:period.periodKey,updatedAt:nowIso(),updatedByUid:currentUser?.uid||null,updatedByName:selectedStaff?.name||currentUser?.name||''},{merge:true});
+      transaction.set(ref,o);
+      for(const entry of productReads){
+        const productData=entry.snapshot.data();
+        if(productData.trackStock){
+          transaction.update(entry.productRef,{stock:Number(productData.stock||0)-Number(entry.item.qty||0),...auditFields()});
+        }
+      }
+    });
+  }catch(error){
+    console.error('Error creando venta con correlativo mensual:',error);
+    return alert(error?.message||'No fue posible registrar la venta. Revisa los permisos de salesCounters en Firestore.');
+  }
   state.orders.push({id:ref.id,...o});
   cart=[];$('orderLabel').value='';$('orderNotes').value='';selectedService={type:'meson',label:'Venta Directa'};renderCart();
+  showToast(`Venta ${saleDisplayNumber(o)} registrada correctamente.`,'success',4500);
   if(saleContext.retroactive)showToast(`Venta retroactiva registrada para ${formatDateDisplay(saleContext.date)}. El stock actual no fue modificado.`,'success',5000);
   if(shouldPay)openPayment(ref.id);else{switchTab('orders');alert(saleContext.retroactive?'Venta retroactiva guardada como cuenta pendiente.':'Pedido guardado como cuenta pendiente.')}
 }
@@ -674,10 +722,10 @@ function renderOrders(){
       ?`<button class="btn primary" onclick="openPayment('${o.id}')">Registrar pago</button><button class="btn secondary" onclick="openOrderEditor('${o.id}')">Modificar</button><button class="btn danger" onclick="voidOrder('${o.id}')">Anular</button><button class="btn outline ${roleIsManager()?'':'hidden'}" onclick="openCreditDialog('${o.id}')">Fiar</button>`
       :`<button class="btn secondary" onclick="takeOrderControl('${o.id}')">Tomar control / Asignarme cuenta</button>`;
     const history=(o.ownerHistory||[]),last=history.length?history[history.length-1]:null;
-    return `<div class="order-card"><div class="order-head"><div><b>#${o.number} · ${esc(o.label)}</b><div class="muted tiny">${formatDateTimeDisplay(o.createdAt)} · ${o.serviceType==='mesa'?'Mesa':'Mesón'} · Creada por ${esc(o.staffName||o.createdByName||'')}</div><div class="tiny" style="margin-top:4px"><b>Propietario actual:</b> ${esc(ownerName(o))}${last?` · Anterior: ${esc(last.previousOwnerName||'Sin asignar')}`:''}</div></div><span class="badge open">Pendiente ${fmt(balance(o))}</span></div><div class="order-items-list">${(o.items||[]).map(i=>`<div class="order-item-row"><span>${Number(i.qty)||0}× ${esc(i.name)}</span><b>${fmt((Number(i.price)||0)*(Number(i.qty)||0))}</b></div>`).join('')}</div><div class="total"><span>Total ${fmt(chargedTotal(o))}</span><span>Pagado ${fmt(paidTotal(o))}</span></div><div class="actions">${actionButtons}</div></div>`;
+    return `<div class="order-card"><div class="order-head"><div><b>${esc(saleDisplayNumber(o))} · ${esc(o.label)}</b><div class="muted tiny">${formatDateTimeDisplay(o.createdAt)} · ${o.serviceType==='mesa'?'Mesa':'Mesón'} · Creada por ${esc(o.staffName||o.createdByName||'')}</div><div class="tiny" style="margin-top:4px"><b>Propietario actual:</b> ${esc(ownerName(o))}${last?` · Anterior: ${esc(last.previousOwnerName||'Sin asignar')}`:''}</div></div><span class="badge open">Pendiente ${fmt(balance(o))}</span></div><div class="order-items-list">${(o.items||[]).map(i=>`<div class="order-item-row"><span>${Number(i.qty)||0}× ${esc(i.name)}</span><b>${fmt((Number(i.price)||0)*(Number(i.qty)||0))}</b></div>`).join('')}</div><div class="total"><span>Total ${fmt(chargedTotal(o))}</span><span>Pagado ${fmt(paidTotal(o))}</span></div><div class="actions">${actionButtons}</div></div>`;
   }).join(''):'<div class="empty">No hay cuentas abiertas</div>';
   $('creditOrdersCount').textContent=`${creditList.length} pendiente${creditList.length===1?'':'s'}`;
-  $('creditOrders').innerHTML=creditList.length?creditList.map(o=>`<div class="order-card"><div class="order-head"><div><b>#${o.number} · ${esc(o.label)}</b><div class="muted tiny">Cliente: <b>${esc(o.creditCustomerName||'Sin identificar')}</b> · Autorizada por ${esc(o.creditedByName||o.updatedByName||'Gerente')}</div></div><span class="badge open">Por cobrar ${fmt(balance(o))}</span></div><div class="order-items-list">${(o.items||[]).map(i=>`<div class="order-item-row"><span>${Number(i.qty)||0}× ${esc(i.name)}</span><b>${fmt((Number(i.price)||0)*(Number(i.qty)||0))}</b></div>`).join('')}</div><div class="total"><span>Total ${fmt(chargedTotal(o))}</span><span>Pagado ${fmt(paidTotal(o))}</span></div><div class="actions"><button class="btn primary" onclick="openPayment('${o.id}')">Registrar pago</button><button class="btn danger ${roleIsManager()?'':'hidden'}" onclick="voidOrder('${o.id}')">Anular</button></div></div>`).join(''):'<div class="empty">No hay cuentas pendientes</div>';
+  $('creditOrders').innerHTML=creditList.length?creditList.map(o=>`<div class="order-card"><div class="order-head"><div><b>${esc(saleDisplayNumber(o))} · ${esc(o.label)}</b><div class="muted tiny">Cliente: <b>${esc(o.creditCustomerName||'Sin identificar')}</b> · Autorizada por ${esc(o.creditedByName||o.updatedByName||'Gerente')}</div></div><span class="badge open">Por cobrar ${fmt(balance(o))}</span></div><div class="order-items-list">${(o.items||[]).map(i=>`<div class="order-item-row"><span>${Number(i.qty)||0}× ${esc(i.name)}</span><b>${fmt((Number(i.price)||0)*(Number(i.qty)||0))}</b></div>`).join('')}</div><div class="total"><span>Total ${fmt(chargedTotal(o))}</span><span>Pagado ${fmt(paidTotal(o))}</span></div><div class="actions"><button class="btn primary" onclick="openPayment('${o.id}')">Registrar pago</button><button class="btn danger ${roleIsManager()?'':'hidden'}" onclick="voidOrder('${o.id}')">Anular</button></div></div>`).join(''):'<div class="empty">No hay cuentas pendientes</div>';
 }
 $('orderSearch').oninput=renderOrders;
 function orderBaseLabel(o){
@@ -706,7 +754,7 @@ window.openOrderEditor=id=>{
   editOrderCart=(o.items||[]).map(x=>({...x,qty:Number(x.qty)||0,price:Number(x.price)||0}));
   $('editOrderReference').value=orderBaseLabel(o);
   $('editOrderNotes').value=o.notes||'';
-  $('editOrderHeader').innerHTML=`<b>#${o.number} · ${esc(o.label)}</b><br>La edición se realizará sin salir de Cuentas abiertas.`;
+  $('editOrderHeader').innerHTML=`<b>${esc(saleDisplayNumber(o))} · ${esc(o.label)}</b><br>La edición se realizará sin salir de Cuentas abiertas.`;
   renderEditOrderProducts();renderEditOrderCart();
   $('orderEditDialog').showModal();
 };
@@ -738,17 +786,17 @@ $('saveOrderChangesBtn').onclick=async()=>{
   }
   await batch.commit();
   closeOrderEditor();
-  showToast(`Cuenta #${o.number} modificada correctamente.`,'success');
+  showToast(`Cuenta ${saleDisplayNumber(o)} modificada correctamente.`,'success');
 };
 window.takeOrderControl=async id=>{
   const o=state.orders.find(x=>x.id===id);
   if(!canTakeOrder(o))return;
   const newOwnerId=currentStaffId(),newOwnerName=selectedStaff?.name||currentUser.name;
   const previousOwnerId=o.ownerStaffId||o.staffId||null,previousOwnerName=ownerName(o);
-  if(!confirm(`¿Deseas tomar control de la cuenta #${o.number}? La cuenta dejará de pertenecer a ${previousOwnerName} y quedará asignada a ${newOwnerName}.`))return;
+  if(!confirm(`¿Deseas tomar control de la cuenta ${saleDisplayNumber(o)}? La cuenta dejará de pertenecer a ${previousOwnerName} y quedará asignada a ${newOwnerName}.`))return;
   const change={previousOwnerId,previousOwnerName,newOwnerId,newOwnerName,changedAt:nowIso(),changedByUid:currentUser.uid,changedByName:newOwnerName};
   await updateDoc(doc(firestore,'orders',id),{ownerStaffId:newOwnerId,ownerStaffName:newOwnerName,previousOwnerStaffId:previousOwnerId,previousOwnerStaffName:previousOwnerName,ownerChangedAt:change.changedAt,ownerHistory:[...(o.ownerHistory||[]),change],...auditFields()});
-  alert(`Ahora tienes el control de la cuenta #${o.number}.`);
+  alert(`Ahora tienes el control de la cuenta ${saleDisplayNumber(o)}.`);
 };
 window.openCreditDialog=id=>{
   if(!roleIsManager())return alert('Solo un gerente puede autorizar una cuenta fiada.');
@@ -756,7 +804,7 @@ window.openCreditDialog=id=>{
   if(!o)return alert('La cuenta ya no está disponible para ser fiada.');
   creditOrderId=id;
   $('creditCustomerName').value='';
-  $('creditOrderInfo').innerHTML=`<div class="notice"><b>#${o.number} · ${esc(o.label)}</b><br>Saldo pendiente: <b>${fmt(balance(o))}</b>${o.serviceType==='mesa'?'<br>La mesa quedará disponible inmediatamente.':''}</div>`;
+  $('creditOrderInfo').innerHTML=`<div class="notice"><b>${esc(saleDisplayNumber(o))} · ${esc(o.label)}</b><br>Saldo pendiente: <b>${fmt(balance(o))}</b>${o.serviceType==='mesa'?'<br>La mesa quedará disponible inmediatamente.':''}</div>`;
   $('creditDialog').showModal();
 };
 $('confirmCreditBtn').onclick=async()=>{
@@ -765,7 +813,7 @@ $('confirmCreditBtn').onclick=async()=>{
   const customer=$('creditCustomerName').value.trim();
   if(!o)return alert('La cuenta ya no está disponible.');
   if(!customer)return alert('Debes indicar el nombre completo o identificación del cliente.');
-  if(!confirm(`¿Confirmas que la cuenta #${o.number} quedará fiada a nombre de ${customer}?`))return;
+  if(!confirm(`¿Confirmas que la cuenta ${saleDisplayNumber(o)} quedará fiada a nombre de ${customer}?`))return;
   await updateDoc(doc(firestore,'orders',o.id),{
     status:'credit',onCredit:true,creditCustomerName:customer,
     creditedAt:nowIso(),creditedByUid:currentUser.uid,
@@ -804,7 +852,7 @@ function renderPaymentDialog(){
   const total=subtotal+tip;
   const paid=paidTotal(o);
   const pending=Math.max(0,total-paid);
-  $('paymentOrderInfo').innerHTML=`<div class="notice"><b>#${o.number} · ${esc(o.label)}</b><div style="margin-top:8px"><div class="tip-line"><span>Consumo</span><b>${fmt(subtotal)}</b></div><div class="tip-line"><span>Propina sugerida (${percent}%)</span><b>${fmt(tip)}</b></div><div class="tip-line total-line"><span>Total a cobrar</span><span>${fmt(total)}</span></div><div class="tip-line"><span>Pagado</span><b>${fmt(paid)}</b></div><div class="tip-line"><span>Saldo</span><b>${fmt(pending)}</b></div></div></div>`;
+  $('paymentOrderInfo').innerHTML=`<div class="notice"><b>${esc(saleDisplayNumber(o))} · ${esc(o.label)}</b><div style="margin-top:8px"><div class="tip-line"><span>Consumo</span><b>${fmt(subtotal)}</b></div><div class="tip-line"><span>Propina sugerida (${percent}%)</span><b>${fmt(tip)}</b></div><div class="tip-line total-line"><span>Total a cobrar</span><span>${fmt(total)}</span></div><div class="tip-line"><span>Pagado</span><b>${fmt(paid)}</b></div><div class="tip-line"><span>Saldo</span><b>${fmt(pending)}</b></div></div></div>`;
   document.querySelectorAll('#tipPicker .tip-btn').forEach(btn=>{
     btn.classList.toggle('active',Number(btn.dataset.tip)===percent);
     btn.disabled=hasPayments;
@@ -820,7 +868,7 @@ function buildReceiptHtml(o,payment,percent,tip,total,newBalance){
     <div class="receipt-center">Heladería y Cafetería</div>
     <div class="receipt-center">Comprobante de pago</div>
     <div class="receipt-sep"></div>
-    <div>Cuenta: #${o.number} · ${esc(o.label)}</div>
+    <div>Cuenta: ${esc(saleDisplayNumber(o))} · ${esc(o.label)}</div>
     <div>Fecha: ${formatDateTimeDisplay(new Date())}</div>
     
     <div class="receipt-sep"></div>
@@ -1005,7 +1053,7 @@ function renderDashboard(){
   const methods=['Efectivo','Débito','Crédito','Transferencia'];
   $('paymentSummary').innerHTML=methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(payments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('');
   $('activitySummary').innerHTML=`<div class="payment-line">Pedidos creados <b style="float:right">${orders.length}</b></div><div class="payment-line">Cuentas cerradas <b style="float:right">${orders.filter(o=>o.status==='closed').length}</b></div><div class="payment-line">Cuentas abiertas <b style="float:right">${orders.filter(o=>o.status==='open'||o.status==='credit'||o.onCredit===true).length}</b></div><div class="payment-line">Saldo pendiente <b style="float:right">${fmt(pending)}</b></div>`;
-  $('dailyOrders').innerHTML=orders.length?`<div style="overflow:auto"><table><thead><tr><th>N°</th><th>Fecha y hora</th><th>Referencia</th><th>Atendido por</th><th>Estado</th><th class="right">Consumo</th><th class="right">Propina</th><th class="right">Total</th><th class="right">Pagado</th><th>Detalle</th></tr></thead><tbody>${orders.map(o=>`<tr><td>#${esc(String(o.number??o.id?.slice(-6)??''))}</td><td>${formatDateTimeDisplay(o.createdAt)}</td><td>${esc(o.label)}</td><td>${esc(o.staffName||o.createdByName||'')}</td><td><span class="badge ${o.status==='closed'?'closed':'open'}">${o.status==='closed'?'Pagada':(o.status==='credit'||o.onCredit===true?'Fiada':'Abierta')}</span></td><td class="right">${fmt(orderTotal(o))}</td><td class="right">${fmt(tipAmount(o))}</td><td class="right">${fmt(chargedTotal(o))}</td><td class="right">${fmt(paidTotal(o))}</td><td><button type="button" class="btn secondary" onclick="viewSaleDetail('${o.id}')">Ver</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sin ventas registradas</div>';
+  $('dailyOrders').innerHTML=orders.length?`<div style="overflow:auto"><table><thead><tr><th>N°</th><th>Fecha y hora</th><th>Referencia</th><th>Atendido por</th><th>Estado</th><th class="right">Consumo</th><th class="right">Propina</th><th class="right">Total</th><th class="right">Pagado</th><th>Detalle</th></tr></thead><tbody>${orders.map(o=>`<tr><td>${esc(saleDisplayNumber(o))}</td><td>${formatDateTimeDisplay(o.createdAt)}</td><td>${esc(o.label)}</td><td>${esc(o.staffName||o.createdByName||'')}</td><td><span class="badge ${o.status==='closed'?'closed':'open'}">${o.status==='closed'?'Pagada':(o.status==='credit'||o.onCredit===true?'Fiada':'Abierta')}</span></td><td class="right">${fmt(orderTotal(o))}</td><td class="right">${fmt(tipAmount(o))}</td><td class="right">${fmt(chargedTotal(o))}</td><td class="right">${fmt(paidTotal(o))}</td><td><button type="button" class="btn secondary" onclick="viewSaleDetail('${o.id}')">Ver</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sin ventas registradas</div>';
   renderProductSales('dailyProductSales',orders,'Sin productos vendidos para la fecha seleccionada.');
 }
 
@@ -1020,7 +1068,7 @@ window.viewSaleDetail=id=>{
   const paymentsHtml=payments.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha y hora</th><th>Medio de pago</th><th class="right">Monto</th></tr></thead><tbody>${payments.map(p=>`<tr><td>${p.createdAt?formatDateTimeDisplay(p.createdAt):formatDateDisplay(p.businessDate)}</td><td>${esc(p.method||'Sin especificar')}</td><td class="right">${fmt(Number(p.amount)||0)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No hay pagos registrados.</div>';
   $('saleDetailContent').innerHTML=`
     <div class="sale-detail-grid">
-      <div class="sale-detail-field"><span>Identificador</span><b>#${esc(String(o.number??o.id?.slice(-6)??''))}</b></div>
+      <div class="sale-detail-field"><span>Identificador</span><b>${esc(saleDisplayNumber(o))}</b></div>
       <div class="sale-detail-field"><span>Fecha y hora</span><b>${created}</b></div>
       <div class="sale-detail-field"><span>Referencia</span><b>${esc(o.label||'')}</b></div>
       <div class="sale-detail-field"><span>Atendido por</span><b>${esc(o.staffName||o.createdByName||'Sin identificar')}</b></div>
@@ -1404,7 +1452,7 @@ $('exportBtn').onclick=async()=>{
 };
 
 const FIRESTORE_EXPORT_COLLECTIONS=[
-  'settings','users','staff','products','orders','expenses',
+  'settings','users','staff','products','orders','salesCounters','expenses',
   'staffSchedules','attendance','dailyOperations','dailyClosures'
 ];
 let pendingImportCollection='';
