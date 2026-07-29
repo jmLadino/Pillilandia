@@ -1077,7 +1077,14 @@ function renderProductSales(containerId,orders,emptyMessage){
 
 function renderDashboard(){
   const d=$('reportDate').value;
-  const orders=state.orders.filter(o=>o.status!=='void'&&o.businessDate===d).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  const orders=state.orders.filter(o=>o.status!=='void'&&o.businessDate===d).sort((a,b)=>{
+    const timeA=asDate(a.createdAt).getTime();
+    const timeB=asDate(b.createdAt).getTime();
+    if(timeA!==timeB)return timeB-timeA;
+    const sequenceA=Number(a.monthlySequence??a.number??0);
+    const sequenceB=Number(b.monthlySequence??b.number??0);
+    return sequenceB-sequenceA;
+  });
   const payments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate===d));
   const sales=payments.reduce((s,p)=>s+Number(p.amount),0),consumption=orders.reduce((s,o)=>s+orderTotal(o),0),tips=orders.reduce((s,o)=>s+tipAmount(o),0),pending=orders.filter(o=>o.status==='open'||o.status==='credit'||o.onCredit===true).reduce((s,o)=>s+balance(o),0);
   $('mConsumption').textContent=fmt(consumption);$('mTips').textContent=fmt(tips);$('mSales').textContent=fmt(sales);$('mPending').textContent=fmt(pending);$('mOrders').textContent=orders.length;$('mClosed').textContent=orders.filter(o=>o.status==='closed').length;
