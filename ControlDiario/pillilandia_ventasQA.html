@@ -1849,11 +1849,11 @@ function enhanceAllSortableTables(root=document){
   root.querySelectorAll?.('table').forEach(enhanceSortableTable);
 }
 const sortableTablesObserver=new MutationObserver(mutations=>{
-  if(applyingStoredTableSort)return;
+  // Solo procesa tablas nuevas agregadas por los renderizados dinámicos.
+  // No vuelve a procesar la tabla cuando el ordenamiento mueve filas dentro
+  // del <tbody>, evitando un ciclo de MutationObserver que bloqueaba la página.
   const tables=new Set();
   for(const mutation of mutations){
-    const targetTable=mutation.target instanceof Element?mutation.target.closest('table'):null;
-    if(targetTable)tables.add(targetTable);
     mutation.addedNodes.forEach(node=>{
       if(!(node instanceof Element))return;
       if(node.matches('table'))tables.add(node);
