@@ -230,7 +230,6 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 <section id="dataExport" class="admin-only role-hidden"><div class="grid">
 <div class="card span-12"><h2>Exportación e importación de datos por colección</h2><div class="notice">Cada colección se procesa de forma independiente. La importación conserva el ID de cada documento y reemplaza el contenido de los documentos incluidos en el JSON, pero no elimina documentos adicionales que ya existan en el ambiente de destino.</div><div id="collectionTransferRows" style="margin-top:14px"></div><input id="collectionImportFile" type="file" accept="application/json,.json" class="hidden"></div>
 <div class="card span-12"><div class="expense-toolbar"><div><h2>Carga masiva de ventas</h2><div class="muted tiny" style="margin-top:4px">Pega directamente filas copiadas desde Excel. El sistema mostrará una vista previa antes de escribir en Firestore.</div></div><button class="btn primary" id="openBulkSalesImportBtn" type="button">+ Cargar ventas desde Excel</button></div><div class="notice">La carga se registra como histórica: no descuenta stock actual. Solo el Administrador puede ejecutarla.</div></div>
-<div class="card span-12"><div class="expense-toolbar"><div><h2>Corrección de fecha comercial</h2><div class="muted tiny" style="margin-top:4px">Busca ventas por su fecha y hora real de creación (<code>createdAt</code>) y modifica su fecha de venta (<code>businessDate</code>).</div></div><button class="btn primary" id="openSaleDateCorrectionBtn" type="button">Revisar y corregir fechas</button></div><div class="notice">La herramienta muestra una vista previa y permite seleccionar las ventas antes de aplicar cambios. No modifica productos, montos, correlativos, vendedor ni la fecha real de creación.</div></div>
 <div class="card span-12"><h3>Estado de las operaciones</h3><div id="collectionExportStatus" class="muted">Aún no se ha realizado ninguna exportación o importación.</div></div>
 </div></section>
 
@@ -250,17 +249,6 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 <label style="margin-top:12px">Datos copiados desde Excel</label><textarea id="bulkSalesText" class="bulk-sales-text" spellcheck="false" placeholder="Fecha	Cantidad	Producto	Precio unitario	Medio de pago	Monto	Observación	Turno"></textarea>
 <div class="actions"><button class="btn secondary" id="bulkSalesExampleBtn" type="button">Insertar ejemplo</button><button class="btn primary" id="previewBulkSalesBtn" type="button">Validar y previsualizar</button><button class="btn success" id="commitBulkSalesBtn" type="button" disabled>Cargar en Firestore</button><button class="btn secondary" type="button" onclick="bulkSalesImportDialog.close()">Cancelar</button></div>
 <div id="bulkSalesValidation" style="margin-top:12px"></div><div id="bulkSalesPreview" style="margin-top:12px"></div></div></dialog>
-
-<dialog id="saleDateCorrectionDialog" class="bulk-sales-modal"><div class="dialog-body"><div class="dialog-head"><h2>Corregir fecha comercial de ventas</h2><button class="x" type="button" onclick="saleDateCorrectionDialog.close()">×</button></div>
-<div class="notice"><b>Criterio de búsqueda:</b> se utiliza la fecha real <code>createdAt</code>. Al confirmar, se modificará <code>businessDate</code> en la venta y en sus pagos. <code>createdAt</code> permanecerá intacto como dato de auditoría.</div>
-<div class="grid" style="margin-top:12px">
-<div class="span-4"><label>Fecha real de creación</label><input id="saleCorrectionCreatedDate" type="date"></div>
-<div class="span-4"><label>Desde la hora</label><input id="saleCorrectionFromTime" type="time" value="13:00"></div>
-<div class="span-4"><label>Hasta la hora</label><input id="saleCorrectionToTime" type="time" value="23:59"></div>
-<div class="span-4"><label>Nueva fecha de venta</label><input id="saleCorrectionTargetDate" type="date"></div>
-</div>
-<div class="actions"><button class="btn primary" id="previewSaleDateCorrectionBtn" type="button">Buscar ventas</button><button class="btn success" id="commitSaleDateCorrectionBtn" type="button" disabled>Corregir seleccionadas</button><button class="btn secondary" type="button" onclick="saleDateCorrectionDialog.close()">Cancelar</button></div>
-<div id="saleDateCorrectionSummary" style="margin-top:12px"></div><div id="saleDateCorrectionPreview" style="margin-top:12px"></div></div></dialog>
 
 <dialog id="paymentDialog"><div class="dialog-body"><div class="dialog-head"><h2>Registrar pago</h2><button class="x" onclick="paymentDialog.close()">×</button></div><div id="paymentOrderInfo"></div><div id="tipPicker" class="tip-picker"><label>Propina sugerida</label><div class="tip-options"><button type="button" class="tip-btn" data-tip="0">Sin propina</button><button type="button" class="tip-btn" data-tip="5">5%</button><button type="button" class="tip-btn" data-tip="10">10%</button><button type="button" class="tip-btn" data-tip="15">15%</button><button type="button" class="tip-btn" data-tip="20">20%</button></div><div id="tipHelp" class="muted tiny" style="margin-top:8px"></div></div><div class="row" style="margin-top:12px"><div><label>Medio de pago</label><select id="paymentMethod"><option>Efectivo</option><option>Débito</option><option>Crédito</option><option>Transferencia</option></select></div><div><label>Monto</label><input id="paymentAmount" type="number" min="1" step="1"></div></div><div class="actions"><button class="btn primary" id="addPaymentBtn">Agregar pago</button><button class="btn secondary" id="addPaymentPrintBtn">Agregar pago e imprimir</button><button class="btn secondary" onclick="paymentDialog.close()">Cerrar</button></div><div id="paymentsExisting"></div></div></dialog>
 
@@ -1596,76 +1584,6 @@ $('openBulkSalesImportBtn').onclick=()=>{if(!roleIsAdmin())return alert('Solo un
 $('bulkSalesExampleBtn').onclick=()=>{$('bulkSalesText').value='Fecha\tCantidad\tProducto\tPrecio unitario\tMedio de pago\tMonto\tObservación\tTurno\n05-07-2026\t2\tAlfajores\t600\tEfectivo\t1000\tOferta 2 por 1000\tPilar Huenulaf\n05-07-2026\t1\tArtesanal 1 sabor\t2800\tDébito\t3000\t+ 200 (1 extra)\tPilar Huenulaf';};
 $('previewBulkSalesBtn').onclick=()=>{try{renderBulkSalesPreview(parseBulkSalesText($('bulkSalesText').value))}catch(error){parsedBulkSales=[];$('commitBulkSalesBtn').disabled=true;$('bulkSalesPreview').innerHTML='';$('bulkSalesValidation').innerHTML=`<div class="notice bulk-sales-error">${esc(error.message||String(error))}</div>`}};
 $('commitBulkSalesBtn').onclick=commitBulkSales;
-
-
-let saleDateCorrectionCandidates=[];
-function localDateTimeForCorrection(dateValue,timeValue,endOfMinute=false){
-  const match=String(dateValue||'').match(/^(\d{4})-(\d{2})-(\d{2})$/),tm=String(timeValue||'').match(/^(\d{2}):(\d{2})$/);
-  if(!match||!tm)return null;
-  return new Date(Number(match[1]),Number(match[2])-1,Number(match[3]),Number(tm[1]),Number(tm[2]),endOfMinute?59:0,endOfMinute?999:0);
-}
-function createdAtDateForCorrection(order){
-  try{const value=asDate(order?.createdAt);return value instanceof Date&&!Number.isNaN(value.getTime())?value:null}catch{return null}
-}
-function selectedSaleCorrectionIds(){
-  return [...document.querySelectorAll('.sale-correction-check:checked')].map(x=>x.value);
-}
-function updateSaleCorrectionButton(){
-  const count=selectedSaleCorrectionIds().length,button=$('commitSaleDateCorrectionBtn');
-  button.disabled=count===0;button.textContent=count?`Corregir ${count} seleccionada${count===1?'':'s'}`:'Corregir seleccionadas';
-}
-function renderSaleDateCorrectionPreview(){
-  const container=$('saleDateCorrectionPreview'),summary=$('saleDateCorrectionSummary');
-  if(!saleDateCorrectionCandidates.length){summary.innerHTML='<div class="notice">No se encontraron ventas dentro del rango indicado.</div>';container.innerHTML='';$('commitSaleDateCorrectionBtn').disabled=true;return;}
-  const wrong=saleDateCorrectionCandidates.filter(x=>x.businessDate!==$('saleCorrectionTargetDate').value).length;
-  summary.innerHTML=`<div class="bulk-sales-summary"><div><small>Ventas encontradas</small><b>${saleDateCorrectionCandidates.length}</b></div><div><small>Con fecha diferente</small><b>${wrong}</b></div><div><small>Fecha destino</small><b>${formatDateDisplay($('saleCorrectionTargetDate').value)}</b></div></div>`;
-  container.innerHTML=`<div class="bulk-sales-preview"><table><thead><tr><th><input id="saleCorrectionSelectAll" type="checkbox" checked title="Seleccionar todas"></th><th>Folio</th><th>createdAt real</th><th>businessDate actual</th><th>Atendido por</th><th>Referencia</th><th class="right">Total</th></tr></thead><tbody>${saleDateCorrectionCandidates.map(o=>`<tr><td><input class="sale-correction-check" type="checkbox" value="${esc(o.id)}" checked></td><td><b>${esc(saleDisplayNumber(o))}</b></td><td>${esc(formatDateTimeDisplay(o.createdAt))}</td><td>${esc(formatDateDisplay(o.businessDate))}</td><td>${esc(o.staffName||ownerName(o)||o.createdByName||'—')}</td><td>${esc(o.label||'—')}</td><td class="right">${fmt(chargedTotal(o))}</td></tr>`).join('')}</tbody></table></div>`;
-  $('saleCorrectionSelectAll').onchange=e=>{document.querySelectorAll('.sale-correction-check').forEach(x=>x.checked=e.target.checked);updateSaleCorrectionButton()};
-  document.querySelectorAll('.sale-correction-check').forEach(x=>x.onchange=()=>{const boxes=[...document.querySelectorAll('.sale-correction-check')];$('saleCorrectionSelectAll').checked=boxes.every(b=>b.checked);$('saleCorrectionSelectAll').indeterminate=!boxes.every(b=>b.checked)&&boxes.some(b=>b.checked);updateSaleCorrectionButton()});
-  updateSaleCorrectionButton();
-}
-function previewSaleDateCorrection(){
-  if(!roleIsAdmin())return alert('Solo un administrador puede realizar esta operación.');
-  const date=$('saleCorrectionCreatedDate').value,from=$('saleCorrectionFromTime').value,to=$('saleCorrectionToTime').value,target=$('saleCorrectionTargetDate').value;
-  if(!date||!from||!to||!target)return alert('Completa la fecha de creación, el rango horario y la nueva fecha de venta.');
-  const start=localDateTimeForCorrection(date,from),end=localDateTimeForCorrection(date,to,true);
-  if(!start||!end||end<start)return alert('El rango de fecha y hora no es válido.');
-  saleDateCorrectionCandidates=state.orders.filter(o=>{const d=createdAtDateForCorrection(o);return d&&d>=start&&d<=end}).sort((a,b)=>createdAtDateForCorrection(a)-createdAtDateForCorrection(b)||saleSequenceValue(a)-saleSequenceValue(b));
-  renderSaleDateCorrectionPreview();
-}
-async function commitSaleDateCorrection(){
-  if(!roleIsAdmin())return alert('Solo un administrador puede realizar esta operación.');
-  const ids=selectedSaleCorrectionIds(),target=$('saleCorrectionTargetDate').value;
-  if(!ids.length||!target)return alert('Selecciona al menos una venta y una fecha de destino.');
-  const selected=saleDateCorrectionCandidates.filter(o=>ids.includes(o.id));
-  if(!confirm(`Se cambiará la fecha comercial de ${selected.length} venta(s) a ${formatDateDisplay(target)}. La fecha createdAt no será modificada. ¿Deseas continuar?`))return;
-  const button=$('commitSaleDateCorrectionBtn'),original=button.textContent;button.disabled=true;let done=0;
-  try{
-    for(let i=0;i<selected.length;i+=400){
-      const batch=writeBatch(firestore),chunk=selected.slice(i,i+400);
-      chunk.forEach(order=>{
-        const payments=(order.payments||[]).map(payment=>({...payment,businessDate:target}));
-        batch.update(doc(firestore,'orders',order.id),{
-          originalBusinessDate:order.originalBusinessDate||order.businessDate||null,
-          businessDate:target,
-          payments,
-          businessDateCorrectedAt:nowIso(),
-          businessDateCorrectedByUid:currentUser.uid,
-          businessDateCorrectedByName:selectedStaff?.name||currentUser.name,
-          businessDateCorrectionReason:'Corrección administrativa por createdAt',
-          ...auditFields()
-        });
-      });
-      await batch.commit();
-      chunk.forEach(order=>{order.originalBusinessDate=order.originalBusinessDate||order.businessDate||null;order.businessDate=target;order.payments=(order.payments||[]).map(p=>({...p,businessDate:target}));order.businessDateCorrectedAt=nowIso();});
-      done+=chunk.length;button.textContent=`Corrigiendo ${done}/${selected.length}...`;
-    }
-    showToast(`${done} ventas corregidas correctamente.`,'success',6000);alert(`Se corrigieron ${done} venta(s). createdAt se mantuvo intacto.`);saleDateCorrectionCandidates=[];$('saleDateCorrectionPreview').innerHTML='';$('saleDateCorrectionSummary').innerHTML='';saleDateCorrectionDialog.close();renderAll();
-  }catch(error){console.error('Error corrigiendo fechas:',error);alert(`No fue posible completar la corrección. Se procesaron ${done} venta(s). ${error.message||String(error)}`)}finally{button.textContent=original;button.disabled=false}
-}
-$('openSaleDateCorrectionBtn').onclick=()=>{if(!roleIsAdmin())return alert('Solo un administrador puede realizar esta operación.');const d=today();$('saleCorrectionCreatedDate').value=d;$('saleCorrectionTargetDate').value=d;$('saleCorrectionFromTime').value='13:00';$('saleCorrectionToTime').value='23:59';saleDateCorrectionCandidates=[];$('saleDateCorrectionSummary').innerHTML='';$('saleDateCorrectionPreview').innerHTML='';$('commitSaleDateCorrectionBtn').disabled=true;saleDateCorrectionDialog.showModal()};
-$('previewSaleDateCorrectionBtn').onclick=previewSaleDateCorrection;
-$('commitSaleDateCorrectionBtn').onclick=commitSaleDateCorrection;
 
 const FIRESTORE_EXPORT_COLLECTIONS=[
   'settings','users','staff','products','orders','salesCounters','expenses',
