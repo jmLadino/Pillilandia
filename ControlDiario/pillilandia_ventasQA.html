@@ -42,8 +42,8 @@ table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{text-align:left;
 .sale-panel .product span{color:#075f67}
 .sale-panel .product.product-selected,.edit-order-products .product.product-selected{background:#cfeff1;border-color:#075f67;box-shadow:0 0 0 2px rgba(7,95,103,.16),0 6px 15px rgba(7,95,103,.22);transform:translateY(-1px)}
 .sale-panel .product.product-selected:hover,.edit-order-products .product.product-selected:hover{background:#bfe7ea;border-color:#054d53;box-shadow:0 0 0 3px rgba(7,95,103,.18),0 8px 18px rgba(7,95,103,.25)}
-.product-count-badge{position:absolute;top:7px;right:7px;display:none;align-items:center;justify-content:center;min-width:25px;height:25px;padding:0 7px;border-radius:999px;background:#075f67!important;color:#fff!important;border:2px solid #fff;font-size:.78rem;font-weight:950;line-height:1;box-shadow:0 3px 8px rgba(0,0,0,.24);z-index:2}
-.product-count-badge.visible{display:inline-flex}
+.product .product-count-badge{position:absolute;top:7px;right:7px;display:inline-flex;align-items:center;justify-content:center;min-width:27px;height:27px;padding:0 7px;border-radius:999px;background:#075f67!important;color:#fff!important;border:2px solid #fff;font-size:.78rem;font-weight:950;line-height:1;text-align:center;box-shadow:0 3px 8px rgba(0,0,0,.24);z-index:2;animation:productBadgeIn .16s ease-out}
+@keyframes productBadgeIn{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
 .product.product-selected b{padding-right:34px}
 .product-sales-layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);gap:18px;align-items:start}.product-sales-chart{display:grid;gap:10px}.product-sales-row{display:grid;grid-template-columns:minmax(130px,1fr) minmax(120px,2fr) auto;gap:10px;align-items:center}.product-sales-name{font-size:.86rem;font-weight:750;overflow-wrap:anywhere}.product-sales-track{height:14px;background:#e2eff0;border:1px solid #b1cfd2;border-radius:999px;overflow:hidden}.product-sales-bar{height:100%;background:linear-gradient(90deg,var(--brand),var(--brand2));border-radius:999px;min-width:3px}.product-sales-value{font-weight:900;text-align:right;white-space:nowrap}.product-sales-note{font-size:.8rem;color:var(--muted);margin-bottom:12px}@media(max-width:850px){.product-sales-layout{grid-template-columns:1fr}.product-sales-row{grid-template-columns:minmax(110px,1fr) minmax(90px,1.4fr) auto}}
 dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 24px);box-shadow:0 18px 60px rgba(0,0,0,.25)}dialog::backdrop{background:rgba(0,0,0,.45)}.dialog-body{padding:18px}.dialog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.x{border:0;background:#e7eff0;border-radius:50%;width:34px;height:34px;cursor:pointer}
@@ -705,8 +705,18 @@ function updateProductSelectionIndicators(containerId,lines){
   container.querySelectorAll('.product[data-product-id]').forEach(button=>{
     const qty=selectedProductQuantity(lines,button.dataset.productId);
     button.classList.toggle('product-selected',qty>0);
-    const badge=button.querySelector('.product-count-badge');
-    if(badge){badge.textContent=String(qty);badge.classList.toggle('visible',qty>0);}
+    let badge=button.querySelector('.product-count-badge');
+    if(qty>0){
+      if(!badge){
+        badge=document.createElement('span');
+        badge.className='product-count-badge';
+        badge.setAttribute('aria-hidden','true');
+        button.prepend(badge);
+      }
+      badge.textContent=String(qty);
+    }else if(badge){
+      badge.remove();
+    }
     button.setAttribute('aria-pressed',qty>0?'true':'false');
     button.title=qty>0?`${qty} unidad${qty===1?'':'es'} seleccionada${qty===1?'':'s'}`:'';
   });
@@ -717,7 +727,7 @@ function renderProductButtons(){
   for(const cat of [...order,...new Set(active.map(p=>p.category).filter(c=>!order.includes(c)))]){
     const items=active.filter(p=>p.category===cat);if(!items.length)continue;
     html+=`<div class="category">${esc(cat)}</div>`;
-    items.forEach(p=>{const stockNote=p.trackStock?` · stock ${p.stock}`:'';const offer=normalizedOffer(p);const offerTag=offer.offerActive?`<span class="offer-tag">OFERTA: ${offer.offerQty} por ${fmt(offer.offerPrice)}</span>`:'';const qty=selectedProductQuantity(cart,p.id);html+=`<button class="product ${qty>0?'product-selected':''}" data-product-id="${esc(p.id)}" aria-pressed="${qty>0?'true':'false'}" onclick="addProduct('${p.id}')" ${p.trackStock&&p.stock<=0?'disabled':''}><span class="product-count-badge ${qty>0?'visible':''}">${qty}</span><b>${esc(p.name)}</b><span>${fmt(p.price)}${stockNote}</span>${offerTag}</button>`});
+    items.forEach(p=>{const stockNote=p.trackStock?` · stock ${p.stock}`:'';const offer=normalizedOffer(p);const offerTag=offer.offerActive?`<span class="offer-tag">OFERTA: ${offer.offerQty} por ${fmt(offer.offerPrice)}</span>`:'';const qty=selectedProductQuantity(cart,p.id);html+=`<button class="product ${qty>0?'product-selected':''}" data-product-id="${esc(p.id)}" aria-pressed="${qty>0?'true':'false'}" onclick="addProduct('${p.id}')" ${p.trackStock&&p.stock<=0?'disabled':''}>${qty>0?`<span class="product-count-badge" aria-hidden="true">${qty}</span>`:''}<b>${esc(p.name)}</b><span>${fmt(p.price)}${stockNote}</span>${offerTag}</button>`});
   }
   html+=`<div class="category">Otro</div><button class="product" onclick="addCustom()"><b>OTRO</b><span>Texto y monto libre</span></button>`;
   $('productButtons').innerHTML=html;
@@ -815,7 +825,7 @@ function renderEditOrderProducts(){
   for(const cat of [...order,...new Set(active.map(p=>p.category).filter(c=>!order.includes(c)))]){
     const items=active.filter(p=>p.category===cat);if(!items.length)continue;
     html+=`<div class="category">${esc(cat)}</div>`;
-    items.forEach(p=>{const stockNote=p.trackStock?` · stock ${p.stock}`:'';const offer=normalizedOffer(p);const offerTag=offer.offerActive?`<span class="offer-tag">OFERTA: ${offer.offerQty} por ${fmt(offer.offerPrice)}</span>`:'';const qty=selectedProductQuantity(editOrderCart,p.id);html+=`<button type="button" class="product ${qty>0?'product-selected':''}" data-product-id="${esc(p.id)}" aria-pressed="${qty>0?'true':'false'}" onclick="addProductToEditor('${p.id}')"><span class="product-count-badge ${qty>0?'visible':''}">${qty}</span><b>${esc(p.name)}</b><span>${fmt(p.price)}${stockNote}</span>${offerTag}</button>`});
+    items.forEach(p=>{const stockNote=p.trackStock?` · stock ${p.stock}`:'';const offer=normalizedOffer(p);const offerTag=offer.offerActive?`<span class="offer-tag">OFERTA: ${offer.offerQty} por ${fmt(offer.offerPrice)}</span>`:'';const qty=selectedProductQuantity(editOrderCart,p.id);html+=`<button type="button" class="product ${qty>0?'product-selected':''}" data-product-id="${esc(p.id)}" aria-pressed="${qty>0?'true':'false'}" onclick="addProductToEditor('${p.id}')">${qty>0?`<span class="product-count-badge" aria-hidden="true">${qty}</span>`:''}<b>${esc(p.name)}</b><span>${fmt(p.price)}${stockNote}</span>${offerTag}</button>`});
   }
   html+=`<div class="category">Otro</div><button type="button" class="product" onclick="addCustomToEditor()"><b>OTRO</b><span>Texto y monto libre</span></button>`;
   $('editOrderProducts').innerHTML=html;
