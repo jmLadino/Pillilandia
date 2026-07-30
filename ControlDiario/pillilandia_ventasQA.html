@@ -229,7 +229,7 @@ th.sortable-column[data-sort-direction="desc"]::after{content:'▼';opacity:1;co
 
 <section id="expenses"><div class="grid"><div class="card span-12"><div class="expense-toolbar"><div><h2>Gastos Mensual</h2><div class="muted tiny" style="margin-top:4px">Consulta y administra todos los gastos registrados durante el mes.</div></div><button class="btn primary" id="newExpenseBtn" type="button">+ Registrar nuevo gasto</button></div><div class="metrics"><div class="metric"><small>Total gastos del mes</small><b id="expenseMonthTotal">$0</b></div><div class="metric"><small>Cantidad de gastos</small><b id="expenseMonthCount">0</b></div><div class="metric"><small>Categorías utilizadas</small><b id="expenseMonthCategories">0</b></div></div></div><div class="card span-12"><div class="expense-toolbar"><h2>Detalle de gastos</h2><div class="month-field"><label>Mes a consultar</label><input id="expenseFilterMonth" type="month"></div></div><div id="expenseCategoryChart"></div><div id="expenseList" style="margin-top:18px"></div></div></div></section>
 
-<section id="monthly"><div class="grid"><div class="card span-12 no-print"><div class="row"><div><label>Mes de gestión</label><input id="monthlyPeriod" type="month"></div><div><button class="btn outline" onclick="window.print()">Imprimir gestión mensual</button></div></div></div><div class="card span-12"><h2>Gestión mensual</h2><div class="metrics"><div class="metric"><small>Ventas cobradas</small><b id="monthlySales">$0</b></div><div class="metric"><small>Gastos</small><b id="monthlyExpenses">$0</b></div><div class="metric"><small>Resultado</small><b id="monthlyNet">$0</b></div><div class="metric"><small>Margen sobre ventas</small><b id="monthlyMargin">0%</b></div></div></div><div class="card span-6"><h3>Ventas por medio de pago</h3><div id="monthlyPaymentSummary"></div></div><div class="card span-6"><h3>Gastos por categoría</h3><div id="monthlyExpenseSummary"></div></div><div class="card span-12"><h3>Propinas por empleado propietario</h3><div id="monthlyTipsByOwner"></div></div><div class="card span-12"><h3>Productos vendidos del mes</h3><div id="monthlyProductSales"></div></div><div class="card span-12"><h3>Resumen diario del mes</h3><div id="monthlyDailySummary"></div></div></div></section>
+<section id="monthly"><div class="grid"><div class="card span-12 no-print"><div class="row"><div><label>Mes de gestión</label><input id="monthlyPeriod" type="month"></div><div><button class="btn outline" onclick="window.print()">Imprimir gestión mensual</button></div></div></div><div class="card span-12"><h2>Gestión mensual</h2><div class="metrics"><div class="metric"><small>Ventas cobradas</small><b id="monthlySales">$0</b></div><div class="metric"><small>Gastos</small><b id="monthlyExpenses">$0</b></div><div class="metric"><small>Resultado</small><b id="monthlyNet">$0</b></div><div class="metric"><small>Margen sobre ventas</small><b id="monthlyMargin">0%</b></div></div></div><div class="card span-6"><h3>Ventas por medio de pago</h3><div id="monthlyPaymentSummary"></div></div><div class="card span-6"><h3>Gastos por categoría</h3><div id="monthlyExpenseSummary"></div></div><div class="card span-12"><h3>Pago de sueldos</h3><div class="muted tiny" style="margin-bottom:10px">Se consideran los gastos registrados con la categoría “Sueldos” y las propinas asociadas al propietario de cada venta. Los sueldos forman parte de los gastos del mes y afectan el resultado y el margen; las propinas se muestran en el total recibido por el trabajador, pero no se descuentan nuevamente como gasto.</div><div id="monthlySalaryPayments"></div></div><div class="card span-12"><h3>Productos vendidos del mes</h3><div id="monthlyProductSales"></div></div><div class="card span-12"><h3>Resumen diario del mes</h3><div id="monthlyDailySummary"></div></div></div></section>
 
 <section id="products"><div class="card"><div class="notice">El stock de esta primera versión es por producto vendido (unidades). Para controlar ingredientes —leche, café, helado por sabor, vasos— se necesitará definir recetas y unidades de medida en una segunda etapa.</div><div class="row"><div><h2>Productos y stock simple</h2><div class="muted">Los productos están agrupados por categoría y ordenados alfabéticamente.</div></div><div><button class="btn primary" id="newProductBtn">Agregar producto</button></div></div><div id="productAdminSummary" class="product-admin-summary"></div><div id="productCategoryGroups"></div></div></section>
 
@@ -536,6 +536,7 @@ const EXPENSE_CATEGORIES=[
   'Aportes JM',
   'Arriendo',
   'Servicios',
+  'Sueldos',
   'Bencina',
   'Otro'
 ];
@@ -1183,7 +1184,98 @@ window.viewSaleDetail=id=>{
   $('saleDetailDialog').showModal();
 };
 $('reportDate').onchange=renderDashboard;
-function renderMonthly(){const period=$('monthlyPeriod').value;if(!period)return;const monthOrders=state.orders.filter(o=>o.status!=='void'&&o.businessDate&&o.businessDate.startsWith(period));const monthPayments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate&&p.businessDate.startsWith(period)));const monthExpenses=state.expenses.filter(x=>x.deleted!==true&&x.date&&x.date.startsWith(period));const sales=monthPayments.reduce((s,p)=>s+Number(p.amount),0),expenses=monthExpenses.reduce((s,x)=>s+Number(x.amount),0),net=sales-expenses,margin=sales?Math.round((net/sales)*100):0;$('monthlySales').textContent=fmt(sales);$('monthlyExpenses').textContent=fmt(expenses);$('monthlyNet').textContent=fmt(net);$('monthlyMargin').textContent=margin+'%';const methods=['Efectivo','Débito','Crédito','Transferencia'];$('monthlyPaymentSummary').innerHTML=methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(monthPayments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('');const cats=[...new Set(monthExpenses.map(x=>x.category))].sort();$('monthlyExpenseSummary').innerHTML=cats.length?cats.map(c=>`<div class="payment-line"><span>${esc(c)}</span><span class="money" style="float:right">${fmt(monthExpenses.filter(x=>x.category===c).reduce((s,x)=>s+Number(x.amount),0))}</span></div>`).join(''):'<div class="empty">Sin gastos en el mes</div>';const tipsByOwner=new Map();monthOrders.forEach(o=>{const tip=tipAmount(o);if(tip<=0)return;const ownerId=o.ownerStaffId||o.staffId||o.createdByUid||o.createdByName||'sin-asignar';const owner=ownerName(o);const current=tipsByOwner.get(ownerId)||{owner,sales:0,tips:0};current.sales+=1;current.tips+=tip;tipsByOwner.set(ownerId,current)});const ownerTips=[...tipsByOwner.values()].sort((a,b)=>b.tips-a.tips||a.owner.localeCompare(b.owner,'es'));const totalOwnerTips=ownerTips.reduce((sum,x)=>sum+x.tips,0);$('monthlyTipsByOwner').innerHTML=ownerTips.length?`<div style="overflow:auto"><table><thead><tr><th>Empleado propietario</th><th class="right">Ventas con propina</th><th class="right">Total propinas</th></tr></thead><tbody>${ownerTips.map(x=>`<tr><td>${esc(x.owner)}</td><td class="right">${x.sales}</td><td class="right"><b>${fmt(x.tips)}</b></td></tr>`).join('')}<tr><td><b>Total mensual</b></td><td class="right"><b>${ownerTips.reduce((sum,x)=>sum+x.sales,0)}</b></td><td class="right"><b>${fmt(totalOwnerTips)}</b></td></tr></tbody></table></div>`:'<div class="empty">Sin propinas registradas en el mes</div>';const days=[...new Set([...monthPayments.map(p=>p.businessDate),...monthExpenses.map(x=>x.date)])].sort();$('monthlyDailySummary').innerHTML=days.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th class="right">Ventas</th><th class="right">Gastos</th><th class="right">Resultado</th></tr></thead><tbody>${days.map(d=>{const vs=monthPayments.filter(p=>p.businessDate===d).reduce((s,p)=>s+Number(p.amount),0),gs=monthExpenses.filter(x=>x.date===d).reduce((s,x)=>s+Number(x.amount),0);return `<tr><td>${formatDateDisplay(d)}</td><td class="right">${fmt(vs)}</td><td class="right">${fmt(gs)}</td><td class="right"><b>${fmt(vs-gs)}</b></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Sin movimientos en el mes</div>';renderProductSales('monthlyProductSales',monthOrders,'Sin productos vendidos para el mes seleccionado.')}
+function renderMonthly(){
+  const period=$('monthlyPeriod').value;
+  if(!period)return;
+
+  const monthOrders=state.orders.filter(o=>o.status!=='void'&&o.businessDate&&o.businessDate.startsWith(period));
+  const monthPayments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate&&p.businessDate.startsWith(period)));
+  const monthExpenses=state.expenses.filter(x=>x.deleted!==true&&x.date&&x.date.startsWith(period));
+
+  const sales=monthPayments.reduce((s,p)=>s+Number(p.amount),0);
+  const expenses=monthExpenses.reduce((s,x)=>s+Number(x.amount),0);
+  const net=sales-expenses;
+  const margin=sales?Math.round((net/sales)*100):0;
+
+  $('monthlySales').textContent=fmt(sales);
+  $('monthlyExpenses').textContent=fmt(expenses);
+  $('monthlyNet').textContent=fmt(net);
+  $('monthlyMargin').textContent=margin+'%';
+
+  const methods=['Efectivo','Débito','Crédito','Transferencia'];
+  $('monthlyPaymentSummary').innerHTML=methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(monthPayments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('');
+
+  const cats=[...new Set(monthExpenses.map(x=>x.category))].sort();
+  $('monthlyExpenseSummary').innerHTML=cats.length?cats.map(c=>`<div class="payment-line"><span>${esc(c)}</span><span class="money" style="float:right">${fmt(monthExpenses.filter(x=>x.category===c).reduce((s,x)=>s+Number(x.amount),0))}</span></div>`).join(''):'<div class="empty">Sin gastos en el mes</div>';
+
+  const salaryExpenses=monthExpenses
+    .filter(x=>normalizeBulkHeader(x.category)==='sueldos')
+    .sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))||String(a.description||'').localeCompare(String(b.description||''),'es'));
+  const salaryTotal=salaryExpenses.reduce((sum,x)=>sum+Number(x.amount||0),0);
+  const salaryByPerson=new Map();
+  const staffByNormalizedName=new Map(state.staff.map(person=>[normalizeBulkHeader(person.name),person]));
+  const salaryKey=(name,staffId='')=>staffId?`staff:${staffId}`:`name:${normalizeBulkHeader(name)||'sin-identificar'}`;
+
+  salaryExpenses.forEach(x=>{
+    const description=String(x.description||'Sin identificar').trim()||'Sin identificar';
+    const matchedStaff=staffByNormalizedName.get(normalizeBulkHeader(description))||null;
+    const key=salaryKey(description,matchedStaff?.id||'');
+    const current=salaryByPerson.get(key)||{
+      key,
+      staffId:matchedStaff?.id||null,
+      person:matchedStaff?.name||description,
+      count:0,
+      salary:0,
+      tips:0,
+      lastDate:''
+    };
+    current.count+=1;
+    current.salary+=Number(x.amount||0);
+    if(!current.lastDate||String(x.date||'')>current.lastDate)current.lastDate=String(x.date||'');
+    salaryByPerson.set(key,current);
+  });
+
+  monthOrders.forEach(order=>{
+    const tips=tipAmount(order);
+    if(tips<=0)return;
+    const staffId=order.ownerStaffId||order.staffId||null;
+    const person=ownerName(order)||'Sin identificar';
+    let key=salaryKey(person,staffId||'');
+    let current=salaryByPerson.get(key);
+
+    // Compatibilidad con gastos de sueldo antiguos identificados solo por nombre.
+    if(!current&&staffId){
+      const nameKey=salaryKey(person);
+      current=salaryByPerson.get(nameKey);
+      if(current){
+        salaryByPerson.delete(nameKey);
+        current.key=key;
+        current.staffId=staffId;
+        current.person=person;
+        salaryByPerson.set(key,current);
+      }
+    }
+
+    if(!current){
+      current={key,staffId,person,count:0,salary:0,tips:0,lastDate:''};
+      salaryByPerson.set(key,current);
+    }
+    current.tips+=tips;
+  });
+
+  const salaryRows=[...salaryByPerson.values()]
+    .map(x=>({...x,finalTotal:x.salary+x.tips}))
+    .sort((a,b)=>b.finalTotal-a.finalTotal||a.person.localeCompare(b.person,'es'));
+  const tipsTotal=salaryRows.reduce((sum,x)=>sum+x.tips,0);
+  const finalReceivedTotal=salaryTotal+tipsTotal;
+
+  $('monthlySalaryPayments').innerHTML=salaryRows.length?`<div style="overflow:auto"><table><thead><tr><th>Trabajador</th><th class="right">Pagos de sueldo</th><th>Último pago</th><th class="right">Sueldo pagado</th><th class="right">Propinas del mes</th><th class="right">Total final recibido</th></tr></thead><tbody>${salaryRows.map(x=>`<tr><td>${esc(x.person)}</td><td class="right">${x.count}</td><td>${x.lastDate?formatDateDisplay(x.lastDate):'—'}</td><td class="right">${fmt(x.salary)}</td><td class="right">${fmt(x.tips)}</td><td class="right"><b>${fmt(x.finalTotal)}</b></td></tr>`).join('')}</tbody><tfoot><tr><th>Total mensual</th><th class="right">${salaryExpenses.length}</th><th></th><th class="right">${fmt(salaryTotal)}</th><th class="right">${fmt(tipsTotal)}</th><th class="right">${fmt(finalReceivedTotal)}</th></tr></tfoot></table></div>`:'<div class="empty">No hay pagos de sueldos ni propinas asociados a trabajadores para el mes seleccionado.</div>';
+
+  const days=[...new Set([...monthPayments.map(p=>p.businessDate),...monthExpenses.map(x=>x.date)])].sort();
+  $('monthlyDailySummary').innerHTML=days.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th class="right">Ventas</th><th class="right">Gastos</th><th class="right">Resultado</th></tr></thead><tbody>${days.map(d=>{const vs=monthPayments.filter(p=>p.businessDate===d).reduce((s,p)=>s+Number(p.amount),0),gs=monthExpenses.filter(x=>x.date===d).reduce((s,x)=>s+Number(x.amount),0);return `<tr><td>${formatDateDisplay(d)}</td><td class="right">${fmt(vs)}</td><td class="right">${fmt(gs)}</td><td class="right"><b>${fmt(vs-gs)}</b></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Sin movimientos en el mes</div>';
+
+  renderProductSales('monthlyProductSales',monthOrders,'Sin productos vendidos para el mes seleccionado.');
+}
 $('monthlyPeriod').onchange=renderMonthly;
 
 function renderProductTable(){
