@@ -60,7 +60,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 
 
 .product-admin-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}.product-admin-metric{background:linear-gradient(135deg,#eff9fa,#dff1f3);border:1px solid #bddcdf;border-radius:12px;padding:13px 14px}.product-admin-metric small{display:block;color:#41666a;font-weight:800}.product-admin-metric b{display:block;margin-top:4px;font-size:1.45rem;color:#12383c}.product-category-group{border:1px solid #c6dde0;border-radius:12px;background:#fff;margin-top:12px;overflow:hidden;box-shadow:0 3px 12px rgba(12,67,73,.06)}.product-category-group summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;background:#dceff1;color:#12383c;font-weight:900;user-select:none}.product-category-group summary::-webkit-details-marker{display:none}.product-category-title{display:flex;align-items:center;gap:9px}.product-category-title:before{content:'›';font-size:1.35rem;line-height:1;transition:transform .18s ease}.product-category-group[open] .product-category-title:before{transform:rotate(90deg)}.product-category-count{font-size:.8rem;background:#fff;border:1px solid #acd0d4;border-radius:999px;padding:4px 9px;color:#365d61}.product-category-table{overflow:auto}.product-category-table table{margin:0}.product-category-table thead th{background:#f4f9fa}.product-name-cell{font-weight:800;color:#173f43}@media(max-width:700px){.product-admin-summary{grid-template-columns:1fr}.product-category-group summary{padding:12px}.product-category-table table{min-width:780px}}
-.toast-container{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:100000;width:min(680px,calc(100% - 24px));display:grid;gap:8px;pointer-events:none}.toast-message{padding:12px 16px;border-radius:11px;background:#12383c;color:#fff;font-weight:800;box-shadow:0 10px 30px rgba(0,0,0,.28);opacity:0;transform:translateY(-12px);transition:opacity .2s ease,transform .2s ease}.toast-message.show{opacity:1;transform:translateY(0)}.toast-message.success{background:#075d38}.toast-message.error{background:#8b1a12}.toast-message.warning{background:#884d00}.order-items-list{margin-top:10px;padding:10px 12px;border-radius:9px;background:#f3f9fa;border:1px solid #c2dadd}.order-item-row{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid #dce9ea}.order-item-row:last-child{border-bottom:0}.edit-order-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(300px,.9fr);gap:14px;align-items:start}.edit-order-products{overflow:visible;padding-right:4px}.edit-order-cart{max-height:440px;overflow:auto}.edit-order-summary{position:sticky;top:0}.edit-order-dialog{max-width:1050px;height:min(92vh,900px);max-height:92vh;overflow:hidden}.edit-order-dialog .dialog-body{height:100%;max-height:92vh;padding:0;display:flex;flex-direction:column;overflow:hidden}.edit-order-fixed{flex:0 0 auto;padding:18px 18px 0;background:#fff;position:relative;z-index:3}.edit-order-fixed #editOrderHeader{margin-bottom:0}.edit-order-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:14px 18px 18px}.edit-order-scroll .edit-order-layout{min-height:100%}@media(max-width:850px){.edit-order-dialog{height:92vh}.edit-order-layout{grid-template-columns:1fr}.edit-order-summary{position:static}.edit-order-products{max-height:none;overflow:visible}.edit-order-cart{max-height:none;overflow:visible}}
+.toast-container{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:100000;width:min(680px,calc(100% - 24px));display:grid;gap:8px;pointer-events:none}.toast-message{display:flex;align-items:flex-start;gap:11px;padding:13px 16px;border-radius:11px;background:#0284c7;color:#fff;font-weight:800;line-height:1.35;box-shadow:0 10px 30px rgba(0,0,0,.28);opacity:0;transform:translateY(-12px);transition:opacity .2s ease,transform .2s ease}.toast-message.show{opacity:1;transform:translateY(0)}.toast-message.success{background:#15803d;color:#fff}.toast-message.error{background:#b91c1c;color:#fff}.toast-message.warning{background:#f59e0b;color:#1f2937}.toast-message.info{background:#0284c7;color:#fff}.toast-icon{flex:0 0 auto;font-size:1.15rem;line-height:1.25}.toast-text{flex:1;min-width:0;overflow-wrap:anywhere}.order-items-list{margin-top:10px;padding:10px 12px;border-radius:9px;background:#f3f9fa;border:1px solid #c2dadd}.order-item-row{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid #dce9ea}.order-item-row:last-child{border-bottom:0}.edit-order-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(300px,.9fr);gap:14px;align-items:start}.edit-order-products{overflow:visible;padding-right:4px}.edit-order-cart{max-height:440px;overflow:auto}.edit-order-summary{position:sticky;top:0}.edit-order-dialog{max-width:1050px;height:min(92vh,900px);max-height:92vh;overflow:hidden}.edit-order-dialog .dialog-body{height:100%;max-height:92vh;padding:0;display:flex;flex-direction:column;overflow:hidden}.edit-order-fixed{flex:0 0 auto;padding:18px 18px 0;background:#fff;position:relative;z-index:3}.edit-order-fixed #editOrderHeader{margin-bottom:0}.edit-order-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:14px 18px 18px}.edit-order-scroll .edit-order-layout{min-height:100%}@media(max-width:850px){.edit-order-dialog{height:92vh}.edit-order-layout{grid-template-columns:1fr}.edit-order-summary{position:static}.edit-order-products{max-height:none;overflow:visible}.edit-order-cart{max-height:none;overflow:visible}}
 
 .test-environment-banner {
   position: sticky;
@@ -337,17 +337,36 @@ function monthlySalePeriod(businessDate){
 function buildMonthlySaleNumber(year,monthText,sequence){
   return `V-${year}${monthText}-${String(sequence).padStart(6,'0')}`;
 }
+const TOAST_ICONS={success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
+function normalizeToastType(type){return Object.hasOwn(TOAST_ICONS,type)?type:'info'}
 function showToast(message,type='info',duration=3500){
   const container=$('toastContainer');
   if(!container||!message)return;
+  const normalizedType=normalizeToastType(type);
   const toast=document.createElement('div');
-  toast.className=`toast-message ${type}`;
-  toast.textContent=String(message);
+  toast.className=`toast-message ${normalizedType}`;
+  toast.setAttribute('role',normalizedType==='error'?'alert':'status');
+  const icon=document.createElement('span');
+  icon.className='toast-icon';
+  icon.setAttribute('aria-hidden','true');
+  icon.textContent=TOAST_ICONS[normalizedType];
+  const text=document.createElement('span');
+  text.className='toast-text';
+  text.textContent=String(message);
+  toast.append(icon,text);
   container.appendChild(toast);
   requestAnimationFrame(()=>toast.classList.add('show'));
   setTimeout(()=>{toast.classList.remove('show');setTimeout(()=>toast.remove(),220)},duration);
 }
-window.alert=message=>showToast(message,'warning',4200);
+function classifyToastMessage(message){
+  const value=String(message||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const errorTerms=['error','no fue posible','no se pudo','sin permisos','permiso','missing or insufficient','invalido','invalida','incorrecto','incorrecta','no existe','ya no esta disponible','no se encontro','fallo','rechaz','supera el saldo','stock suficiente'];
+  const successTerms=['correctamente','completado','completada','guardado','guardada','registrado','registrada','actualizado','actualizada','eliminado','eliminada','cerrado correctamente','abierto correctamente','carga terminada','importada correctamente','exportada correctamente','cuenta pagada','ahora tienes el control'];
+  if(errorTerms.some(term=>value.includes(term)))return'error';
+  if(successTerms.some(term=>value.includes(term)))return'success';
+  return'warning';
+}
+window.alert=message=>showToast(message,classifyToastMessage(message),4600);
 
 let state={settings:{tableCount:6,businessName:'Pillilandia',businessSubtitle:'Heladería & Cafetería',currency:'CLP',timeZone:'America/Santiago'},products:[],orders:[],expenses:[],closures:[],staff:[],schedules:[],attendance:[],operations:[]};
 let currentUser=null, selectedStaff=null, cart=[], paymentOrderId=null, creditOrderId=null, editOrderId=null, editOrderCart=[], selectedTipPercent=10, selectedService={type:'meson',label:'Venta Directa'}, employeeAccessLocked=false;
