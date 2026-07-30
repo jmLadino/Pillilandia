@@ -37,9 +37,14 @@ table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{text-align:left;
 .table-status-legend{width:100%;margin-top:8px;font-size:.8rem;font-weight:750;color:var(--muted)}
 .table-status-legend .legend-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#d68100;margin-right:5px;vertical-align:-1px}
 .sale-panel .category{font-size:1rem;color:#12383c;background:#cfecef;border-left:5px solid var(--brand2);padding:9px 11px;border-radius:8px;margin-top:16px}
-.sale-panel .product{border:2px solid #a9cdd1;background:#fff;box-shadow:0 2px 7px rgba(16,74,80,.08)}
+.sale-panel .product{position:relative;border:2px solid #a9cdd1;background:#fff;box-shadow:0 2px 7px rgba(16,74,80,.08);transition:background .16s ease,border-color .16s ease,box-shadow .16s ease,transform .16s ease}
 .sale-panel .product:hover{border-color:var(--brand2);background:#f2fbfc;box-shadow:0 5px 13px rgba(13,119,128,.16)}
 .sale-panel .product span{color:#075f67}
+.sale-panel .product.product-selected,.edit-order-products .product.product-selected{background:#cfeff1;border-color:#075f67;box-shadow:0 0 0 2px rgba(7,95,103,.16),0 6px 15px rgba(7,95,103,.22);transform:translateY(-1px)}
+.sale-panel .product.product-selected:hover,.edit-order-products .product.product-selected:hover{background:#bfe7ea;border-color:#054d53;box-shadow:0 0 0 3px rgba(7,95,103,.18),0 8px 18px rgba(7,95,103,.25)}
+.product-count-badge{position:absolute;top:7px;right:7px;display:none;align-items:center;justify-content:center;min-width:25px;height:25px;padding:0 7px;border-radius:999px;background:#075f67!important;color:#fff!important;border:2px solid #fff;font-size:.78rem;font-weight:950;line-height:1;box-shadow:0 3px 8px rgba(0,0,0,.24);z-index:2}
+.product-count-badge.visible{display:inline-flex}
+.product.product-selected b{padding-right:34px}
 .product-sales-layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);gap:18px;align-items:start}.product-sales-chart{display:grid;gap:10px}.product-sales-row{display:grid;grid-template-columns:minmax(130px,1fr) minmax(120px,2fr) auto;gap:10px;align-items:center}.product-sales-name{font-size:.86rem;font-weight:750;overflow-wrap:anywhere}.product-sales-track{height:14px;background:#e2eff0;border:1px solid #b1cfd2;border-radius:999px;overflow:hidden}.product-sales-bar{height:100%;background:linear-gradient(90deg,var(--brand),var(--brand2));border-radius:999px;min-width:3px}.product-sales-value{font-weight:900;text-align:right;white-space:nowrap}.product-sales-note{font-size:.8rem;color:var(--muted);margin-bottom:12px}@media(max-width:850px){.product-sales-layout{grid-template-columns:1fr}.product-sales-row{grid-template-columns:minmax(110px,1fr) minmax(90px,1.4fr) auto}}
 dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 24px);box-shadow:0 18px 60px rgba(0,0,0,.25)}dialog::backdrop{background:rgba(0,0,0,.45)}.dialog-body{padding:18px}.dialog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.x{border:0;background:#e7eff0;border-radius:50%;width:34px;height:34px;cursor:pointer}
 @media(max-width:850px){.header-inner{align-items:flex-start}.brand-logo{width:62px;height:62px;flex-basis:62px}.brand-text h1{font-size:1.2rem}.brand-text p{font-size:.8rem}.header-date{font-size:.78rem}.header-time{font-size:1.05rem}.cash-status{font-size:.72rem;padding:5px 8px}.span-8,.span-7,.span-6,.span-5,.span-4,.span-3{grid-column:span 12}.metrics{grid-template-columns:repeat(2,1fr)}.products{grid-template-columns:repeat(2,minmax(0,1fr))}.wrap{padding:9px}.card{padding:11px}.row{flex-wrap:wrap}.row>*{min-width:140px}}
@@ -692,13 +697,27 @@ window.selectService=(type,label)=>{
   selectedService={type,label};
   renderServiceButtons();
 };
+function selectedProductQuantity(lines,productId){
+  return (lines||[]).filter(line=>line.productId===productId).reduce((sum,line)=>sum+Number(line.qty||0),0);
+}
+function updateProductSelectionIndicators(containerId,lines){
+  const container=$(containerId);if(!container)return;
+  container.querySelectorAll('.product[data-product-id]').forEach(button=>{
+    const qty=selectedProductQuantity(lines,button.dataset.productId);
+    button.classList.toggle('product-selected',qty>0);
+    const badge=button.querySelector('.product-count-badge');
+    if(badge){badge.textContent=String(qty);badge.classList.toggle('visible',qty>0);}
+    button.setAttribute('aria-pressed',qty>0?'true':'false');
+    button.title=qty>0?`${qty} unidad${qty===1?'':'es'} seleccionada${qty===1?'':'s'}`:'';
+  });
+}
 function renderProductButtons(){
   const order=['Helados & Repostería','Bebidas Calientes','Desayunos & Sandwiches','Bebidas Frías y Jugos'];
   const active=state.products.filter(p=>p.active!==false);let html='';
   for(const cat of [...order,...new Set(active.map(p=>p.category).filter(c=>!order.includes(c)))]){
     const items=active.filter(p=>p.category===cat);if(!items.length)continue;
     html+=`<div class="category">${esc(cat)}</div>`;
-    items.forEach(p=>{const stockNote=p.trackStock?` · stock ${p.stock}`:'';const offer=normalizedOffer(p);const offerTag=offer.offerActive?`<span class="offer-tag">OFERTA: ${offer.offerQty} por ${fmt(offer.offerPrice)}</span>`:'';html+=`<button class="product" onclick="addProduct('${p.id}')" ${p.trackStock&&p.stock<=0?'disabled':''}><b>${esc(p.name)}</b><span>${fmt(p.price)}${stockNote}</span>${offerTag}</button>`});
+    items.forEach(p=>{const stockNote=p.trackStock?` · stock ${p.stock}`:'';const offer=normalizedOffer(p);const offerTag=offer.offerActive?`<span class="offer-tag">OFERTA: ${offer.offerQty} por ${fmt(offer.offerPrice)}</span>`:'';const qty=selectedProductQuantity(cart,p.id);html+=`<button class="product ${qty>0?'product-selected':''}" data-product-id="${esc(p.id)}" aria-pressed="${qty>0?'true':'false'}" onclick="addProduct('${p.id}')" ${p.trackStock&&p.stock<=0?'disabled':''}><span class="product-count-badge ${qty>0?'visible':''}">${qty}</span><b>${esc(p.name)}</b><span>${fmt(p.price)}${stockNote}</span>${offerTag}</button>`});
   }
   html+=`<div class="category">Otro</div><button class="product" onclick="addCustom()"><b>OTRO</b><span>Texto y monto libre</span></button>`;
   $('productButtons').innerHTML=html;
@@ -706,7 +725,7 @@ function renderProductButtons(){
 window.addProduct=id=>{const p=state.products.find(x=>x.id===id);if(!p)return;const line=cart.find(x=>x.productId===id);if(line){line.qty++;applyProductOfferToLine(line,p);}else cart.push(applyProductOfferToLine({productId:id,name:p.name,price:Number(p.price),qty:1},p));renderCart()};
 window.addCustom=()=>{const name=prompt('Nombre del producto o servicio:');if(!name)return;const price=Number(prompt('Monto unitario:'));if(!Number.isFinite(price)||price<0)return alert('Monto inválido');cart.push({productId:null,name,price,qty:1,custom:true});renderCart()};
 window.changeQty=(i,d)=>{cart[i].qty+=d;if(cart[i].qty<=0)cart.splice(i,1);renderCart()};
-function renderCart(){const box=$('cart');box.innerHTML=!cart.length?'<div class="empty">Aún no hay productos</div>':cart.map((x,i)=>{const regular=Number(x.price)*Number(x.qty),subtotal=lineSubtotal(x),offer=offerDescription(x),saving=Math.max(0,regular-subtotal);return `<div class="cart-line"><div><b>${esc(x.name)}</b><div class="muted tiny">${fmt(x.price)} c/u</div>${offer?`<div class="tiny offer-line">Oferta ${esc(offer)}${saving>0?` · <span class="offer-saving">ahorras ${fmt(saving)}</span>`:''}</div>`:''}</div><div class="qty"><button onclick="changeQty(${i},-1)">−</button><b>${x.qty}</b><button onclick="changeQty(${i},1)">+</button></div><div class="money">${fmt(subtotal)}</div></div>`}).join('');$('cartTotal').textContent=fmt(cart.reduce((sum,x)=>sum+lineSubtotal(x),0))}
+function renderCart(){const box=$('cart');box.innerHTML=!cart.length?'<div class="empty">Aún no hay productos</div>':cart.map((x,i)=>{const regular=Number(x.price)*Number(x.qty),subtotal=lineSubtotal(x),offer=offerDescription(x),saving=Math.max(0,regular-subtotal);return `<div class="cart-line"><div><b>${esc(x.name)}</b><div class="muted tiny">${fmt(x.price)} c/u</div>${offer?`<div class="tiny offer-line">Oferta ${esc(offer)}${saving>0?` · <span class="offer-saving">ahorras ${fmt(saving)}</span>`:''}</div>`:''}</div><div class="qty"><button onclick="changeQty(${i},-1)">−</button><b>${x.qty}</b><button onclick="changeQty(${i},1)">+</button></div><div class="money">${fmt(subtotal)}</div></div>`}).join('');$('cartTotal').textContent=fmt(cart.reduce((sum,x)=>sum+lineSubtotal(x),0));updateProductSelectionIndicators('productButtons',cart)}
 function validateStock(items){for(const i of items){if(!i.productId)continue;const p=state.products.find(x=>x.id===i.productId);if(p?.trackStock&&Number(p.stock)<i.qty)return `No hay stock suficiente de ${p.name}. Disponible: ${p.stock}`;}return''}
 async function createOrder(shouldPay){
   if(!cart.length)return alert('Agrega al menos un producto.');
@@ -796,7 +815,7 @@ function renderEditOrderProducts(){
   for(const cat of [...order,...new Set(active.map(p=>p.category).filter(c=>!order.includes(c)))]){
     const items=active.filter(p=>p.category===cat);if(!items.length)continue;
     html+=`<div class="category">${esc(cat)}</div>`;
-    items.forEach(p=>{const stockNote=p.trackStock?` · stock ${p.stock}`:'';const offer=normalizedOffer(p);const offerTag=offer.offerActive?`<span class="offer-tag">OFERTA: ${offer.offerQty} por ${fmt(offer.offerPrice)}</span>`:'';html+=`<button type="button" class="product" onclick="addProductToEditor('${p.id}')"><b>${esc(p.name)}</b><span>${fmt(p.price)}${stockNote}</span>${offerTag}</button>`});
+    items.forEach(p=>{const stockNote=p.trackStock?` · stock ${p.stock}`:'';const offer=normalizedOffer(p);const offerTag=offer.offerActive?`<span class="offer-tag">OFERTA: ${offer.offerQty} por ${fmt(offer.offerPrice)}</span>`:'';const qty=selectedProductQuantity(editOrderCart,p.id);html+=`<button type="button" class="product ${qty>0?'product-selected':''}" data-product-id="${esc(p.id)}" aria-pressed="${qty>0?'true':'false'}" onclick="addProductToEditor('${p.id}')"><span class="product-count-badge ${qty>0?'visible':''}">${qty}</span><b>${esc(p.name)}</b><span>${fmt(p.price)}${stockNote}</span>${offerTag}</button>`});
   }
   html+=`<div class="category">Otro</div><button type="button" class="product" onclick="addCustomToEditor()"><b>OTRO</b><span>Texto y monto libre</span></button>`;
   $('editOrderProducts').innerHTML=html;
@@ -804,6 +823,7 @@ function renderEditOrderProducts(){
 function renderEditOrderCart(){
   $('editOrderCart').innerHTML=!editOrderCart.length?'<div class="empty">La cuenta no tiene productos</div>':editOrderCart.map((x,i)=>{const regular=Number(x.price)*Number(x.qty),subtotal=lineSubtotal(x),offer=offerDescription(x),saving=Math.max(0,regular-subtotal);return `<div class="cart-line"><div><b>${esc(x.name)}</b><div class="muted tiny">${fmt(x.price)} c/u</div>${offer?`<div class="tiny offer-line">Oferta ${esc(offer)}${saving>0?` · <span class="offer-saving">ahorras ${fmt(saving)}</span>`:''}</div>`:''}</div><div class="qty"><button type="button" onclick="changeEditOrderQty(${i},-1)">−</button><b>${x.qty}</b><button type="button" onclick="changeEditOrderQty(${i},1)">+</button></div><div class="money">${fmt(subtotal)}</div></div>`}).join('');
   $('editOrderTotal').textContent=fmt(editOrderCart.reduce((s,x)=>s+lineSubtotal(x),0));
+  updateProductSelectionIndicators('editOrderProducts',editOrderCart);
 }
 window.openOrderEditor=id=>{
   const o=state.orders.find(x=>x.id===id&&x.status==='open'&&!x.onCredit);
