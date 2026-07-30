@@ -180,14 +180,6 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 <div id="serviceButtons" class="service-buttons"></div>
 
 </div>
-<div id="retroactiveSalePanel" class="manager-only role-hidden notice" style="margin-bottom:12px">
-  <b>Carga retroactiva temporal — julio de 2026</b>
-  <div class="row" style="margin-top:10px">
-    <div><label>Fecha comercial de la venta</label><input id="saleBusinessDate" type="date" min="2026-07-01" max="2026-07-26"></div>
-    <div><label>Hora aproximada</label><input id="saleBusinessTime" type="time" value="12:00"></div>
-  </div>
-  <div id="retroactiveSaleNotice" class="tiny" style="margin-top:8px">Al elegir una fecha anterior, la venta quedará marcada como retroactiva, con auditoría del usuario que la ingresó. No modificará el stock actual.</div>
-</div>
 <div><label>Referencia adicional (opcional)</label><input id="orderLabel" placeholder="Ej.: nombre del cliente o detalle del grupo"></div>
 
 <div id="productButtons" class="products" style="margin-top:12px"></div></div>
@@ -245,7 +237,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 
 <dialog id="productDialog"><div class="dialog-body"><div class="dialog-head"><h2 id="productDialogTitle">Producto</h2><button class="x" onclick="productDialog.close()">×</button></div><input id="editProductId" type="hidden"><label>Nombre</label><input id="editProductName"><label style="margin-top:10px">Descripción para el menú público</label><textarea id="editProductDescription" rows="2" placeholder="Ej.: Preparado con café en grano recién molido."></textarea><div class="row" style="margin-top:10px"><div><label>Categoría</label><input id="editProductCategory"></div><div><label>Precio</label><input id="editProductPrice" type="number" min="0"></div></div><div class="row" style="margin-top:10px"><div><label>Stock actual</label><input id="editProductStock" type="number" step="1"></div><div><label>Control de stock</label><select id="editProductTrack"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Activo</label><select id="editProductActive"><option value="true">Sí</option><option value="false">No</option></select></div></div><div class="notice" style="margin-top:14px"><b>Oferta por cantidad</b><div class="tiny">Ejemplo: cantidad 2 y precio oferta $1.000 para vender 2 unidades por $1.000. Las unidades sobrantes mantienen el precio normal.</div><div class="row" style="margin-top:10px"><div><label>Oferta activa</label><select id="editProductOfferActive"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Cantidad de la oferta</label><input id="editProductOfferQty" type="number" min="2" step="1" placeholder="2"></div><div><label>Precio total de la oferta</label><input id="editProductOfferPrice" type="number" min="0" step="1" placeholder="1000"></div></div></div><button class="btn primary" style="margin-top:12px" id="saveProductBtn">Guardar producto</button></div></dialog>
 
-<!-- Versión 3.27: auditoría de creación y modificación de gastos -->
+<!-- Versión 3.28: eliminación de carga retroactiva manual y fechas correctas en carga masiva -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import {
@@ -278,8 +270,6 @@ const $ = id => document.getElementById(id);
 const fmt = n => new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(Number(n||0));
 const uid = () => crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2);
 const today = () => new Date().toLocaleDateString('en-CA',{timeZone:'America/Santiago'});
-const RETROACTIVE_SALES_START='2026-07-01';
-const RETROACTIVE_SALES_END='2026-07-31';
 const esc = s => String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const asDate = v => v?.toDate ? v.toDate() : new Date(v);
 const nowIso = () => new Date().toISOString();
@@ -349,28 +339,9 @@ function normalizeRole(r){
   if(r==='gerente'||r==='manager')return 'gerente';
   return 'empleado';
 }
-function retroactiveSalesEnabled(){return today()>=RETROACTIVE_SALES_START&&today()<=RETROACTIVE_SALES_END}
 function selectedSaleContext(){
   const current=today();
-  const date=roleIsManager()&&retroactiveSalesEnabled()?($('saleBusinessDate')?.value||current):current;
-  const time=roleIsManager()&&retroactiveSalesEnabled()?($('saleBusinessTime')?.value||'12:00'):new Intl.DateTimeFormat('en-GB',{timeZone:state.settings.timeZone||'America/Santiago',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date());
-  const retroactive=date<current;
-  return {date,time,retroactive,createdAt:retroactive?`${date}T${time}:00-04:00`:nowIso()};
-}
-function validateSaleContext(context){
-  if(!context.retroactive)return '';
-  if(!roleIsManager())return 'Solo administrador y gerente pueden registrar ventas retroactivas.';
-  if(!retroactiveSalesEnabled())return 'La carga retroactiva temporal ya no está habilitada.';
-  if(context.date<RETROACTIVE_SALES_START||context.date>today())return `La fecha debe estar entre ${RETROACTIVE_SALES_START} y ${today()}.`;
-  return '';
-}
-function renderRetroactiveSaleControls(){
-  const panel=$('retroactiveSalePanel'),dateInput=$('saleBusinessDate');
-  if(!panel||!dateInput)return;
-  const available=roleIsManager()&&retroactiveSalesEnabled();
-  panel.classList.toggle('role-hidden',!available);
-  dateInput.min=RETROACTIVE_SALES_START;dateInput.max=today();
-  if(!dateInput.value||dateInput.value>today()||dateInput.value<RETROACTIVE_SALES_START)dateInput.value=today();
+  return {date:current,createdAt:nowIso()};
 }
 function roleLabel(role){
   const normalized=normalizeRole(role);
@@ -697,8 +668,7 @@ function validateStock(items){for(const i of items){if(!i.productId)continue;con
 async function createOrder(shouldPay){
   if(!cart.length)return alert('Agrega al menos un producto.');
   const saleContext=selectedSaleContext();
-  const contextError=validateSaleContext(saleContext);if(contextError)return alert(contextError);
-  const err=saleContext.retroactive?'':validateStock(cart);if(err)return alert(err);
+  const err=validateStock(cart);if(err)return alert(err);
   if(selectedService.type==='mesa'){
     const openOrder=getOpenOrderForTable(selectedService.label);
     if(openOrder){
@@ -719,13 +689,11 @@ async function createOrder(shouldPay){
     await runTransaction(firestore,async transaction=>{
       const counterSnap=await transaction.get(counterRef);
       const productReads=[];
-      if(!saleContext.retroactive){
         for(const item of cart){
           if(!item.productId)continue;
           const productRef=doc(firestore,'products',item.productId);
           productReads.push({item,productRef,snapshot:await transaction.get(productRef)});
         }
-      }
       const storedCounter=counterSnap.exists()?Number(counterSnap.data().currentValue||0):0;
       const currentValue=Math.max(storedCounter,legacyFloor);
       const monthlySequence=currentValue+1;
@@ -737,7 +705,7 @@ async function createOrder(shouldPay){
           throw new Error(`No hay stock suficiente de ${entry.item.name}. Disponible: ${Number(productData.stock||0)}`);
         }
       }
-      o={number:legacyNumber,monthlySequence,sequencePeriod:period.periodKey,saleNumber,createdAt:saleContext.createdAt,businessDate:saleContext.date,serviceType:selectedService.type,label:finalLabel,notes:$('orderNotes').value.trim(),items:cart.map(x=>({...x})),payments:[],status:'open',ownerStaffId:currentStaffId(),ownerStaffName:selectedStaff?.name||currentUser.name,ownerHistory:[],entryMode:saleContext.retroactive?'retroactive':'normal',retroactiveEntry:saleContext.retroactive,retroactivelyEnteredAt:saleContext.retroactive?nowIso():null,retroactivelyEnteredByUid:saleContext.retroactive?currentUser.uid:null,retroactivelyEnteredByName:saleContext.retroactive?(selectedStaff?.name||currentUser.name):null,stockAdjusted:saleContext.retroactive?false:true,...actorFields(),...auditFields()};
+      o={number:legacyNumber,monthlySequence,sequencePeriod:period.periodKey,saleNumber,createdAt:saleContext.createdAt,businessDate:saleContext.date,serviceType:selectedService.type,label:finalLabel,notes:$('orderNotes').value.trim(),items:cart.map(x=>({...x})),payments:[],status:'open',ownerStaffId:currentStaffId(),ownerStaffName:selectedStaff?.name||currentUser.name,ownerHistory:[],entryMode:'normal',stockAdjusted:true,...actorFields(),...auditFields()};
       transaction.set(counterRef,{currentValue:monthlySequence,year:period.year,month:period.month,period:period.periodKey,updatedAt:nowIso(),updatedByUid:currentUser?.uid||null,updatedByName:selectedStaff?.name||currentUser?.name||''},{merge:true});
       transaction.set(ref,o);
       for(const entry of productReads){
@@ -754,8 +722,7 @@ async function createOrder(shouldPay){
   state.orders.push({id:ref.id,...o});
   cart=[];$('orderLabel').value='';$('orderNotes').value='';selectedService={type:'meson',label:'Venta Directa'};renderCart();
   showToast(`Venta ${saleDisplayNumber(o)} registrada correctamente.`,'success',4500);
-  if(saleContext.retroactive)showToast(`Venta retroactiva registrada para ${formatDateDisplay(saleContext.date)}. El stock actual no fue modificado.`,'success',5000);
-  if(shouldPay)openPayment(ref.id);else{switchTab('orders');alert(saleContext.retroactive?'Venta retroactiva guardada como cuenta pendiente.':'Pedido guardado como cuenta pendiente.')}
+  if(shouldPay)openPayment(ref.id);else{switchTab('orders');alert('Pedido guardado como cuenta pendiente.')}
 }
 $('savePending').onclick=()=>createOrder(false);$('payNow').onclick=()=>createOrder(true);$('clearCart').onclick=()=>{if(confirm('¿Limpiar el pedido actual?')){cart=[];renderCart()}};
 
@@ -877,7 +844,7 @@ $('confirmCreditBtn').onclick=async()=>{
 };
 window.openPayment=id=>{
   const candidate=state.orders.find(x=>x.id===id);
-  if(!(roleIsManager()&&candidate?.retroactiveEntry)&&!ensureOpenDay())return;
+  if(!ensureOpenDay())return;
   paymentOrderId=id;
   const o=state.orders.find(x=>x.id===id);
   if(!o||!ensureOrderActionAccess(o,'registrar pagos en esta cuenta'))return;
@@ -944,13 +911,13 @@ async function registerPayment({printAfter=false}={}){
   const currentPaid=paidTotal(o);
   const currentBalance=Math.max(0,total-currentPaid);
   if(amount>currentBalance)return alert(`El monto supera el saldo de ${fmt(currentBalance)}.`);
-  const paymentDate=o.retroactiveEntry?o.businessDate:today();
-  const paymentCreatedAt=o.retroactiveEntry?(o.createdAt||`${o.businessDate}T12:00:00-04:00`):nowIso();
-  const payment={id:uid(),method:$('paymentMethod').value,amount,createdAt:paymentCreatedAt,businessDate:paymentDate,retroactiveEntry:o.retroactiveEntry===true,enteredAt:nowIso(),enteredByUid:currentUser.uid,enteredByName:selectedStaff?.name||currentUser.name,staffId:selectedStaff?.id||null,staffName:selectedStaff?.name||null};
+  const paymentDate=today();
+  const paymentCreatedAt=nowIso();
+  const payment={id:uid(),method:$('paymentMethod').value,amount,createdAt:paymentCreatedAt,businessDate:paymentDate,enteredAt:paymentCreatedAt,enteredByUid:currentUser.uid,enteredByName:selectedStaff?.name||currentUser.name,staffId:selectedStaff?.id||null,staffName:selectedStaff?.name||null};
   const payments=[...(o.payments||[]),payment];
   const newBalance=Math.max(0,total-payments.reduce((s,p)=>s+Number(p.amount),0));
   const pendingStatus=(o.status==='credit'||o.onCredit===true)?'credit':'open';
-  await updateDoc(doc(firestore,'orders',o.id),{payments,tipPercent:percent,tipAmount:tip,status:newBalance===0?'closed':pendingStatus,closedAt:newBalance===0?(o.retroactiveEntry?(o.createdAt||nowIso()):nowIso()):null,...auditFields()});
+  await updateDoc(doc(firestore,'orders',o.id),{payments,tipPercent:percent,tipAmount:tip,status:newBalance===0?'closed':pendingStatus,closedAt:newBalance===0?nowIso():null,...auditFields()});
   if(printAfter){
     $('printReceipt').innerHTML=buildReceiptHtml(o,payment,percent,tip,total,newBalance);
     setTimeout(()=>window.print(),120);
@@ -1547,21 +1514,21 @@ function parseBulkSalesText(text){
     }else if(Number.isFinite(rowTotal)&&rowTotal>0)sale.items.push({productId:null,name:'Venta importada',price:rowTotal,qty:1,custom:true,bulkImported:true});
     if(!Number.isFinite(sale.tip))errors.push(`Fila ${rowNumber}: propina inválida.`);
   });
-  sales.forEach(sale=>{if(!sale.items.length)errors.push(`Venta ${sale.externalSale}: no contiene productos ni monto.`);if(sale.staffName&&!sale.staff)errors.push(`Venta ${sale.externalSale}: no se encontró la persona “${sale.staffName}” en Personal.`);sale.total=Math.round(sale.items.reduce((sum,item)=>sum+Number(item.price)*Number(item.qty),0));sale.tip=Math.max(0,Number(sale.tip)||0);sale.createdAt=`${sale.date}T${sale.time}:00-04:00`;sale.duplicate=state.orders.some(order=>order.bulkImportSourceKey===sale.sourceKey)});
+  sales.forEach(sale=>{if(!sale.items.length)errors.push(`Venta ${sale.externalSale}: no contiene productos ni monto.`);if(sale.staffName&&!sale.staff)errors.push(`Venta ${sale.externalSale}: no se encontró la persona “${sale.staffName}” en Personal.`);sale.total=Math.round(sale.items.reduce((sum,item)=>sum+Number(item.price)*Number(item.qty),0));sale.tip=Math.max(0,Number(sale.tip)||0);sale.saleDateTime=`${sale.date}T${sale.time}:00-04:00`;sale.duplicate=state.orders.some(order=>order.bulkImportSourceKey===sale.sourceKey)});
   return{sales,errors};
 }
 function renderBulkSalesPreview(result){
   parsedBulkSales=result.sales;$('commitBulkSalesBtn').disabled=result.errors.length>0||!result.sales.length;
   const duplicates=result.sales.filter(x=>x.duplicate).length,total=result.sales.reduce((sum,x)=>sum+x.total+x.tip,0),items=result.sales.reduce((sum,x)=>sum+x.items.length,0);
   $('bulkSalesValidation').innerHTML=`<div class="bulk-sales-summary"><div><small>Ventas interpretadas</small><b>${result.sales.length}</b></div><div><small>Productos / líneas</small><b>${items}</b></div><div><small>Total con propinas</small><b>${fmt(total)}</b></div><div><small>Duplicados detectados</small><b>${duplicates}</b></div></div>${result.errors.length?`<div class="notice bulk-sales-error">${result.errors.map(esc).join('<br>')}</div>`:`<div class="notice bulk-sales-ok">Validación correcta. Revisa la vista previa antes de cargar.</div>`}`;
-  $('bulkSalesPreview').innerHTML=result.sales.length?`<div class="bulk-sales-preview"><table><thead><tr><th>Fila / grupo</th><th>Fecha y hora</th><th>Referencia</th><th>Atendido por</th><th>Productos</th><th class="right">Consumo</th><th class="right">Propina</th><th>Estado</th></tr></thead><tbody>${result.sales.map(sale=>`<tr><td>${esc(sale.externalSale)}</td><td>${formatDateTimeDisplay(sale.createdAt)}</td><td>${esc(sale.reference)}</td><td>${esc(sale.staff?.name||sale.staffName||'Sin asignar')}</td><td>${sale.items.map(i=>`${esc(i.name)} × ${i.qty}`).join('<br>')}</td><td class="right">${fmt(sale.total)}</td><td class="right">${fmt(sale.tip)}</td><td>${sale.duplicate?'<span class="badge open">Duplicada: se omitirá</span>':'<span class="badge closed">Lista</span>'}</td></tr>`).join('')}</tbody></table></div>`:'';
+  $('bulkSalesPreview').innerHTML=result.sales.length?`<div class="bulk-sales-preview"><table><thead><tr><th>Fila / grupo</th><th>Fecha y hora</th><th>Referencia</th><th>Atendido por</th><th>Productos</th><th class="right">Consumo</th><th class="right">Propina</th><th>Estado</th></tr></thead><tbody>${result.sales.map(sale=>`<tr><td>${esc(sale.externalSale)}</td><td>${formatDateTimeDisplay(sale.saleDateTime)}</td><td>${esc(sale.reference)}</td><td>${esc(sale.staff?.name||sale.staffName||'Sin asignar')}</td><td>${sale.items.map(i=>`${esc(i.name)} × ${i.qty}`).join('<br>')}</td><td class="right">${fmt(sale.total)}</td><td class="right">${fmt(sale.tip)}</td><td>${sale.duplicate?'<span class="badge open">Duplicada: se omitirá</span>':'<span class="badge closed">Lista</span>'}</td></tr>`).join('')}</tbody></table></div>`:'';
 }
 async function commitBulkSales(){
   if(!roleIsAdmin())return alert('Solo un administrador puede realizar la carga masiva.');const pending=parsedBulkSales.filter(x=>!x.duplicate);if(!pending.length)return alert('No hay ventas nuevas para cargar.');
   if(!confirm(`Se crearán ${pending.length} ventas pagadas en Firestore. Esta carga no modificará el stock actual. ¿Deseas continuar?`))return;
   const button=$('commitBulkSalesBtn'),original=button.textContent;button.disabled=true;let completed=0;let legacyNumber=Math.max(0,...state.orders.map(x=>Number(x.number)||0));
   try{for(const sale of pending){const ref=doc(collection(firestore,'orders')),period=monthlySalePeriod(sale.date),counterRef=doc(firestore,'salesCounters',period.periodKey),legacyFloor=legacySequenceFloor(period.periodKey);let orderData=null;legacyNumber++;
-      await runTransaction(firestore,async transaction=>{const counterSnap=await transaction.get(counterRef),storedCounter=counterSnap.exists()?Number(counterSnap.data().currentValue||0):0,currentValue=Math.max(storedCounter,legacyFloor),monthlySequence=currentValue+1,saleNumber=buildMonthlySaleNumber(period.year,period.monthText,monthlySequence);const owner=sale.staff;const charged=sale.total+sale.tip;const payment={id:uid(),method:sale.method||'Efectivo',amount:charged,createdAt:sale.createdAt,businessDate:sale.date,retroactiveEntry:true,enteredAt:nowIso(),enteredByUid:currentUser.uid,enteredByName:selectedStaff?.name||currentUser.name,staffId:owner?.id||null,staffName:owner?.name||sale.staffName||null,bulkImported:true};orderData={number:legacyNumber,monthlySequence,sequencePeriod:period.periodKey,saleNumber,createdAt:sale.createdAt,businessDate:sale.date,serviceType:normalizeBulkHeader(sale.reference).startsWith('m')?'mesa':'meson',label:sale.reference,notes:sale.notes||'',items:sale.items,payments:[payment],tipPercent:0,tipAmount:sale.tip,status:'closed',closedAt:sale.createdAt,ownerStaffId:owner?.id||null,ownerStaffName:owner?.name||sale.staffName||'Sin asignar',ownerHistory:[],entryMode:'bulk-import',retroactiveEntry:true,retroactivelyEnteredAt:nowIso(),retroactivelyEnteredByUid:currentUser.uid,retroactivelyEnteredByName:selectedStaff?.name||currentUser.name,stockAdjusted:false,bulkImported:true,bulkImportSourceKey:sale.sourceKey,bulkImportExternalSale:sale.externalSale,bulkImportedAt:nowIso(),bulkImportedByUid:currentUser.uid,bulkImportedByName:selectedStaff?.name||currentUser.name,...actorFields(),...auditFields(),staffId:owner?.id||null,staffName:owner?.name||sale.staffName||null};transaction.set(counterRef,{currentValue:monthlySequence,year:period.year,month:period.month,period:period.periodKey,updatedAt:nowIso(),updatedByUid:currentUser.uid,updatedByName:selectedStaff?.name||currentUser.name},{merge:true});transaction.set(ref,orderData)});state.orders.push({id:ref.id,...orderData});completed++;button.textContent=`Cargando ${completed}/${pending.length}...`;}
+      await runTransaction(firestore,async transaction=>{const counterSnap=await transaction.get(counterRef),storedCounter=counterSnap.exists()?Number(counterSnap.data().currentValue||0):0,currentValue=Math.max(storedCounter,legacyFloor),monthlySequence=currentValue+1,saleNumber=buildMonthlySaleNumber(period.year,period.monthText,monthlySequence);const owner=sale.staff;const charged=sale.total+sale.tip;const importedAt=nowIso();const payment={id:uid(),method:sale.method||'Efectivo',amount:charged,createdAt:importedAt,businessDate:sale.date,enteredAt:importedAt,enteredByUid:currentUser.uid,enteredByName:selectedStaff?.name||currentUser.name,staffId:owner?.id||null,staffName:owner?.name||sale.staffName||null,bulkImported:true};orderData={number:legacyNumber,monthlySequence,sequencePeriod:period.periodKey,saleNumber,createdAt:importedAt,businessDate:sale.date,serviceType:normalizeBulkHeader(sale.reference).startsWith('m')?'mesa':'meson',label:sale.reference,notes:sale.notes||'',items:sale.items,payments:[payment],tipPercent:0,tipAmount:sale.tip,status:'closed',closedAt:importedAt,ownerStaffId:owner?.id||null,ownerStaffName:owner?.name||sale.staffName||'Sin asignar',ownerHistory:[],entryMode:'bulk-import',stockAdjusted:false,bulkImported:true,bulkImportSourceKey:sale.sourceKey,bulkImportExternalSale:sale.externalSale,bulkImportedAt:importedAt,bulkImportedByUid:currentUser.uid,bulkImportedByName:selectedStaff?.name||currentUser.name,...actorFields(),...auditFields(),staffId:owner?.id||null,staffName:owner?.name||sale.staffName||null};transaction.set(counterRef,{currentValue:monthlySequence,year:period.year,month:period.month,period:period.periodKey,updatedAt:nowIso(),updatedByUid:currentUser.uid,updatedByName:selectedStaff?.name||currentUser.name},{merge:true});transaction.set(ref,orderData)});state.orders.push({id:ref.id,...orderData});completed++;button.textContent=`Cargando ${completed}/${pending.length}...`;}
     showToast(`${completed} ventas cargadas correctamente.`,'success',6000);alert(`Carga terminada: ${completed} ventas creadas correctamente.`);parsedBulkSales=[];$('bulkSalesText').value='';$('bulkSalesValidation').innerHTML='';$('bulkSalesPreview').innerHTML='';bulkSalesImportDialog.close();renderAll();
   }catch(error){console.error('Error en carga masiva:',error);alert(`La carga se detuvo después de ${completed} venta(s). Error: ${error.message||String(error)}\n\nPuedes corregir el problema y volver a pegar el mismo bloque; las ventas ya cargadas serán detectadas como duplicadas.`)}finally{button.textContent=original;button.disabled=false}
 }
@@ -1750,8 +1717,8 @@ renderCollectionTransferRows();
 function updateHeaderClock(){const now=new Date();$('headerDate').textContent=now.toLocaleDateString('es-CL',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase());$('headerTime').textContent=now.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});const op=getTodayOperation();const closed=op?.status==='closed',opened=op?.status==='open';$('cashStatus').classList.toggle('closed-day',closed||!opened);$('cashStatus').querySelector('span:last-child').textContent=closed?'Día cerrado':opened?'Día abierto':'Día sin abrir'}
 setInterval(updateHeaderClock,1000);
 setInterval(()=>{if(document.querySelector('section#calendar.active'))renderScheduleList()},60000);
-function renderAll(){renderRetroactiveSaleControls();renderServiceButtons();renderProductButtons();renderCart();renderOrders();renderExpenses();renderProductTable();renderDashboard();renderMonthly();renderCloseDay();renderScheduleStaffChecks();renderScheduleList();renderAttendance();renderMonthlyAttendanceSummary();renderOperation();updateAccessState();updateHeaderClock()}
-$('saleBusinessDate').value=today();$('reportDate').value=today();$('expenseDate').value=today();$('expenseFilterMonth').value=today().slice(0,7);$('monthlyPeriod').value=today().slice(0,7);$('scheduleMonth').value=today().slice(0,7);$('attendanceSummaryMonth').value=today().slice(0,7);$('scheduleDateFrom').value=today();$('scheduleDateTo').value=today();$('attendanceDate').value=today();renderExpenseCategories();renderAll();applyPermissions();
+function renderAll(){renderServiceButtons();renderProductButtons();renderCart();renderOrders();renderExpenses();renderProductTable();renderDashboard();renderMonthly();renderCloseDay();renderScheduleStaffChecks();renderScheduleList();renderAttendance();renderMonthlyAttendanceSummary();renderOperation();updateAccessState();updateHeaderClock()}
+$('reportDate').value=today();$('expenseDate').value=today();$('expenseFilterMonth').value=today().slice(0,7);$('monthlyPeriod').value=today().slice(0,7);$('scheduleMonth').value=today().slice(0,7);$('attendanceSummaryMonth').value=today().slice(0,7);$('scheduleDateFrom').value=today();$('scheduleDateTo').value=today();$('attendanceDate').value=today();renderExpenseCategories();renderAll();applyPermissions();
 </script>
 
 </body>
