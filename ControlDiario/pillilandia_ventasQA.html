@@ -284,7 +284,7 @@ input,select,textarea{border-color:#d9a16b;background:#fffdf9}input:focus,select
 
 <dialog id="productDialog"><div class="dialog-body"><div class="dialog-head"><h2 id="productDialogTitle">Producto</h2><button class="x" onclick="productDialog.close()">×</button></div><input id="editProductId" type="hidden"><label>Nombre</label><input id="editProductName"><label style="margin-top:10px">Descripción para el menú público</label><textarea id="editProductDescription" rows="2" placeholder="Ej.: Preparado con café en grano recién molido."></textarea><div class="row" style="margin-top:10px"><div><label>Categoría</label><input id="editProductCategory"></div><div><label>Precio</label><input id="editProductPrice" type="number" min="0"></div></div><div class="row" style="margin-top:10px"><div><label>Stock actual</label><input id="editProductStock" type="number" step="1"></div><div><label>Control de stock</label><select id="editProductTrack"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Activo</label><select id="editProductActive"><option value="true">Sí</option><option value="false">No</option></select></div></div><div class="notice" style="margin-top:14px"><b>Oferta por cantidad</b><div class="tiny">Ejemplo: cantidad 2 y precio oferta $1.000 para vender 2 unidades por $1.000. Las unidades sobrantes mantienen el precio normal.</div><div class="row" style="margin-top:10px"><div><label>Oferta activa</label><select id="editProductOfferActive"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Cantidad de la oferta</label><input id="editProductOfferQty" type="number" min="2" step="1" placeholder="2"></div><div><label>Precio total de la oferta</label><input id="editProductOfferPrice" type="number" min="0" step="1" placeholder="1000"></div></div></div><button class="btn primary" style="margin-top:12px" id="saveProductBtn">Guardar producto</button></div></dialog>
 
-<!-- Versión 3.29 QA: pagos de sueldo/propinas, flujo de cobro e identidad anaranjada -->
+<!-- Versión 3.30 QA: corrección de duplicidad en pagos de sueldo/propinas -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import {
@@ -1433,22 +1433,44 @@ function renderMonthlyAttendanceSummary(){
 function payrollExpenseFor(period,staffId,type){
   return state.expenses.find(x=>x.deleted!==true&&x.category==='Pago de Sueldos'&&x.payrollPeriod===period&&x.employeeId===staffId&&x.payrollType===type);
 }
+const payrollCreationLocks=new Set();
+function payrollExpenseDocumentId(period,staffId,type){
+  const safe=value=>String(value||'').trim().replace(/[^a-zA-Z0-9_-]/g,'_');
+  return `payroll_${safe(period)}_${safe(staffId)}_${safe(type)}`;
+}
 window.createPayrollExpense=async(staffId,staffName,period,type,amount)=>{
   if(!roleIsManager())return alert('Solo administrador o gerente pueden crear pagos.');
   amount=Number(amount)||0;
   if(amount<=0)return alert(type==='tips'?'No existen propinas para crear este pago.':'El pago calculado debe ser mayor que cero.');
   const label=type==='tips'?'Propinas':'Sueldo';
+  const lockKey=`${period}|${staffId}|${type}`;
+  if(payrollCreationLocks.has(lockKey))return;
   const existing=payrollExpenseFor(period,staffId,type);
   if(existing)return alert(`Ya existe un gasto de ${label.toLowerCase()} para ${staffName} en ${period}. Puedes editarlo desde Gastos Mensual o registrar un pago extra como un gasto independiente.`);
   if(!confirm(`Se creará un gasto por ${fmt(amount)} correspondiente a ${label.toLowerCase()} de ${staffName} para ${period}. ¿Deseas continuar?`))return;
-  const date=`${period}-${String(new Date(Number(period.slice(0,4)),Number(period.slice(5,7)),0).getDate()).padStart(2,'0')}`;
-  const data={date,category:'Pago de Sueldos',description:`${label} ${period} · ${staffName}`,amount,employeeId:staffId,employeeName:staffName,expensePartyType:'employee',payrollPeriod:period,payrollType:type,createdAt:nowIso(),...actorFields(),updatedAt:null,updatedByUid:null,updatedByName:null,modifiedAt:null,modifiedByUid:null,modifiedByName:null};
-  const ref=await addDoc(collection(firestore,'expenses'),data);
-  state.expenses.push({id:ref.id,...data});
-  showToast(`${label} de ${staffName} creado como gasto correctamente.`,'success',4800);
+  payrollCreationLocks.add(lockKey);
   renderMonthlyAttendanceSummary();
-  renderExpenses();
-  renderMonthly();
+  try{
+    const date=`${period}-${String(new Date(Number(period.slice(0,4)),Number(period.slice(5,7)),0).getDate()).padStart(2,'0')}`;
+    const data={date,category:'Pago de Sueldos',description:`${label} ${period} · ${staffName}`,amount,employeeId:staffId,employeeName:staffName,expensePartyType:'employee',payrollPeriod:period,payrollType:type,createdAt:nowIso(),...actorFields(),updatedAt:null,updatedByUid:null,updatedByName:null,modifiedAt:null,modifiedByUid:null,modifiedByName:null};
+    const expenseRef=doc(firestore,'expenses',payrollExpenseDocumentId(period,staffId,type));
+    await runTransaction(firestore,async transaction=>{
+      const snapshot=await transaction.get(expenseRef);
+      if(snapshot.exists()&&snapshot.data().deleted!==true)throw new Error('PAYROLL_ALREADY_EXISTS');
+      transaction.set(expenseRef,data);
+    });
+    showToast(`${label} de ${staffName} creado como gasto correctamente.`,'success',4800);
+  }catch(error){
+    if(error?.message==='PAYROLL_ALREADY_EXISTS'){
+      alert(`Ya existe un gasto de ${label.toLowerCase()} para ${staffName} en ${period}.`);
+    }else{
+      console.error('No fue posible crear el gasto de remuneración:',error);
+      alert(`No fue posible crear el pago de ${label.toLowerCase()}. ${error?.message||''}`);
+    }
+  }finally{
+    payrollCreationLocks.delete(lockKey);
+    renderMonthlyAttendanceSummary();
+  }
 };
 
 window.saveAttendanceRate=async staffId=>{
