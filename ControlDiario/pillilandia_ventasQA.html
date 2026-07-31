@@ -9,7 +9,7 @@
 <link rel="apple-touch-icon" href="images/Icono.png">
 <link rel="shortcut icon" href="images/Icono.png">
 <style>
-:root{--brand:#f28c28;--brand2:#a94f00;--bg:#fff3e6;--card:#fffaf5;--text:#3b2415;--muted:#795b45;--danger:#9f1d14;--ok:#2e6b3f;--warning:#884d00;--line:#e4b98e;--shadow:0 5px 18px rgba(120,62,12,.16)}
+:root{--brand:#159eaa;--brand2:#075f67;--bg:#e8f2f3;--card:#fff;--text:#102a2d;--muted:#415f63;--danger:#9f1d14;--ok:#05663a;--warning:#884d00;--line:#9fc2c6;--shadow:0 5px 18px rgba(12,67,73,.14)}
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
 header{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;padding:12px 16px;box-shadow:var(--shadow)}
 .header-inner{max-width:1250px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand-block{display:flex;align-items:center;gap:14px;min-width:0}.brand-logo{width:78px;height:78px;flex:0 0 78px;object-fit:cover;border-radius:50%;border:4px solid rgba(255,255,255,.95);background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.22)}.brand-text h1{font-size:1.55rem;line-height:1.05;margin:0}.brand-text p{margin:5px 0 0;font-size:.96rem;font-weight:650;opacity:.95}.header-status{text-align:right;display:grid;gap:4px;justify-items:end}.header-date{font-weight:800}.header-time{font-size:1.35rem;font-weight:900;letter-spacing:.04em}.cash-status{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.4);font-size:.82rem;font-weight:900}.cash-status.closed-day{background:rgba(111,20,17,.45)}.status-dot{width:10px;height:10px;border-radius:50%;background:#7cffb2;box-shadow:0 0 0 3px rgba(124,255,178,.18)}.cash-status.closed-day .status-dot{background:#ffaaa3;box-shadow:0 0 0 3px rgba(255,170,163,.18)}.wrap{max-width:1250px;margin:auto;padding:14px}
@@ -127,7 +127,11 @@ th.sortable-column[data-sort-direction="asc"]::after{content:'▲';opacity:1;col
 th.sortable-column[data-sort-direction="desc"]::after{content:'▼';opacity:1;color:var(--brand2)}
 
 
-/* Identidad visual integral del ambiente QA */
+/* ==========================================================================
+   QA-ONLY: BEGIN - IDENTIDAD VISUAL DEL AMBIENTE QA
+   Excluir este bloque completo al promover o fusionar hacia Producción.
+   ========================================================================== */
+:root{--brand:#f28c28;--brand2:#a94f00;--bg:#fff3e6;--card:#fffaf5;--text:#3b2415;--muted:#795b45;--danger:#9f1d14;--ok:#2e6b3f;--warning:#884d00;--line:#e4b98e;--shadow:0 5px 18px rgba(120,62,12,.16)}
 body{background:linear-gradient(180deg,#fff0df 0%,#fff8f1 100%)}
 header,.login-overlay,.shift-lock-overlay{background:linear-gradient(135deg,#f49a38,#9f4700)}
 .test-environment-banner{background:#7a3000;color:#fff4e8;border-bottom:3px solid #ffb15c;letter-spacing:.04em}
@@ -143,14 +147,22 @@ input,select,textarea{border-color:#d9a16b;background:#fffdf9}input:focus,select
 .expense-chart,.tip-picker{background:#fff8f1;border-color:#dfa66d}.expense-chart-track,.product-sales-track,.attendance-progress{background:#f6dcc0;border-color:#dfb486}.expense-chart-bar,.product-sales-bar,.attendance-progress-bar{background:linear-gradient(90deg,#f49a38,#a94f00)}
 .payment-workflow-step{padding:12px 14px;border:2px solid #e1ad76;border-radius:12px;background:#fff8ef;margin-bottom:12px}.payment-workflow-step h3{margin:0 0 6px;color:#7d3900}.payment-print-action{width:100%;padding:13px;font-size:1.02rem}
 .attendance-payment-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.attendance-payment-actions .btn{width:100%}@media(max-width:650px){.attendance-payment-actions{grid-template-columns:1fr}}
+/* ==========================================================================
+   QA-ONLY: END - IDENTIDAD VISUAL DEL AMBIENTE QA
+   ========================================================================== */
 
 </style>
 </head>
 <body>
 <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+<!-- ======================================================================
+     QA-ONLY: BEGIN - AVISO VISIBLE DEL AMBIENTE
+     Excluir este bloque completo al promover o fusionar hacia Producción.
+     ====================================================================== -->
 <div class="test-environment-banner">
   AMBIENTE DE PRUEBAS — LOS DATOS NO SON REALES
 </div>
+<!-- QA-ONLY: END - AVISO VISIBLE DEL AMBIENTE -->
 <div id="loginOverlay" class="login-overlay">
   <div class="login-card">
     <div class="login-brand">
@@ -284,7 +296,7 @@ input,select,textarea{border-color:#d9a16b;background:#fffdf9}input:focus,select
 
 <dialog id="productDialog"><div class="dialog-body"><div class="dialog-head"><h2 id="productDialogTitle">Producto</h2><button class="x" onclick="productDialog.close()">×</button></div><input id="editProductId" type="hidden"><label>Nombre</label><input id="editProductName"><label style="margin-top:10px">Descripción para el menú público</label><textarea id="editProductDescription" rows="2" placeholder="Ej.: Preparado con café en grano recién molido."></textarea><div class="row" style="margin-top:10px"><div><label>Categoría</label><input id="editProductCategory"></div><div><label>Precio</label><input id="editProductPrice" type="number" min="0"></div></div><div class="row" style="margin-top:10px"><div><label>Stock actual</label><input id="editProductStock" type="number" step="1"></div><div><label>Control de stock</label><select id="editProductTrack"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Activo</label><select id="editProductActive"><option value="true">Sí</option><option value="false">No</option></select></div></div><div class="notice" style="margin-top:14px"><b>Oferta por cantidad</b><div class="tiny">Ejemplo: cantidad 2 y precio oferta $1.000 para vender 2 unidades por $1.000. Las unidades sobrantes mantienen el precio normal.</div><div class="row" style="margin-top:10px"><div><label>Oferta activa</label><select id="editProductOfferActive"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Cantidad de la oferta</label><input id="editProductOfferQty" type="number" min="2" step="1" placeholder="2"></div><div><label>Precio total de la oferta</label><input id="editProductOfferPrice" type="number" min="0" step="1" placeholder="1000"></div></div></div><button class="btn primary" style="margin-top:12px" id="saveProductBtn">Guardar producto</button></div></dialog>
 
-<!-- Versión 3.30 QA: corrección de duplicidad en pagos de sueldo/propinas -->
+<!-- Versión 3.32 QA: secciones exclusivas de QA claramente delimitadas para merge -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import {
@@ -297,6 +309,10 @@ import {
   onSnapshot, query, where, writeBatch, runTransaction, Timestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
+// ============================================================================
+// QA-ONLY: BEGIN - CONFIGURACIÓN FIREBASE DEL AMBIENTE QA
+// Al promover a Producción, excluir este bloque y conservar firebaseConfig PROD.
+// ============================================================================
 const firebaseConfig = {
   apiKey: "AIzaSyCzkDRoGxmJlVIK87jGuNQnbIJyINEVzro",
   authDomain: "pillilandia-pos-qa.firebaseapp.com",
@@ -305,6 +321,8 @@ const firebaseConfig = {
   messagingSenderId: "511532172828",
   appId: "1:511532172828:web:13146453ca88be8e68c1d9"
 };
+// QA-ONLY: END - CONFIGURACIÓN FIREBASE DEL AMBIENTE QA
+// ============================================================================
 
 const app = initializeApp(firebaseConfig);
 const firestore = initializeFirestore(app, {

@@ -214,7 +214,7 @@ th.sortable-column[data-sort-direction="desc"]::after{content:'▼';opacity:1;co
 
 <section id="expenses"><div class="grid"><div class="card span-12"><div class="expense-toolbar"><div><h2>Gastos Mensual</h2><div class="muted tiny" style="margin-top:4px">Consulta y administra todos los gastos registrados durante el mes.</div></div><button class="btn primary" id="newExpenseBtn" type="button">+ Registrar nuevo gasto</button></div><div class="metrics"><div class="metric"><small>Total gastos del mes</small><b id="expenseMonthTotal">$0</b></div><div class="metric"><small>Cantidad de gastos</small><b id="expenseMonthCount">0</b></div><div class="metric"><small>Categorías utilizadas</small><b id="expenseMonthCategories">0</b></div></div></div><div class="card span-12"><div class="expense-toolbar"><h2>Detalle de gastos</h2><div class="month-field"><label>Mes a consultar</label><input id="expenseFilterMonth" type="month"></div></div><div id="expenseCategoryChart"></div><div id="expenseList" style="margin-top:18px"></div></div></div></section>
 
-<section id="monthly"><div class="grid"><div class="card span-12 no-print"><div class="row"><div><label>Mes de gestión</label><input id="monthlyPeriod" type="month"></div><div><button class="btn outline" onclick="window.print()">Imprimir gestión mensual</button></div></div></div><div class="card span-12"><h2>Gestión mensual</h2><div class="metrics"><div class="metric"><small>Ventas cobradas</small><b id="monthlySales">$0</b></div><div class="metric"><small>Gastos</small><b id="monthlyExpenses">$0</b></div><div class="metric"><small>Resultado</small><b id="monthlyNet">$0</b></div><div class="metric"><small>Margen sobre ventas</small><b id="monthlyMargin">0%</b></div></div></div><div class="card span-6"><h3>Ventas por medio de pago</h3><div id="monthlyPaymentSummary"></div></div><div class="card span-6"><h3>Gastos por categoría</h3><div id="monthlyExpenseSummary"></div></div><div class="card span-12"><h3>Propinas por empleado propietario</h3><div id="monthlyTipsByOwner"></div></div><div class="card span-12"><h3>Productos vendidos del mes</h3><div id="monthlyProductSales"></div></div><div class="card span-12"><h3>Resumen diario del mes</h3><div id="monthlyDailySummary"></div></div></div></section>
+<section id="monthly"><div class="grid"><div class="card span-12 no-print"><div class="row"><div><label>Mes de gestión</label><input id="monthlyPeriod" type="month"></div><div><button class="btn outline" onclick="window.print()">Imprimir gestión mensual</button></div></div></div><div class="card span-12"><h2>Resultado del negocio</h2><div class="metrics"><div class="metric"><small>Ventas por consumo</small><b id="monthlySales">$0</b></div><div class="metric"><small>Gastos operacionales</small><b id="monthlyExpenses">$0</b></div><div class="metric"><small>Resultado</small><b id="monthlyNet">$0</b></div><div class="metric"><small>Margen sobre ventas</small><b id="monthlyMargin">0%</b></div></div></div><div class="card span-12"><h2>Cuenta de propinas</h2><div class="metrics"><div class="metric"><small>Propinas recaudadas</small><b id="monthlyTipsCollected">$0</b></div><div class="metric"><small>Propinas entregadas</small><b id="monthlyTipsDelivered">$0</b></div><div class="metric"><small>Propinas pendientes</small><b id="monthlyTipsPending">$0</b></div><div class="metric"><small>Flujo total cobrado</small><b id="monthlyGrossCollections">$0</b></div></div><div class="muted tiny" style="margin-top:10px">Las propinas no forman parte de las ventas ni de la utilidad del negocio. Se mantienen como dinero por entregar a los empleados.</div></div><div class="card span-6"><h3>Cobros por medio de pago</h3><div id="monthlyPaymentSummary"></div></div><div class="card span-6"><h3>Gastos operacionales por categoría</h3><div id="monthlyExpenseSummary"></div></div><div class="card span-12"><h3>Estado de propinas por empleado</h3><div id="monthlyTipsByOwner"></div></div><div class="card span-12"><h3>Productos vendidos del mes</h3><div id="monthlyProductSales"></div></div><div class="card span-12"><h3>Resumen diario del mes</h3><div id="monthlyDailySummary"></div></div></div></section>
 
 <section id="products"><div class="card"><div class="notice">El stock de esta primera versión es por producto vendido (unidades). Para controlar ingredientes —leche, café, helado por sabor, vasos— se necesitará definir recetas y unidades de medida en una segunda etapa.</div><div class="row"><div><h2>Productos y stock simple</h2><div class="muted">Los productos están agrupados por categoría y ordenados alfabéticamente.</div></div><div><button class="btn primary" id="newProductBtn">Agregar producto</button></div></div><div id="productAdminSummary" class="product-admin-summary"></div><div id="productCategoryGroups"></div></div></section>
 
@@ -241,7 +241,7 @@ th.sortable-column[data-sort-direction="desc"]::after{content:'▼';opacity:1;co
 <div class="actions"><button class="btn secondary" id="bulkSalesExampleBtn" type="button">Insertar ejemplo</button><button class="btn primary" id="previewBulkSalesBtn" type="button">Validar y previsualizar</button><button class="btn success" id="commitBulkSalesBtn" type="button" disabled>Cargar en Firestore</button><button class="btn secondary" type="button" onclick="bulkSalesImportDialog.close()">Cancelar</button></div>
 <div id="bulkSalesValidation" style="margin-top:12px"></div><div id="bulkSalesPreview" style="margin-top:12px"></div></div></dialog>
 
-<dialog id="paymentDialog"><div class="dialog-body"><div class="dialog-head"><h2>Registrar pago</h2><button class="x" onclick="paymentDialog.close()">×</button></div><div id="paymentOrderInfo"></div><div id="tipPicker" class="tip-picker"><label>Propina sugerida</label><div class="tip-options"><button type="button" class="tip-btn" data-tip="0">Sin propina</button><button type="button" class="tip-btn" data-tip="5">5%</button><button type="button" class="tip-btn" data-tip="10">10%</button><button type="button" class="tip-btn" data-tip="15">15%</button><button type="button" class="tip-btn" data-tip="20">20%</button></div><div id="tipHelp" class="muted tiny" style="margin-top:8px"></div></div><div class="row" style="margin-top:12px"><div><label>Medio de pago</label><select id="paymentMethod"><option>Efectivo</option><option>Débito</option><option>Crédito</option><option>Transferencia</option></select></div><div><label>Monto</label><input id="paymentAmount" type="number" min="1" step="1"></div></div><div class="actions"><button class="btn primary" id="addPaymentBtn">Agregar pago</button><button class="btn secondary" id="addPaymentPrintBtn">Agregar pago e imprimir</button><button class="btn secondary" onclick="paymentDialog.close()">Cerrar</button></div><div id="paymentsExisting"></div></div></dialog>
+<dialog id="paymentDialog"><div class="dialog-body"><div class="dialog-head"><h2>Registrar pago</h2><button class="x" onclick="paymentDialog.close()">×</button></div><div id="paymentOrderInfo"></div><div class="payment-workflow-step"><h3>1. Entregar detalle al cliente</h3><div class="muted tiny" style="margin-bottom:9px">El comprobante muestra productos, cantidades, subtotales, total de consumo y el total sugerido con 10% de propina. No muestra el medio de pago ni la propina finalmente elegida.</div><button type="button" class="btn secondary payment-print-action" id="printCustomerDetailBtn">Imprimir detalle para cliente</button></div><div id="tipPicker" class="tip-picker"><label>2. ¿Desea incluir propina?</label><div class="tip-options"><button type="button" class="tip-btn" data-tip="0">Sin propina</button><button type="button" class="tip-btn" data-tip="5">5%</button><button type="button" class="tip-btn" data-tip="10">10%</button><button type="button" class="tip-btn" data-tip="15">15%</button><button type="button" class="tip-btn" data-tip="20">20%</button></div><div id="tipHelp" class="muted tiny" style="margin-top:8px"></div></div><div class="payment-workflow-step" style="margin-top:12px"><h3>3. Registrar medio de pago</h3><div class="row"><div><label>Medio de pago</label><select id="paymentMethod"><option>Efectivo</option><option>Débito</option><option>Crédito</option><option>Transferencia</option></select></div><div><label>Monto a registrar</label><input id="paymentAmount" type="number" min="1" step="1"></div></div></div><div class="actions"><button class="btn primary" id="addPaymentBtn">Registrar pago</button><button class="btn secondary" onclick="paymentDialog.close()">Cerrar</button></div><div id="paymentsExisting"></div></div></dialog>
 
 <dialog id="creditDialog"><div class="dialog-body"><div class="dialog-head"><h2>Autorizar cuenta fiada</h2><button class="x" onclick="creditDialog.close()">×</button></div><div id="creditOrderInfo"></div><label>Nombre completo o identificación del cliente</label><input id="creditCustomerName" placeholder="Dato obligatorio para autorizar el fiado"><div class="notice" style="margin-top:12px">Esta acción debe ser realizada por un gerente. La cuenta pasará a “Cuentas pendientes”, liberará la mesa y no bloqueará el cierre diario.</div><div class="actions"><button class="btn primary" id="confirmCreditBtn">Confirmar fiado</button><button class="btn secondary" onclick="creditDialog.close()">Cancelar</button></div></div></dialog>
 
@@ -251,7 +251,7 @@ th.sortable-column[data-sort-direction="desc"]::after{content:'▼';opacity:1;co
 
 <dialog id="productDialog"><div class="dialog-body"><div class="dialog-head"><h2 id="productDialogTitle">Producto</h2><button class="x" onclick="productDialog.close()">×</button></div><input id="editProductId" type="hidden"><label>Nombre</label><input id="editProductName"><label style="margin-top:10px">Descripción para el menú público</label><textarea id="editProductDescription" rows="2" placeholder="Ej.: Preparado con café en grano recién molido."></textarea><div class="row" style="margin-top:10px"><div><label>Categoría</label><input id="editProductCategory"></div><div><label>Precio</label><input id="editProductPrice" type="number" min="0"></div></div><div class="row" style="margin-top:10px"><div><label>Stock actual</label><input id="editProductStock" type="number" step="1"></div><div><label>Control de stock</label><select id="editProductTrack"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Activo</label><select id="editProductActive"><option value="true">Sí</option><option value="false">No</option></select></div></div><div class="notice" style="margin-top:14px"><b>Oferta por cantidad</b><div class="tiny">Ejemplo: cantidad 2 y precio oferta $1.000 para vender 2 unidades por $1.000. Las unidades sobrantes mantienen el precio normal.</div><div class="row" style="margin-top:10px"><div><label>Oferta activa</label><select id="editProductOfferActive"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Cantidad de la oferta</label><input id="editProductOfferQty" type="number" min="2" step="1" placeholder="2"></div><div><label>Precio total de la oferta</label><input id="editProductOfferPrice" type="number" min="0" step="1" placeholder="1000"></div></div></div><button class="btn primary" style="margin-top:12px" id="saveProductBtn">Guardar producto</button></div></dialog>
 
-<!-- Versión 3.28: eliminación de carga retroactiva manual y fechas correctas en carga masiva -->
+<!-- Versión 3.32 QA: secciones exclusivas de QA claramente delimitadas para merge -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import {
@@ -358,7 +358,7 @@ function classifyToastMessage(message){
 }
 window.alert=message=>showToast(message,classifyToastMessage(message),4600);
 
-let state={settings:{tableCount:6,businessName:'Pillilandia',businessSubtitle:'Heladería & Cafetería',currency:'CLP',timeZone:'America/Santiago'},products:[],orders:[],expenses:[],closures:[],staff:[],schedules:[],attendance:[],operations:[]};
+let state={settings:{tableCount:6,businessName:'Pillilandia',businessSubtitle:'Heladería & Cafetería',currency:'CLP',timeZone:'America/Santiago'},products:[],orders:[],expenses:[],tipSettlements:[],closures:[],staff:[],schedules:[],attendance:[],operations:[]};
 let currentUser=null, selectedStaff=null, cart=[], paymentOrderId=null, creditOrderId=null, editOrderId=null, editOrderCart=[], selectedTipPercent=10, selectedService={type:'meson',label:'Venta Directa'}, employeeAccessLocked=false;
 let unsubscribers=[];
 const pendingUnplannedByDate=new Map();
@@ -522,6 +522,7 @@ const EXPENSE_CATEGORIES=[
   'Arriendo',
   'Servicios',
   'Bencina',
+  'Pago de Sueldos',
   'Otro'
   ];
 function normalizeExpenseCategories(){
@@ -559,8 +560,12 @@ function startRealtime(){
     unsubscribers.push(onSnapshot(collection(firestore,'expenses'),snap=>{
       state.expenses=snap.docs.map(d=>({id:d.id,...d.data()}));renderExpenseCategories();renderAll();
     },firebaseError));
+    unsubscribers.push(onSnapshot(collection(firestore,'tipSettlements'),snap=>{
+      state.tipSettlements=snap.docs.map(d=>({id:d.id,...d.data()}));renderAll();
+    },firebaseError));
   }else{
     state.expenses=[];
+    state.tipSettlements=[];
   }
   unsubscribers.push(onSnapshot(collection(firestore,'staff'),snap=>{
     state.staff=snap.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.active!==false).sort((a,b)=>(a.displayOrder??999)-(b.displayOrder??999));renderAll();
@@ -935,31 +940,36 @@ function renderPaymentDialog(){
   $('paymentAmount').value=pending||'';
   $('paymentsExisting').innerHTML=(o.payments||[]).length?`<h3 style="margin-top:16px">Pagos registrados</h3>`+o.payments.map(p=>`<div class="payment-line"><b>${esc(p.method)}</b> · ${fmt(p.amount)} <span class="muted tiny">${formatDateTimeDisplay(p.createdAt)}</span></div>`).join(''):'';
 }
-function buildReceiptHtml(o,payment,percent,tip,total,newBalance){
+function buildCustomerDetailReceiptHtml(o){
+  const subtotal=orderTotal(o);
+  const suggestedTip=Math.round(subtotal*.10);
+  const suggestedTotal=subtotal+suggestedTip;
   const items=(o.items||[]).map(i=>`<div class="receipt-row"><span>${Number(i.qty)||0} x ${esc(i.name)}${offerDescription(i)?`<small style="display:block">Oferta ${esc(offerDescription(i))}</small>`:''}</span><b>${fmt(lineSubtotal(i))}</b></div>`).join('');
   return `<div class="receipt-title">PILLILANDIA</div>
     <div class="receipt-center">Heladería y Cafetería</div>
-    <div class="receipt-center">Comprobante de pago</div>
+    <div class="receipt-center">Detalle de consumo</div>
     <div class="receipt-sep"></div>
     <div>Cuenta: ${esc(saleDisplayNumber(o))} · ${esc(o.label)}</div>
     <div>Fecha: ${formatDateTimeDisplay(new Date())}</div>
-    
     <div class="receipt-sep"></div>
     ${items}
     <div class="receipt-sep"></div>
-    <div class="receipt-row"><span>Consumo</span><b>${fmt(orderTotal(o))}</b></div>
-    <div class="receipt-row"><span>Propina (${percent}%)</span><b>${fmt(tip)}</b></div>
-    <div class="receipt-row receipt-total"><span>Total cuenta</span><b>${fmt(total)}</b></div>
+    <div class="receipt-row receipt-total"><span>Total consumo</span><b>${fmt(subtotal)}</b></div>
+    <div class="receipt-row"><span>Propina sugerida 10%</span><b>${fmt(suggestedTip)}</b></div>
+    <div class="receipt-row receipt-total"><span>Total incluyendo propina</span><b>${fmt(suggestedTotal)}</b></div>
     <div class="receipt-sep"></div>
-    <div class="receipt-row"><span>${esc(payment.method)}</span><b>${fmt(payment.amount)}</b></div>
-    <div class="receipt-row"><span>Saldo pendiente</span><b>${fmt(newBalance)}</b></div>
-    <div class="receipt-sep"></div>
-    <div class="receipt-center">¡Gracias por preferirnos!</div>
+    <div class="receipt-center">¿Desea incluir la propina sugerida?</div>
     <div class="receipt-center" style="margin-top:8px;font-weight:700">Comprobante no válido como boleta.</div>
     <div class="receipt-center" style="margin-top:8px">Síguenos en Instagram:</div>
     <div class="receipt-center" style="font-weight:700">@pillilandia</div>`;
 }
-async function registerPayment({printAfter=false}={}){
+function printCustomerDetail(){
+  const o=state.orders.find(x=>x.id===paymentOrderId);
+  if(!o)return alert('La cuenta ya no está disponible para imprimir.');
+  $('printReceipt').innerHTML=buildCustomerDetailReceiptHtml(o);
+  setTimeout(()=>window.print(),120);
+}
+async function registerPayment(){
   const o=state.orders.find(x=>x.id===paymentOrderId),amount=Number($('paymentAmount').value);
   if(!o||!Number.isFinite(amount)||amount<=0)return alert('Ingresa un monto válido.');
   const hasPayments=(o.payments||[]).length>0;
@@ -976,14 +986,10 @@ async function registerPayment({printAfter=false}={}){
   const newBalance=Math.max(0,total-payments.reduce((s,p)=>s+Number(p.amount),0));
   const pendingStatus=(o.status==='credit'||o.onCredit===true)?'credit':'open';
   await updateDoc(doc(firestore,'orders',o.id),{payments,tipPercent:percent,tipAmount:tip,status:newBalance===0?'closed':pendingStatus,closedAt:newBalance===0?nowIso():null,...auditFields()});
-  if(printAfter){
-    $('printReceipt').innerHTML=buildReceiptHtml(o,payment,percent,tip,total,newBalance);
-    setTimeout(()=>window.print(),120);
-  }
-  if(newBalance===0){$('paymentDialog').close();switchTab('orders');alert(printAfter?'Cuenta pagada, cerrada y enviada a impresión.':'Cuenta pagada y cerrada.')}else renderPaymentDialog();
+  if(newBalance===0){$('paymentDialog').close();switchTab('orders');alert('Cuenta pagada y cerrada.')}else renderPaymentDialog();
 }
-$('addPaymentBtn').onclick=()=>registerPayment({printAfter:false});
-$('addPaymentPrintBtn').onclick=()=>registerPayment({printAfter:true});
+$('addPaymentBtn').onclick=()=>registerPayment();
+$('printCustomerDetailBtn').onclick=printCustomerDetail;
 window.voidOrder=async id=>{const o=state.orders.find(x=>x.id===id);if(!o||!ensureOrderActionAccess(o,'anular esta cuenta')||!confirm('¿Anular esta cuenta? El stock controlado será devuelto.'))return;const batch=writeBatch(firestore);batch.update(doc(firestore,'orders',id),{status:'void',voidedAt:nowIso(),...auditFields()});for(const i of o.items||[]){const p=state.products.find(x=>x.id===i.productId);if(p?.trackStock)batch.update(doc(firestore,'products',p.id),{stock:Number(p.stock)+Number(i.qty),...auditFields()})}await batch.commit()};
 
 function renderExpenses(){
@@ -1008,7 +1014,7 @@ function renderExpenses(){
   $('expenseCategoryChart').innerHTML=chartData.length?`<div class="expense-chart"><h3>Gastos agrupados por categoría</h3>${chartData.map(([category,amount])=>`<div class="expense-chart-row"><div class="expense-chart-label"><span>${esc(category)}</span><b>${fmt(amount)}</b></div><div class="expense-chart-track"><div class="expense-chart-bar" style="width:${maxValue?Math.max(4,(amount/maxValue)*100):0}%"></div></div></div>`).join('')}</div>`:'<div class="empty">Sin gastos vigentes para el mes seleccionado</div>';
 
   const adminNote=isAdmin&&deletedXs.length?`<div class="expense-admin-note"><b>Vista de administrador:</b> se muestran ${deletedXs.length} gasto${deletedXs.length===1?' eliminado':'s eliminados'} lógicamente en rojo. Estos registros no se incluyen en los totales ni en el gráfico.</div>`:'';
-  $('expenseList').innerHTML=xs.length?`${adminNote}<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción / proveedor</th><th>Registrado por</th><th>Modificado por</th><th class="right">Monto</th><th class="right no-print">Acciones</th></tr></thead><tbody>${xs.map(x=>{
+  $('expenseList').innerHTML=xs.length?`${adminNote}<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción / proveedor / empleado</th><th>Registrado por</th><th>Modificado por</th><th class="right">Monto</th><th class="right no-print">Acciones</th></tr></thead><tbody>${xs.map(x=>{
     const modifiedName=x.modifiedByName||'—';
     const modifiedWhen=x.modifiedAt?formatDateTimeDisplay(x.modifiedAt):'';
     const deleted=x.deleted===true;
@@ -1168,7 +1174,61 @@ window.viewSaleDetail=id=>{
   $('saleDetailDialog').showModal();
 };
 $('reportDate').onchange=renderDashboard;
-function renderMonthly(){const period=$('monthlyPeriod').value;if(!period)return;const monthOrders=state.orders.filter(o=>o.status!=='void'&&o.businessDate&&o.businessDate.startsWith(period));const monthPayments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate&&p.businessDate.startsWith(period)));const monthExpenses=state.expenses.filter(x=>x.deleted!==true&&x.date&&x.date.startsWith(period));const sales=monthPayments.reduce((s,p)=>s+Number(p.amount),0),expenses=monthExpenses.reduce((s,x)=>s+Number(x.amount),0),net=sales-expenses,margin=sales?Math.round((net/sales)*100):0;$('monthlySales').textContent=fmt(sales);$('monthlyExpenses').textContent=fmt(expenses);$('monthlyNet').textContent=fmt(net);$('monthlyMargin').textContent=margin+'%';const methods=['Efectivo','Débito','Crédito','Transferencia'];$('monthlyPaymentSummary').innerHTML=methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(monthPayments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('');const cats=[...new Set(monthExpenses.map(x=>x.category))].sort();$('monthlyExpenseSummary').innerHTML=cats.length?cats.map(c=>`<div class="payment-line"><span>${esc(c)}</span><span class="money" style="float:right">${fmt(monthExpenses.filter(x=>x.category===c).reduce((s,x)=>s+Number(x.amount),0))}</span></div>`).join(''):'<div class="empty">Sin gastos en el mes</div>';const tipsByOwner=new Map();monthOrders.forEach(o=>{const tip=tipAmount(o);if(tip<=0)return;const ownerId=o.ownerStaffId||o.staffId||o.createdByUid||o.createdByName||'sin-asignar';const owner=ownerName(o);const current=tipsByOwner.get(ownerId)||{owner,sales:0,tips:0};current.sales+=1;current.tips+=tip;tipsByOwner.set(ownerId,current)});const ownerTips=[...tipsByOwner.values()].sort((a,b)=>b.tips-a.tips||a.owner.localeCompare(b.owner,'es'));const totalOwnerTips=ownerTips.reduce((sum,x)=>sum+x.tips,0);$('monthlyTipsByOwner').innerHTML=ownerTips.length?`<div style="overflow:auto"><table><thead><tr><th>Empleado propietario</th><th class="right">Ventas con propina</th><th class="right">Total propinas</th></tr></thead><tbody>${ownerTips.map(x=>`<tr><td>${esc(x.owner)}</td><td class="right">${x.sales}</td><td class="right"><b>${fmt(x.tips)}</b></td></tr>`).join('')}<tr><td><b>Total mensual</b></td><td class="right"><b>${ownerTips.reduce((sum,x)=>sum+x.sales,0)}</b></td><td class="right"><b>${fmt(totalOwnerTips)}</b></td></tr></tbody></table></div>`:'<div class="empty">Sin propinas registradas en el mes</div>';const days=[...new Set([...monthPayments.map(p=>p.businessDate),...monthExpenses.map(x=>x.date)])].sort();$('monthlyDailySummary').innerHTML=days.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th class="right">Ventas</th><th class="right">Gastos</th><th class="right">Resultado</th></tr></thead><tbody>${days.map(d=>{const vs=monthPayments.filter(p=>p.businessDate===d).reduce((s,p)=>s+Number(p.amount),0),gs=monthExpenses.filter(x=>x.date===d).reduce((s,x)=>s+Number(x.amount),0);return `<tr><td>${formatDateDisplay(d)}</td><td class="right">${fmt(vs)}</td><td class="right">${fmt(gs)}</td><td class="right"><b>${fmt(vs-gs)}</b></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Sin movimientos en el mes</div>';renderProductSales('monthlyProductSales',monthOrders,'Sin productos vendidos para el mes seleccionado.')}
+function renderMonthly(){
+  const period=$('monthlyPeriod').value;
+  if(!period)return;
+  const monthOrders=state.orders.filter(o=>o.status!=='void'&&o.businessDate&&o.businessDate.startsWith(period));
+  const monthPayments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate&&p.businessDate.startsWith(period)));
+  // Los registros históricos de propinas creados erróneamente como gasto se excluyen del resultado.
+  const monthExpenses=state.expenses.filter(x=>x.deleted!==true&&x.payrollType!=='tips'&&x.date&&x.date.startsWith(period));
+  const monthTipSettlements=state.tipSettlements.filter(x=>x.deleted!==true&&x.period===period);
+  const grossCollections=monthPayments.reduce((s,p)=>s+Number(p.amount),0);
+  const tipsCollected=monthOrders.reduce((s,o)=>s+tipAmount(o),0);
+  const sales=Math.max(0,grossCollections-tipsCollected);
+  const expenses=monthExpenses.reduce((s,x)=>s+Number(x.amount),0);
+  const tipsDelivered=monthTipSettlements.reduce((s,x)=>s+Number(x.amount),0);
+  const tipsPending=Math.max(0,tipsCollected-tipsDelivered);
+  const net=sales-expenses;
+  const margin=sales?Math.round((net/sales)*100):0;
+  $('monthlySales').textContent=fmt(sales);
+  $('monthlyExpenses').textContent=fmt(expenses);
+  $('monthlyNet').textContent=fmt(net);
+  $('monthlyMargin').textContent=margin+'%';
+  $('monthlyTipsCollected').textContent=fmt(tipsCollected);
+  $('monthlyTipsDelivered').textContent=fmt(tipsDelivered);
+  $('monthlyTipsPending').textContent=fmt(tipsPending);
+  $('monthlyGrossCollections').textContent=fmt(grossCollections);
+  const methods=['Efectivo','Débito','Crédito','Transferencia'];
+  $('monthlyPaymentSummary').innerHTML=methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(monthPayments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('');
+  const cats=[...new Set(monthExpenses.map(x=>x.category))].sort();
+  $('monthlyExpenseSummary').innerHTML=cats.length?cats.map(c=>`<div class="payment-line"><span>${esc(c)}</span><span class="money" style="float:right">${fmt(monthExpenses.filter(x=>x.category===c).reduce((s,x)=>s+Number(x.amount),0))}</span></div>`).join(''):'<div class="empty">Sin gastos operacionales en el mes</div>';
+  const tipsByOwner=new Map();
+  monthOrders.forEach(o=>{
+    const tip=tipAmount(o);if(tip<=0)return;
+    const ownerId=o.ownerStaffId||o.staffId||o.createdByUid||o.createdByName||'sin-asignar';
+    const owner=ownerName(o);
+    const current=tipsByOwner.get(ownerId)||{id:ownerId,owner,sales:0,tips:0,delivered:0};
+    current.sales+=1;current.tips+=tip;tipsByOwner.set(ownerId,current);
+  });
+  monthTipSettlements.forEach(item=>{
+    const key=item.employeeId||item.employeeName||'sin-asignar';
+    const current=tipsByOwner.get(key)||{id:key,owner:item.employeeName||'Sin identificar',sales:0,tips:0,delivered:0};
+    current.delivered+=Number(item.amount)||0;tipsByOwner.set(key,current);
+  });
+  const ownerTips=[...tipsByOwner.values()].sort((a,b)=>b.tips-a.tips||a.owner.localeCompare(b.owner,'es'));
+  $('monthlyTipsByOwner').innerHTML=ownerTips.length?`<div style="overflow:auto"><table><thead><tr><th>Empleado</th><th class="right">Ventas con propina</th><th class="right">Recaudado</th><th class="right">Entregado</th><th class="right">Pendiente</th></tr></thead><tbody>${ownerTips.map(x=>`<tr><td>${esc(x.owner)}</td><td class="right">${x.sales}</td><td class="right"><b>${fmt(x.tips)}</b></td><td class="right">${fmt(x.delivered)}</td><td class="right"><b>${fmt(Math.max(0,x.tips-x.delivered))}</b></td></tr>`).join('')}<tr><td><b>Total mensual</b></td><td class="right"><b>${ownerTips.reduce((sum,x)=>sum+x.sales,0)}</b></td><td class="right"><b>${fmt(tipsCollected)}</b></td><td class="right"><b>${fmt(tipsDelivered)}</b></td><td class="right"><b>${fmt(tipsPending)}</b></td></tr></tbody></table></div>`:'<div class="empty">Sin movimientos de propinas en el mes</div>';
+  const settlementDates=monthTipSettlements.map(x=>x.date).filter(Boolean);
+  const days=[...new Set([...monthPayments.map(p=>p.businessDate),...monthExpenses.map(x=>x.date),...settlementDates])].sort();
+  $('monthlyDailySummary').innerHTML=days.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th class="right">Consumo cobrado</th><th class="right">Propinas recaudadas</th><th class="right">Gastos</th><th class="right">Propinas entregadas</th><th class="right">Resultado negocio</th></tr></thead><tbody>${days.map(d=>{
+    const gross=monthPayments.filter(p=>p.businessDate===d).reduce((s,p)=>s+Number(p.amount),0);
+    const dayTips=monthOrders.filter(o=>o.businessDate===d).reduce((s,o)=>s+tipAmount(o),0);
+    const businessSales=Math.max(0,gross-dayTips);
+    const gs=monthExpenses.filter(x=>x.date===d).reduce((s,x)=>s+Number(x.amount),0);
+    const delivered=monthTipSettlements.filter(x=>x.date===d).reduce((s,x)=>s+Number(x.amount),0);
+    return `<tr><td>${formatDateDisplay(d)}</td><td class="right">${fmt(businessSales)}</td><td class="right">${fmt(dayTips)}</td><td class="right">${fmt(gs)}</td><td class="right">${fmt(delivered)}</td><td class="right"><b>${fmt(businessSales-gs)}</b></td></tr>`;
+  }).join('')}</tbody></table></div>`:'<div class="empty">Sin movimientos en el mes</div>';
+  renderProductSales('monthlyProductSales',monthOrders,'Sin productos vendidos para el mes seleccionado.');
+}
 $('monthlyPeriod').onchange=renderMonthly;
 
 function renderProductTable(){
@@ -1383,7 +1443,7 @@ function renderMonthlyAttendanceSummary(){
       return `<tr><td>${esc(formattedDate)}</td><td>${sc?`${esc(sc.startTime)}–${esc(sc.endTime)}`:'—'}</td><td>${a?.actualStart||a?.actualEnd?`${esc(a.actualStart||'—')}–${esc(a.actualEnd||'—')}`:'—'}</td><td class="right">${formatHours(planned)}</td><td class="right">${formatHours(worked)}</td><td class="right"><b class="attendance-difference ${dayDiff>0?'positive':dayDiff<0?'negative':'neutral'}">${dayDiffText}</b></td><td><span class="attendance-day-status ${statusClass}">${status}</span></td></tr>`;
     }).join('');
     const detailId=`attendancePersonDetail_${index}`;
-    return `<div class="attendance-person-card"><div class="attendance-person-head"><div><button type="button" class="attendance-person-name-button" data-attendance-detail-target="${detailId}" aria-expanded="false"><span class="attendance-person-toggle">▶</span>${esc(p.name)}</button><div class="muted tiny">${roleLabel(p.role)} · ${p.plannedDays} jornada(s) solicitada(s)</div></div><div class="attendance-hours">${formatHours(p.workedMinutes)} / ${formatHours(p.plannedMinutes)}</div></div><div class="attendance-progress"><div class="attendance-progress-bar ${pct>100?'over':''}" style="width:${bar}%"></div></div><div class="tiny muted">Cumplimiento de horas: <b>${pct}%</b></div><div class="attendance-person-details"><div class="attendance-detail"><small>Horas solicitadas</small><b>${formatHours(p.plannedMinutes)}</b></div><div class="attendance-detail"><small>Horas trabajadas</small><b>${formatHours(p.workedMinutes)}</b></div><div class="attendance-detail"><small>Diferencia</small><b class="attendance-difference ${diffClass}">${diffText}</b></div><div class="attendance-detail"><small>Jornadas completas</small><b>${p.completeDays}</b></div><div class="attendance-detail"><small>Registros parciales</small><b>${p.partialDays}</b></div></div>${p.unplannedDays?`<div class="notice" style="margin:10px 0 0">Incluye ${p.unplannedDays} jornada(s) no planificada(s).</div>`:''}<div id="${detailId}" class="attendance-person-day-detail hidden"><div style="overflow:auto"><table class="attendance-detail-table"><thead><tr><th>Fecha</th><th>Horario solicitado</th><th>Asistencia real</th><th class="right">Horas solicitadas</th><th class="right">Horas trabajadas</th><th class="right">Diferencia</th><th>Estado</th></tr></thead><tbody>${dayRows||'<tr><td colspan="7" class="muted">Sin detalle para este mes.</td></tr>'}</tbody></table></div><div class="attendance-payment-details"><div class="attendance-detail"><small>Tarifa diaria</small>${p.staffId?`<div class="attendance-rate-editor"><input id="attendanceRate_${esc(p.staffId)}" type="number" min="0" step="100" value="${p.dailyRate}" aria-label="Tarifa diaria de ${esc(p.name)}"><button class="btn secondary tiny" onclick="saveAttendanceRate('${esc(p.staffId)}')">Guardar</button></div>`:`<b>${fmt(p.dailyRate)}</b>`}</div><div class="attendance-detail"><small>Pago mensual real</small><b>${fmt(actualPayment)}</b><span class="tiny muted">${p.completeDays} día(s) trabajado(s)</span><div class="attendance-payment-breakdown"><div class="attendance-payment-line"><span>Propinas del mes</span><span>${fmt(personTips)}</span></div><div class="attendance-payment-line total"><span>Pago mensual + propinas</span><span>${fmt(actualPaymentWithTips)}</span></div></div></div><div class="attendance-detail"><small>Pago mensual planificado</small><b>${fmt(plannedPayment)}</b><span class="tiny muted">${p.plannedDays} jornada(s)</span></div></div></div></div>`;
+    return `<div class="attendance-person-card"><div class="attendance-person-head"><div><button type="button" class="attendance-person-name-button" data-attendance-detail-target="${detailId}" aria-expanded="false"><span class="attendance-person-toggle">▶</span>${esc(p.name)}</button><div class="muted tiny">${roleLabel(p.role)} · ${p.plannedDays} jornada(s) solicitada(s)</div></div><div class="attendance-hours">${formatHours(p.workedMinutes)} / ${formatHours(p.plannedMinutes)}</div></div><div class="attendance-progress"><div class="attendance-progress-bar ${pct>100?'over':''}" style="width:${bar}%"></div></div><div class="tiny muted">Cumplimiento de horas: <b>${pct}%</b></div><div class="attendance-person-details"><div class="attendance-detail"><small>Horas solicitadas</small><b>${formatHours(p.plannedMinutes)}</b></div><div class="attendance-detail"><small>Horas trabajadas</small><b>${formatHours(p.workedMinutes)}</b></div><div class="attendance-detail"><small>Diferencia</small><b class="attendance-difference ${diffClass}">${diffText}</b></div><div class="attendance-detail"><small>Jornadas completas</small><b>${p.completeDays}</b></div><div class="attendance-detail"><small>Registros parciales</small><b>${p.partialDays}</b></div></div>${p.unplannedDays?`<div class="notice" style="margin:10px 0 0">Incluye ${p.unplannedDays} jornada(s) no planificada(s).</div>`:''}<div id="${detailId}" class="attendance-person-day-detail hidden"><div style="overflow:auto"><table class="attendance-detail-table"><thead><tr><th>Fecha</th><th>Horario solicitado</th><th>Asistencia real</th><th class="right">Horas solicitadas</th><th class="right">Horas trabajadas</th><th class="right">Diferencia</th><th>Estado</th></tr></thead><tbody>${dayRows||'<tr><td colspan="7" class="muted">Sin detalle para este mes.</td></tr>'}</tbody></table></div><div class="attendance-payment-details"><div class="attendance-detail"><small>Tarifa diaria</small>${p.staffId?`<div class="attendance-rate-editor"><input id="attendanceRate_${esc(p.staffId)}" type="number" min="0" step="100" value="${p.dailyRate}" aria-label="Tarifa diaria de ${esc(p.name)}"><button class="btn secondary tiny" onclick="saveAttendanceRate('${esc(p.staffId)}')">Guardar</button></div>`:`<b>${fmt(p.dailyRate)}</b>`}</div><div class="attendance-detail"><small>1. Pago planificado según agenda</small><b>${fmt(plannedPayment)}</b><span class="tiny muted">${p.plannedDays} jornada(s) planificada(s)</span></div><div class="attendance-detail"><small>2. Pago según días efectivamente trabajados</small><b>${fmt(actualPayment)}</b><span class="tiny muted">${p.completeDays} día(s) con asistencia completa</span><div class="attendance-payment-breakdown"><div class="attendance-payment-line"><span>Propinas del mes</span><span>${fmt(personTips)}</span></div><div class="attendance-payment-line total"><span>Total sueldo + propinas</span><span>${fmt(actualPaymentWithTips)}</span></div></div>${p.staffId?`<div class="attendance-payment-actions"><button class="btn primary tiny" ${payrollExpenseFor(period,p.staffId,'salary')?'disabled':''} onclick="createPayrollExpense('${esc(p.staffId)}','${esc(p.name)}','${esc(period)}','salary',${actualPayment})">${payrollExpenseFor(period,p.staffId,'salary')?'Sueldo ya creado':'Crear Pago de Sueldo'}</button><button class="btn secondary tiny" ${personTips<=0||tipSettlementFor(period,p.staffId)?'disabled':''} onclick="createTipSettlement('${esc(p.staffId)}','${esc(p.name)}','${esc(period)}',${personTips})">${tipSettlementFor(period,p.staffId)?'Propinas ya entregadas':'Registrar Entrega de Propinas'}</button></div>`:''}</div></div></div></div>`;
   }).join('');
   $('monthlyAttendanceSummary').innerHTML=`<div class="attendance-summary-metrics"><div class="attendance-summary-card"><small>Horas solicitadas</small><b>${formatHours(totalPlanned)}</b></div><div class="attendance-summary-card"><small>Horas trabajadas</small><b>${formatHours(totalWorked)}</b></div><div class="attendance-summary-card"><small>Cumplimiento general</small><b>${overallPct}%</b></div><div class="attendance-summary-card"><small>Registros completos / parciales</small><b>${totalComplete} / ${totalPartial}</b></div></div>${cards}`;
   $('monthlyAttendanceSummary').querySelectorAll('[data-attendance-detail-target]').forEach(btn=>btn.onclick=()=>{
@@ -1394,6 +1454,88 @@ function renderMonthlyAttendanceSummary(){
     btn.setAttribute('aria-expanded',opening?'true':'false');
   });
 }
+
+function payrollExpenseFor(period,staffId,type){
+  return state.expenses.find(x=>x.deleted!==true&&x.category==='Pago de Sueldos'&&x.payrollPeriod===period&&x.employeeId===staffId&&x.payrollType===type);
+}
+const payrollCreationLocks=new Set();
+function payrollExpenseDocumentId(period,staffId,type){
+  const safe=value=>String(value||'').trim().replace(/[^a-zA-Z0-9_-]/g,'_');
+  return `payroll_${safe(period)}_${safe(staffId)}_${safe(type)}`;
+}
+window.createPayrollExpense=async(staffId,staffName,period,type,amount)=>{
+  if(!roleIsManager())return alert('Solo administrador o gerente pueden crear pagos.');
+  amount=Number(amount)||0;
+  if(amount<=0)return alert(type==='tips'?'No existen propinas para crear este pago.':'El pago calculado debe ser mayor que cero.');
+  if(type!=='salary')return alert('Las propinas se registran en una cuenta separada, no como gasto.');
+  const label='Sueldo';
+  const lockKey=`${period}|${staffId}|${type}`;
+  if(payrollCreationLocks.has(lockKey))return;
+  const existing=payrollExpenseFor(period,staffId,type);
+  if(existing)return alert(`Ya existe un gasto de ${label.toLowerCase()} para ${staffName} en ${period}. Puedes editarlo desde Gastos Mensual o registrar un pago extra como un gasto independiente.`);
+  if(!confirm(`Se creará un gasto por ${fmt(amount)} correspondiente a ${label.toLowerCase()} de ${staffName} para ${period}. ¿Deseas continuar?`))return;
+  payrollCreationLocks.add(lockKey);
+  renderMonthlyAttendanceSummary();
+  try{
+    const date=`${period}-${String(new Date(Number(period.slice(0,4)),Number(period.slice(5,7)),0).getDate()).padStart(2,'0')}`;
+    const data={date,category:'Pago de Sueldos',description:`${label} ${period} · ${staffName}`,amount,employeeId:staffId,employeeName:staffName,expensePartyType:'employee',payrollPeriod:period,payrollType:type,createdAt:nowIso(),...actorFields(),updatedAt:null,updatedByUid:null,updatedByName:null,modifiedAt:null,modifiedByUid:null,modifiedByName:null};
+    const expenseRef=doc(firestore,'expenses',payrollExpenseDocumentId(period,staffId,type));
+    await runTransaction(firestore,async transaction=>{
+      const snapshot=await transaction.get(expenseRef);
+      if(snapshot.exists()&&snapshot.data().deleted!==true)throw new Error('PAYROLL_ALREADY_EXISTS');
+      transaction.set(expenseRef,data);
+    });
+    showToast(`${label} de ${staffName} creado como gasto correctamente.`,'success',4800);
+  }catch(error){
+    if(error?.message==='PAYROLL_ALREADY_EXISTS'){
+      alert(`Ya existe un gasto de ${label.toLowerCase()} para ${staffName} en ${period}.`);
+    }else{
+      console.error('No fue posible crear el gasto de remuneración:',error);
+      alert(`No fue posible crear el pago de ${label.toLowerCase()}. ${error?.message||''}`);
+    }
+  }finally{
+    payrollCreationLocks.delete(lockKey);
+    renderMonthlyAttendanceSummary();
+  }
+};
+
+
+function tipSettlementFor(period,staffId){
+  return state.tipSettlements.find(x=>x.deleted!==true&&x.period===period&&x.employeeId===staffId);
+}
+function tipSettlementDocumentId(period,staffId){
+  const safe=value=>String(value||'').trim().replace(/[^a-zA-Z0-9_-]/g,'_');
+  return `tips_${safe(period)}_${safe(staffId)}`;
+}
+window.createTipSettlement=async(staffId,staffName,period,amount)=>{
+  if(!roleIsManager())return alert('Solo administrador o gerente pueden registrar entregas de propinas.');
+  amount=Number(amount)||0;
+  if(amount<=0)return alert('No existen propinas pendientes para entregar.');
+  const existing=tipSettlementFor(period,staffId);
+  if(existing)return alert(`Las propinas de ${staffName} para ${period} ya fueron registradas como entregadas.`);
+  const lockKey=`tips|${period}|${staffId}`;
+  if(payrollCreationLocks.has(lockKey))return;
+  if(!confirm(`Se registrará la entrega de ${fmt(amount)} en propinas a ${staffName} para ${period}. Este movimiento no será considerado gasto ni reducirá la utilidad del negocio. ¿Deseas continuar?`))return;
+  payrollCreationLocks.add(lockKey);
+  renderMonthlyAttendanceSummary();
+  try{
+    const date=`${period}-${String(new Date(Number(period.slice(0,4)),Number(period.slice(5,7)),0).getDate()).padStart(2,'0')}`;
+    const settlementRef=doc(firestore,'tipSettlements',tipSettlementDocumentId(period,staffId));
+    const data={date,period,amount,employeeId:staffId,employeeName:staffName,status:'delivered',description:`Entrega de propinas ${period} · ${staffName}`,createdAt:nowIso(),...actorFields(),updatedAt:null,updatedByUid:null,updatedByName:null};
+    await runTransaction(firestore,async transaction=>{
+      const snapshot=await transaction.get(settlementRef);
+      if(snapshot.exists()&&snapshot.data().deleted!==true)throw new Error('TIP_SETTLEMENT_ALREADY_EXISTS');
+      transaction.set(settlementRef,data);
+    });
+    showToast(`Entrega de propinas de ${staffName} registrada correctamente.`,'success',4800);
+  }catch(error){
+    if(error?.message==='TIP_SETTLEMENT_ALREADY_EXISTS')alert(`Las propinas de ${staffName} para ${period} ya fueron registradas.`);
+    else{console.error('No fue posible registrar la entrega de propinas:',error);alert(`No fue posible registrar la entrega de propinas. ${error?.message||''}`);}
+  }finally{
+    payrollCreationLocks.delete(lockKey);
+    renderMonthlyAttendanceSummary();
+  }
+};
 
 window.saveAttendanceRate=async staffId=>{
   if(!roleIsManager())return alert('Solo administrador o gerente pueden modificar la tarifa.');
@@ -1516,6 +1658,7 @@ $('exportBtn').onclick=async()=>{
       products:state.products,
       orders:state.orders,
       expenses:state.expenses,
+      tipSettlements:state.tipSettlements,
       dailyClosures:state.closures,
       dailyOperations:state.operations,
       staffSchedules:state.schedules,
@@ -1596,7 +1739,7 @@ $('previewBulkSalesBtn').onclick=()=>{try{renderBulkSalesPreview(parseBulkSalesT
 $('commitBulkSalesBtn').onclick=commitBulkSales;
 
 const FIRESTORE_EXPORT_COLLECTIONS=[
-  'settings','users','staff','products','orders','salesCounters','expenses',
+  'settings','users','staff','products','orders','salesCounters','expenses','tipSettlements',
   'staffSchedules','attendance','dailyOperations','dailyClosures'
 ];
 let pendingImportCollection='';
