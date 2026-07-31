@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<!-- QA-ONLY: BEGIN - TÍTULO DEL AMBIENTE -->
 <title>Pillilandia POS — PRUEBAS</title>
+<!-- QA-ONLY: END - TÍTULO DEL AMBIENTE -->
 <link rel="icon" type="image/png" sizes="32x32" href="images/Icono.png">
 <link rel="icon" type="image/png" sizes="192x192" href="images/Icono.png">
 <link rel="apple-touch-icon" href="images/Icono.png">
@@ -278,7 +280,7 @@ input,select,textarea{border-color:#d9a16b;background:#fffdf9}input:focus,select
 <div id="printReceipt" aria-hidden="true"></div>
 <dialog id="scheduleDialog" class="schedule-modal"><div class="dialog-body"><div class="dialog-head"><h2 id="scheduleFormTitle">Planificar turno</h2><button class="x" type="button" onclick="scheduleDialog.close()">×</button></div><input id="editScheduleId" type="hidden"><div class="schedule-grid"><div><label>Fecha desde</label><input id="scheduleDateFrom" type="date"></div><div><label>Fecha hasta</label><input id="scheduleDateTo" type="date"></div><div><label>Horario de inicio</label><input id="scheduleStart" type="time" value="10:00"></div><div><label>Horario de término</label><input id="scheduleEnd" type="time" value="20:00"></div></div><label style="margin-top:12px">Persona</label><select id="scheduleStaff"><option value="">Seleccionar persona</option></select><div id="scheduleFormNotice" class="notice" style="margin-top:12px">Se creará un turno por cada día del rango. Los sábados se omitirán automáticamente. Los empleados podrán abrir o cerrar el local dentro de su turno, considerando 30 minutos de tolerancia antes y después.</div><div class="actions"><button id="saveScheduleBtn" class="btn primary" style="margin-top:12px">Guardar planificación</button><button id="cancelScheduleEditBtn" class="btn secondary" style="margin-top:12px" type="button">Cancelar</button></div></div></dialog>
 
-<dialog id="expenseDialog" class="expense-modal"><div class="dialog-body"><div class="dialog-head"><h2 id="expenseDialogTitle">Registrar nuevo gasto</h2><button class="x" type="button" onclick="expenseDialog.close()">×</button></div><form id="expenseForm"><input id="editExpenseId" type="hidden"><div class="row"><div><label>Fecha del gasto</label><input id="expenseDate" type="date" required></div><div><label>Monto</label><div class="expense-amount-wrap"><span class="expense-amount-prefix">$</span><input id="expenseAmount" type="text" inputmode="numeric" autocomplete="off" placeholder="0" required></div></div></div><label style="margin-top:10px">Categoría</label><select id="expenseCategory" required></select><label style="margin-top:10px">Descripción / proveedor</label><input id="expenseDescription" placeholder="Detalle opcional"><div id="expenseAuditInfo" class="expense-audit hidden"></div><div class="actions"><button class="btn primary" id="saveExpenseBtn" type="submit">Guardar gasto</button><button class="btn secondary" type="button" onclick="expenseDialog.close()">Cancelar</button></div></form></div></dialog>
+<dialog id="expenseDialog" class="expense-modal"><div class="dialog-body"><div class="dialog-head"><h2 id="expenseDialogTitle">Registrar nuevo gasto</h2><button class="x" type="button" onclick="expenseDialog.close()">×</button></div><form id="expenseForm"><input id="editExpenseId" type="hidden"><div class="row"><div><label>Fecha del gasto</label><input id="expenseDate" type="date" required></div><div><label>Monto</label><div class="expense-amount-wrap"><span class="expense-amount-prefix">$</span><input id="expenseAmount" type="text" inputmode="numeric" autocomplete="off" placeholder="0" required></div></div></div><label style="margin-top:10px">Categoría</label><select id="expenseCategory" required></select><label style="margin-top:10px">Descripción / proveedor</label><input id="expenseDescription" placeholder="Detalle opcional"><div class="row" style="margin-top:10px"><div><label>Tipo Documento</label><select id="expenseDocumentType"><option value="">Sin documento</option><option>Factura</option><option>Factura Exenta</option><option>Boleta</option><option>Boleta Electrónica</option><option>Ticket</option><option>Guía de Despacho</option><option>Nota de Crédito</option><option>Nota de Débito</option><option>Recibo</option><option>Comprobante Transferencia</option><option>Otro</option></select></div><div><label>N° Documento</label><input id="expenseDocumentNumber" type="text" maxlength="50" autocomplete="off" placeholder="Ej.: F-15487"></div></div><div class="muted tiny" style="margin-top:6px">Ambos campos son opcionales. Si completas el número, selecciona también el tipo de documento.</div><div id="expenseAuditInfo" class="expense-audit hidden"></div><div class="actions"><button class="btn primary" id="saveExpenseBtn" type="submit">Guardar gasto</button><button class="btn secondary" type="button" onclick="expenseDialog.close()">Cancelar</button></div></form></div></dialog>
 
 <dialog id="bulkSalesImportDialog" class="bulk-sales-modal"><div class="dialog-body"><div class="dialog-head"><h2>Carga masiva de ventas desde Excel</h2><button class="x" type="button" onclick="bulkSalesImportDialog.close()">×</button></div>
 <div class="notice bulk-sales-help"><b>Formato compatible con tu Excel:</b><br><code>Fecha · Cantidad · Producto · Precio unitario · Medio de pago · Monto · Observación · Turno</code><br><br><b>Cada fila se interpreta como una venta independiente.</b> El campo <b>Monto</b> será el total real cobrado y tendrá prioridad cuando sea diferente de Cantidad × Precio unitario. La Observación se conservará íntegramente. Opcionalmente puedes incluir Hora, Referencia y Propina. Fechas admitidas: <b>dd-mm-aaaa</b>, <b>dd/mm/aaaa</b> o <b>aaaa-mm-dd</b>.</div>
@@ -1065,7 +1067,7 @@ function renderExpenses(){
   $('expenseCategoryChart').innerHTML=chartData.length?`<div class="expense-chart"><h3>Gastos agrupados por categoría</h3>${chartData.map(([category,amount])=>`<div class="expense-chart-row"><div class="expense-chart-label"><span>${esc(category)}</span><b>${fmt(amount)}</b></div><div class="expense-chart-track"><div class="expense-chart-bar" style="width:${maxValue?Math.max(4,(amount/maxValue)*100):0}%"></div></div></div>`).join('')}</div>`:'<div class="empty">Sin gastos vigentes para el mes seleccionado</div>';
 
   const adminNote=isAdmin&&deletedXs.length?`<div class="expense-admin-note"><b>Vista de administrador:</b> se muestran ${deletedXs.length} gasto${deletedXs.length===1?' eliminado':'s eliminados'} lógicamente en rojo. Estos registros no se incluyen en los totales ni en el gráfico.</div>`:'';
-  $('expenseList').innerHTML=xs.length?`${adminNote}<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción / proveedor / empleado</th><th>Registrado por</th><th>Modificado por</th><th class="right">Monto</th><th class="right no-print">Acciones</th></tr></thead><tbody>${xs.map(x=>{
+  $('expenseList').innerHTML=xs.length?`${adminNote}<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción / proveedor / empleado</th><th>Tipo documento</th><th>N° documento</th><th>Registrado por</th><th>Modificado por</th><th class="right">Monto</th><th class="right no-print">Acciones</th></tr></thead><tbody>${xs.map(x=>{
     const modifiedName=x.modifiedByName||'—';
     const modifiedWhen=x.modifiedAt?formatDateTimeDisplay(x.modifiedAt):'';
     const deleted=x.deleted===true;
@@ -1075,8 +1077,8 @@ function renderExpenses(){
     const actions=deleted
       ?`<button class="btn danger tiny" onclick="deleteExpense('${x.id}')">Eliminar definitivamente</button>`
       :`<button class="btn secondary tiny" onclick="editExpense('${x.id}')">Editar</button><button class="btn danger tiny" onclick="deleteExpense('${x.id}')">Eliminar</button>`;
-    return `<tr class="${deleted?'expense-deleted-row':''}"><td>${formatDateDisplay(x.date)}${statusMark}</td><td><b>${esc(x.category||'Sin categoría')}</b></td><td>${esc(x.description||'—')}</td><td title="${esc(x.createdAt?formatDateTimeDisplay(x.createdAt):'')}">${esc(x.createdByName||'—')}</td><td title="${esc(modifiedWhen)}">${esc(modifiedName)}</td><td class="right money">${fmt(x.amount)}</td><td class="right no-print"><div class="actions" style="justify-content:flex-end;margin:0;gap:6px">${actions}</div></td></tr>`
-  }).join('')}</tbody><tfoot><tr><td colspan="5"><b>Total vigente del mes</b></td><td class="right money"><b>${fmt(total)}</b></td><td class="no-print"></td></tr></tfoot></table></div>`:'<div class="empty">No hay gastos para el mes seleccionado</div>';
+    return `<tr class="${deleted?'expense-deleted-row':''}"><td>${formatDateDisplay(x.date)}${statusMark}</td><td><b>${esc(x.category||'Sin categoría')}</b></td><td>${esc(x.description||'—')}</td><td>${esc(x.documentType||'—')}</td><td>${esc(x.documentNumber||'—')}</td><td title="${esc(x.createdAt?formatDateTimeDisplay(x.createdAt):'')}">${esc(x.createdByName||'—')}</td><td title="${esc(modifiedWhen)}">${esc(modifiedName)}</td><td class="right money">${fmt(x.amount)}</td><td class="right no-print"><div class="actions" style="justify-content:flex-end;margin:0;gap:6px">${actions}</div></td></tr>`
+  }).join('')}</tbody><tfoot><tr><td colspan="7"><b>Total vigente del mes</b></td><td class="right money"><b>${fmt(total)}</b></td><td class="no-print"></td></tr></tfoot></table></div>`:'<div class="empty">No hay gastos para el mes seleccionado</div>';
 }
 function openExpenseDialog(expense=null){
   const editing=Boolean(expense);
@@ -1086,6 +1088,8 @@ function openExpenseDialog(expense=null){
   $('expenseDate').value=expense?.date||today();
   $('expenseAmount').value=expense?new Intl.NumberFormat('es-CL',{maximumFractionDigits:0}).format(Number(expense.amount||0)):'';
   $('expenseDescription').value=expense?.description||'';
+  $('expenseDocumentType').value=expense?.documentType||'';
+  $('expenseDocumentNumber').value=expense?.documentNumber||'';
   renderExpenseCategories();
   if(expense?.category)$('expenseCategory').value=expense.category;
   const audit=$('expenseAuditInfo');
@@ -1108,9 +1112,18 @@ $('expenseForm').onsubmit=async e=>{
   const id=$('editExpenseId').value;
   const category=$('expenseCategory').value;
   const amount=parseCurrencyInput($('expenseAmount').value);
+  const description=$('expenseDescription').value.trim();
+  const documentType=$('expenseDocumentType').value.trim();
+  const documentNumber=$('expenseDocumentNumber').value.trim();
   if(!category){alert('Selecciona una categoría de gasto.');return;}
   if(amount<=0){alert('Ingresa un monto válido.');return;}
-  const baseData={date:$('expenseDate').value,category,description:$('expenseDescription').value.trim(),amount};
+  if(documentNumber&&!documentType){alert('Selecciona el Tipo Documento para el número ingresado.');return;}
+  const normalizeDocumentValue=value=>String(value||'').trim().toLocaleLowerCase('es-CL').replace(/\s+/g,' ');
+  if(documentNumber){
+    const duplicate=state.expenses.find(x=>x.id!==id&&x.deleted!==true&&normalizeDocumentValue(x.description)===normalizeDocumentValue(description)&&normalizeDocumentValue(x.documentType)===normalizeDocumentValue(documentType)&&normalizeDocumentValue(x.documentNumber)===normalizeDocumentValue(documentNumber));
+    if(duplicate&&!confirm(`Ya existe un gasto registrado con el mismo proveedor/descripción, tipo y número de documento.\n\nFecha: ${formatDateDisplay(duplicate.date)}\nProveedor / descripción: ${duplicate.description||'Sin descripción'}\nDocumento: ${duplicate.documentType||''} ${duplicate.documentNumber||''}\nMonto: ${fmt(duplicate.amount)}\n\n¿Deseas continuar igualmente?`))return;
+  }
+  const baseData={date:$('expenseDate').value,category,description,documentType,documentNumber,amount};
   if(id){
     const actorName=selectedStaff?.name||currentUser.name;
     await updateDoc(doc(firestore,'expenses',id),{...baseData,...auditFields(),modifiedAt:nowIso(),modifiedByUid:currentUser.uid,modifiedByName:actorName});
@@ -1122,6 +1135,8 @@ $('expenseForm').onsubmit=async e=>{
   $('editExpenseId').value='';
   $('expenseAmount').value='';
   $('expenseDescription').value='';
+  $('expenseDocumentType').value='';
+  $('expenseDocumentNumber').value='';
   expenseDialog.close();
 };
 $('expenseFilterMonth').onchange=renderExpenses;
