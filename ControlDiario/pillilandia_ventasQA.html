@@ -1067,9 +1067,12 @@ function renderExpenses(){
   $('expenseCategoryChart').innerHTML=chartData.length?`<div class="expense-chart"><h3>Gastos agrupados por categoría</h3>${chartData.map(([category,amount])=>`<div class="expense-chart-row"><div class="expense-chart-label"><span>${esc(category)}</span><b>${fmt(amount)}</b></div><div class="expense-chart-track"><div class="expense-chart-bar" style="width:${maxValue?Math.max(4,(amount/maxValue)*100):0}%"></div></div></div>`).join('')}</div>`:'<div class="empty">Sin gastos vigentes para el mes seleccionado</div>';
 
   const adminNote=isAdmin&&deletedXs.length?`<div class="expense-admin-note"><b>Vista de administrador:</b> se muestran ${deletedXs.length} gasto${deletedXs.length===1?' eliminado':'s eliminados'} lógicamente en rojo. Estos registros no se incluyen en los totales ni en el gráfico.</div>`:'';
-  $('expenseList').innerHTML=xs.length?`${adminNote}<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción / proveedor / empleado</th><th>Tipo documento</th><th>N° documento</th><th>Registrado por</th><th>Modificado por</th><th class="right">Monto</th><th class="right no-print">Acciones</th></tr></thead><tbody>${xs.map(x=>{
-    const modifiedName=x.modifiedByName||'—';
-    const modifiedWhen=x.modifiedAt?formatDateTimeDisplay(x.modifiedAt):'';
+  $('expenseList').innerHTML=xs.length?`${adminNote}<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción / proveedor / empleado</th><th>Tipo documento</th><th>N° documento</th><th class="right">Monto</th><th class="right no-print">Acciones</th></tr></thead><tbody>${xs.map(x=>{
+    const createdName=x.createdByName||'Sin identificar';
+    const createdWhen=x.createdAt?formatDateTimeDisplay(x.createdAt):'Fecha no disponible';
+    const modifiedName=x.modifiedByName||'Sin modificaciones';
+    const modifiedWhen=x.modifiedAt?formatDateTimeDisplay(x.modifiedAt):'Sin modificaciones';
+    const dateTooltip=`Registrado por: ${createdName} · ${createdWhen}\nModificado por: ${modifiedName}${x.modifiedAt?` · ${modifiedWhen}`:''}`;
     const deleted=x.deleted===true;
     const deletedWhen=x.deletedAt?formatDateTimeDisplay(x.deletedAt):'Fecha no disponible';
     const deletedBy=x.deletedByName||'Sin identificar';
@@ -1077,8 +1080,8 @@ function renderExpenses(){
     const actions=deleted
       ?`<button class="btn danger tiny" onclick="deleteExpense('${x.id}')">Eliminar definitivamente</button>`
       :`<button class="btn secondary tiny" onclick="editExpense('${x.id}')">Editar</button><button class="btn danger tiny" onclick="deleteExpense('${x.id}')">Eliminar</button>`;
-    return `<tr class="${deleted?'expense-deleted-row':''}"><td>${formatDateDisplay(x.date)}${statusMark}</td><td><b>${esc(x.category||'Sin categoría')}</b></td><td>${esc(x.description||'—')}</td><td>${esc(x.documentType||'—')}</td><td>${esc(x.documentNumber||'—')}</td><td title="${esc(x.createdAt?formatDateTimeDisplay(x.createdAt):'')}">${esc(x.createdByName||'—')}</td><td title="${esc(modifiedWhen)}">${esc(modifiedName)}</td><td class="right money">${fmt(x.amount)}</td><td class="right no-print"><div class="actions" style="justify-content:flex-end;margin:0;gap:6px">${actions}</div></td></tr>`
-  }).join('')}</tbody><tfoot><tr><td colspan="7"><b>Total vigente del mes</b></td><td class="right money"><b>${fmt(total)}</b></td><td class="no-print"></td></tr></tfoot></table></div>`:'<div class="empty">No hay gastos para el mes seleccionado</div>';
+    return `<tr class="${deleted?'expense-deleted-row':''}"><td title="${esc(dateTooltip)}" style="cursor:help">${formatDateDisplay(x.date)}${statusMark}</td><td><b>${esc(x.category||'Sin categoría')}</b></td><td>${esc(x.description||'—')}</td><td>${esc(x.documentType||'—')}</td><td>${esc(x.documentNumber||'—')}</td><td class="right money">${fmt(x.amount)}</td><td class="right no-print"><div class="actions" style="justify-content:flex-end;margin:0;gap:6px">${actions}</div></td></tr>`
+  }).join('')}</tbody><tfoot><tr><td colspan="5"><b>Total vigente del mes</b></td><td class="right money"><b>${fmt(total)}</b></td><td class="no-print"></td></tr></tfoot></table></div>`:'<div class="empty">No hay gastos para el mes seleccionado</div>';
 }
 function openExpenseDialog(expense=null){
   const editing=Boolean(expense);
