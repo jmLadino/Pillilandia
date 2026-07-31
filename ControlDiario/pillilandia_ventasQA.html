@@ -9,7 +9,7 @@
 <link rel="apple-touch-icon" href="images/Icono.png">
 <link rel="shortcut icon" href="images/Icono.png">
 <style>
-:root{--brand:#159eaa;--brand2:#075f67;--bg:#e8f2f3;--card:#fff;--text:#102a2d;--muted:#415f63;--danger:#9f1d14;--ok:#05663a;--warning:#884d00;--line:#9fc2c6;--shadow:0 5px 18px rgba(12,67,73,.14)}
+:root{--brand:#f28c28;--brand2:#a94f00;--bg:#fff3e6;--card:#fffaf5;--text:#3b2415;--muted:#795b45;--danger:#9f1d14;--ok:#2e6b3f;--warning:#884d00;--line:#e4b98e;--shadow:0 5px 18px rgba(120,62,12,.16)}
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
 header{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;padding:12px 16px;box-shadow:var(--shadow)}
 .header-inner{max-width:1250px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand-block{display:flex;align-items:center;gap:14px;min-width:0}.brand-logo{width:78px;height:78px;flex:0 0 78px;object-fit:cover;border-radius:50%;border:4px solid rgba(255,255,255,.95);background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.22)}.brand-text h1{font-size:1.55rem;line-height:1.05;margin:0}.brand-text p{margin:5px 0 0;font-size:.96rem;font-weight:650;opacity:.95}.header-status{text-align:right;display:grid;gap:4px;justify-items:end}.header-date{font-weight:800}.header-time{font-size:1.35rem;font-weight:900;letter-spacing:.04em}.cash-status{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.4);font-size:.82rem;font-weight:900}.cash-status.closed-day{background:rgba(111,20,17,.45)}.status-dot{width:10px;height:10px;border-radius:50%;background:#7cffb2;box-shadow:0 0 0 3px rgba(124,255,178,.18)}.cash-status.closed-day .status-dot{background:#ffaaa3;box-shadow:0 0 0 3px rgba(255,170,163,.18)}.wrap{max-width:1250px;margin:auto;padding:14px}
@@ -126,6 +126,24 @@ th.sortable-column::after{content:'⇅';position:absolute;right:9px;top:50%;tran
 th.sortable-column[data-sort-direction="asc"]::after{content:'▲';opacity:1;color:var(--brand2)}
 th.sortable-column[data-sort-direction="desc"]::after{content:'▼';opacity:1;color:var(--brand2)}
 
+
+/* Identidad visual integral del ambiente QA */
+body{background:linear-gradient(180deg,#fff0df 0%,#fff8f1 100%)}
+header,.login-overlay,.shift-lock-overlay{background:linear-gradient(135deg,#f49a38,#9f4700)}
+.test-environment-banner{background:#7a3000;color:#fff4e8;border-bottom:3px solid #ffb15c;letter-spacing:.04em}
+.tab{border-color:#dfa66d;background:#fff8f1;color:#5a2c0c}.tab:hover{background:#ffe3c4;border-color:#a94f00}.tab.active{background:#a94f00;border-color:#a94f00;box-shadow:0 3px 9px rgba(169,79,0,.28)}
+.card,.order-card,.attendance-person-card,.product-category-group{border-color:#e2b486;background:#fffaf5;box-shadow:0 4px 14px rgba(120,62,12,.10)}
+input,select,textarea{border-color:#d9a16b;background:#fffdf9}input:focus,select:focus,textarea:focus{outline-color:rgba(242,140,40,.22);border-color:#a94f00}
+.primary,.service-button.active,.tip-btn.active{background:#a94f00!important;border-color:#a94f00!important}.secondary{background:#ffe2c2;color:#5a2c0c;border-color:#d9a16b}.outline{border-color:#cc8c4c;color:#5a2c0c;background:#fffaf5}
+.metric,.attendance-summary-card,.attendance-detail,.service-picker,.category,.product-admin-metric,th{background:#ffead3!important;border-color:#dfad78!important;color:#5a2c0c!important}
+.sale-panel{background:linear-gradient(180deg,#fffdf9 0%,#ffead5 100%);border-color:#e4811e;box-shadow:0 8px 24px rgba(169,79,0,.16)}
+.product,.service-button{border-color:#dfa66d}.product:hover,.service-button:hover{border-color:#a94f00;background:#fff0df}.product.product-selected{background:#ffd5a8!important;border-color:#a94f00!important}
+.product .product-count-badge{background:#a94f00!important}.product span,.attendance-hours,.attendance-summary-card b,.attendance-person-name-button{color:#8d4100!important}
+.notice{background:#fff0cf;color:#6d3b00}.oknotice{background:#e5f3df;color:#315d2c}.operation-status{background:#fff3df;border-color:#dfa66d}
+.expense-chart,.tip-picker{background:#fff8f1;border-color:#dfa66d}.expense-chart-track,.product-sales-track,.attendance-progress{background:#f6dcc0;border-color:#dfb486}.expense-chart-bar,.product-sales-bar,.attendance-progress-bar{background:linear-gradient(90deg,#f49a38,#a94f00)}
+.payment-workflow-step{padding:12px 14px;border:2px solid #e1ad76;border-radius:12px;background:#fff8ef;margin-bottom:12px}.payment-workflow-step h3{margin:0 0 6px;color:#7d3900}.payment-print-action{width:100%;padding:13px;font-size:1.02rem}
+.attendance-payment-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.attendance-payment-actions .btn{width:100%}@media(max-width:650px){.attendance-payment-actions{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -229,7 +247,7 @@ th.sortable-column[data-sort-direction="desc"]::after{content:'▼';opacity:1;co
 
 <section id="expenses"><div class="grid"><div class="card span-12"><div class="expense-toolbar"><div><h2>Gastos Mensual</h2><div class="muted tiny" style="margin-top:4px">Consulta y administra todos los gastos registrados durante el mes.</div></div><button class="btn primary" id="newExpenseBtn" type="button">+ Registrar nuevo gasto</button></div><div class="metrics"><div class="metric"><small>Total gastos del mes</small><b id="expenseMonthTotal">$0</b></div><div class="metric"><small>Cantidad de gastos</small><b id="expenseMonthCount">0</b></div><div class="metric"><small>Categorías utilizadas</small><b id="expenseMonthCategories">0</b></div></div></div><div class="card span-12"><div class="expense-toolbar"><h2>Detalle de gastos</h2><div class="month-field"><label>Mes a consultar</label><input id="expenseFilterMonth" type="month"></div></div><div id="expenseCategoryChart"></div><div id="expenseList" style="margin-top:18px"></div></div></div></section>
 
-<section id="monthly"><div class="grid"><div class="card span-12 no-print"><div class="row"><div><label>Mes de gestión</label><input id="monthlyPeriod" type="month"></div><div><button class="btn outline" onclick="window.print()">Imprimir gestión mensual</button></div></div></div><div class="card span-12"><h2>Gestión mensual</h2><div class="metrics"><div class="metric"><small>Ventas cobradas</small><b id="monthlySales">$0</b></div><div class="metric"><small>Gastos</small><b id="monthlyExpenses">$0</b></div><div class="metric"><small>Resultado</small><b id="monthlyNet">$0</b></div><div class="metric"><small>Margen sobre ventas</small><b id="monthlyMargin">0%</b></div></div></div><div class="card span-6"><h3>Ventas por medio de pago</h3><div id="monthlyPaymentSummary"></div></div><div class="card span-6"><h3>Gastos por categoría</h3><div id="monthlyExpenseSummary"></div></div><div class="card span-12"><h3>Pago de sueldos</h3><div class="muted tiny" style="margin-bottom:10px">Se consideran los gastos registrados con la categoría “Sueldos” y las propinas asociadas al propietario de cada venta. Los sueldos forman parte de los gastos del mes y afectan el resultado y el margen; las propinas se muestran en el total recibido por el trabajador, pero no se descuentan nuevamente como gasto.</div><div id="monthlySalaryPayments"></div></div><div class="card span-12"><h3>Productos vendidos del mes</h3><div id="monthlyProductSales"></div></div><div class="card span-12"><h3>Resumen diario del mes</h3><div id="monthlyDailySummary"></div></div></div></section>
+<section id="monthly"><div class="grid"><div class="card span-12 no-print"><div class="row"><div><label>Mes de gestión</label><input id="monthlyPeriod" type="month"></div><div><button class="btn outline" onclick="window.print()">Imprimir gestión mensual</button></div></div></div><div class="card span-12"><h2>Gestión mensual</h2><div class="metrics"><div class="metric"><small>Ventas cobradas</small><b id="monthlySales">$0</b></div><div class="metric"><small>Gastos</small><b id="monthlyExpenses">$0</b></div><div class="metric"><small>Resultado</small><b id="monthlyNet">$0</b></div><div class="metric"><small>Margen sobre ventas</small><b id="monthlyMargin">0%</b></div></div></div><div class="card span-6"><h3>Ventas por medio de pago</h3><div id="monthlyPaymentSummary"></div></div><div class="card span-6"><h3>Gastos por categoría</h3><div id="monthlyExpenseSummary"></div></div><div class="card span-12"><h3>Propinas por empleado propietario</h3><div id="monthlyTipsByOwner"></div></div><div class="card span-12"><h3>Productos vendidos del mes</h3><div id="monthlyProductSales"></div></div><div class="card span-12"><h3>Resumen diario del mes</h3><div id="monthlyDailySummary"></div></div></div></section>
 
 <section id="products"><div class="card"><div class="notice">El stock de esta primera versión es por producto vendido (unidades). Para controlar ingredientes —leche, café, helado por sabor, vasos— se necesitará definir recetas y unidades de medida en una segunda etapa.</div><div class="row"><div><h2>Productos y stock simple</h2><div class="muted">Los productos están agrupados por categoría y ordenados alfabéticamente.</div></div><div><button class="btn primary" id="newProductBtn">Agregar producto</button></div></div><div id="productAdminSummary" class="product-admin-summary"></div><div id="productCategoryGroups"></div></div></section>
 
@@ -256,7 +274,7 @@ th.sortable-column[data-sort-direction="desc"]::after{content:'▼';opacity:1;co
 <div class="actions"><button class="btn secondary" id="bulkSalesExampleBtn" type="button">Insertar ejemplo</button><button class="btn primary" id="previewBulkSalesBtn" type="button">Validar y previsualizar</button><button class="btn success" id="commitBulkSalesBtn" type="button" disabled>Cargar en Firestore</button><button class="btn secondary" type="button" onclick="bulkSalesImportDialog.close()">Cancelar</button></div>
 <div id="bulkSalesValidation" style="margin-top:12px"></div><div id="bulkSalesPreview" style="margin-top:12px"></div></div></dialog>
 
-<dialog id="paymentDialog"><div class="dialog-body"><div class="dialog-head"><h2>Registrar pago</h2><button class="x" onclick="paymentDialog.close()">×</button></div><div id="paymentOrderInfo"></div><div id="tipPicker" class="tip-picker"><label>Propina sugerida</label><div class="tip-options"><button type="button" class="tip-btn" data-tip="0">Sin propina</button><button type="button" class="tip-btn" data-tip="5">5%</button><button type="button" class="tip-btn" data-tip="10">10%</button><button type="button" class="tip-btn" data-tip="15">15%</button><button type="button" class="tip-btn" data-tip="20">20%</button></div><div id="tipHelp" class="muted tiny" style="margin-top:8px"></div></div><div class="row" style="margin-top:12px"><div><label>Medio de pago</label><select id="paymentMethod"><option>Efectivo</option><option>Débito</option><option>Crédito</option><option>Transferencia</option></select></div><div><label>Monto</label><input id="paymentAmount" type="number" min="1" step="1"></div></div><div class="actions"><button class="btn primary" id="addPaymentBtn">Agregar pago</button><button class="btn secondary" id="addPaymentPrintBtn">Agregar pago e imprimir</button><button class="btn secondary" onclick="paymentDialog.close()">Cerrar</button></div><div id="paymentsExisting"></div></div></dialog>
+<dialog id="paymentDialog"><div class="dialog-body"><div class="dialog-head"><h2>Registrar pago</h2><button class="x" onclick="paymentDialog.close()">×</button></div><div id="paymentOrderInfo"></div><div class="payment-workflow-step"><h3>1. Entregar detalle al cliente</h3><div class="muted tiny" style="margin-bottom:9px">El comprobante muestra productos, cantidades, subtotales, total de consumo y el total sugerido con 10% de propina. No muestra el medio de pago ni la propina finalmente elegida.</div><button type="button" class="btn secondary payment-print-action" id="printCustomerDetailBtn">Imprimir detalle para cliente</button></div><div id="tipPicker" class="tip-picker"><label>2. ¿Desea incluir propina?</label><div class="tip-options"><button type="button" class="tip-btn" data-tip="0">Sin propina</button><button type="button" class="tip-btn" data-tip="5">5%</button><button type="button" class="tip-btn" data-tip="10">10%</button><button type="button" class="tip-btn" data-tip="15">15%</button><button type="button" class="tip-btn" data-tip="20">20%</button></div><div id="tipHelp" class="muted tiny" style="margin-top:8px"></div></div><div class="payment-workflow-step" style="margin-top:12px"><h3>3. Registrar medio de pago</h3><div class="row"><div><label>Medio de pago</label><select id="paymentMethod"><option>Efectivo</option><option>Débito</option><option>Crédito</option><option>Transferencia</option></select></div><div><label>Monto a registrar</label><input id="paymentAmount" type="number" min="1" step="1"></div></div></div><div class="actions"><button class="btn primary" id="addPaymentBtn">Registrar pago</button><button class="btn secondary" onclick="paymentDialog.close()">Cerrar</button></div><div id="paymentsExisting"></div></div></dialog>
 
 <dialog id="creditDialog"><div class="dialog-body"><div class="dialog-head"><h2>Autorizar cuenta fiada</h2><button class="x" onclick="creditDialog.close()">×</button></div><div id="creditOrderInfo"></div><label>Nombre completo o identificación del cliente</label><input id="creditCustomerName" placeholder="Dato obligatorio para autorizar el fiado"><div class="notice" style="margin-top:12px">Esta acción debe ser realizada por un gerente. La cuenta pasará a “Cuentas pendientes”, liberará la mesa y no bloqueará el cierre diario.</div><div class="actions"><button class="btn primary" id="confirmCreditBtn">Confirmar fiado</button><button class="btn secondary" onclick="creditDialog.close()">Cancelar</button></div></div></dialog>
 
@@ -266,7 +284,7 @@ th.sortable-column[data-sort-direction="desc"]::after{content:'▼';opacity:1;co
 
 <dialog id="productDialog"><div class="dialog-body"><div class="dialog-head"><h2 id="productDialogTitle">Producto</h2><button class="x" onclick="productDialog.close()">×</button></div><input id="editProductId" type="hidden"><label>Nombre</label><input id="editProductName"><label style="margin-top:10px">Descripción para el menú público</label><textarea id="editProductDescription" rows="2" placeholder="Ej.: Preparado con café en grano recién molido."></textarea><div class="row" style="margin-top:10px"><div><label>Categoría</label><input id="editProductCategory"></div><div><label>Precio</label><input id="editProductPrice" type="number" min="0"></div></div><div class="row" style="margin-top:10px"><div><label>Stock actual</label><input id="editProductStock" type="number" step="1"></div><div><label>Control de stock</label><select id="editProductTrack"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Activo</label><select id="editProductActive"><option value="true">Sí</option><option value="false">No</option></select></div></div><div class="notice" style="margin-top:14px"><b>Oferta por cantidad</b><div class="tiny">Ejemplo: cantidad 2 y precio oferta $1.000 para vender 2 unidades por $1.000. Las unidades sobrantes mantienen el precio normal.</div><div class="row" style="margin-top:10px"><div><label>Oferta activa</label><select id="editProductOfferActive"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Cantidad de la oferta</label><input id="editProductOfferQty" type="number" min="2" step="1" placeholder="2"></div><div><label>Precio total de la oferta</label><input id="editProductOfferPrice" type="number" min="0" step="1" placeholder="1000"></div></div></div><button class="btn primary" style="margin-top:12px" id="saveProductBtn">Guardar producto</button></div></dialog>
 
-<!-- Versión 3.28: eliminación de carga retroactiva manual y fechas correctas en carga masiva -->
+<!-- Versión 3.29 QA: pagos de sueldo/propinas, flujo de cobro e identidad anaranjada -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import {
@@ -373,7 +391,7 @@ function classifyToastMessage(message){
 }
 window.alert=message=>showToast(message,classifyToastMessage(message),4600);
 
-let state={settings:{tableCount:6,businessName:'Pillilandia',businessSubtitle:'Heladería & Cafetería',currency:'CLP',timeZone:'America/Santiago'},products:[],orders:[],expenses:[],closures:[],staff:[],schedules:[],attendance:[],operations:[],payrollClosures:[]};
+let state={settings:{tableCount:6,businessName:'Pillilandia',businessSubtitle:'Heladería & Cafetería',currency:'CLP',timeZone:'America/Santiago'},products:[],orders:[],expenses:[],closures:[],staff:[],schedules:[],attendance:[],operations:[]};
 let currentUser=null, selectedStaff=null, cart=[], paymentOrderId=null, creditOrderId=null, editOrderId=null, editOrderCart=[], selectedTipPercent=10, selectedService={type:'meson',label:'Venta Directa'}, employeeAccessLocked=false;
 let unsubscribers=[];
 const pendingUnplannedByDate=new Map();
@@ -536,8 +554,8 @@ const EXPENSE_CATEGORIES=[
   'Aportes JM',
   'Arriendo',
   'Servicios',
-  'Sueldos',
   'Bencina',
+  'Pago de Sueldos',
   'Otro'
 ];
 function normalizeExpenseCategories(){
@@ -592,11 +610,6 @@ function startRealtime(){
       state.attendance=snap.docs.map(d=>({id:d.id,...d.data()}));renderAll();
     },firebaseError));
   }else state.attendance=[];
-  if(roleIsManager()){
-    unsubscribers.push(onSnapshot(collection(firestore,'payrollClosures'),snap=>{
-      state.payrollClosures=snap.docs.map(d=>({id:d.id,...d.data()}));renderAll();
-    },firebaseError));
-  }else state.payrollClosures=[];
   unsubscribers.push(onSnapshot(collection(firestore,'dailyClosures'),snap=>{
     state.closures=snap.docs.map(d=>({id:d.id,...d.data()}));renderAll();
   },firebaseError));
@@ -956,31 +969,36 @@ function renderPaymentDialog(){
   $('paymentAmount').value=pending||'';
   $('paymentsExisting').innerHTML=(o.payments||[]).length?`<h3 style="margin-top:16px">Pagos registrados</h3>`+o.payments.map(p=>`<div class="payment-line"><b>${esc(p.method)}</b> · ${fmt(p.amount)} <span class="muted tiny">${formatDateTimeDisplay(p.createdAt)}</span></div>`).join(''):'';
 }
-function buildReceiptHtml(o,payment,percent,tip,total,newBalance){
+function buildCustomerDetailReceiptHtml(o){
+  const subtotal=orderTotal(o);
+  const suggestedTip=Math.round(subtotal*.10);
+  const suggestedTotal=subtotal+suggestedTip;
   const items=(o.items||[]).map(i=>`<div class="receipt-row"><span>${Number(i.qty)||0} x ${esc(i.name)}${offerDescription(i)?`<small style="display:block">Oferta ${esc(offerDescription(i))}</small>`:''}</span><b>${fmt(lineSubtotal(i))}</b></div>`).join('');
   return `<div class="receipt-title">PILLILANDIA</div>
     <div class="receipt-center">Heladería y Cafetería</div>
-    <div class="receipt-center">Comprobante de pago</div>
+    <div class="receipt-center">Detalle de consumo</div>
     <div class="receipt-sep"></div>
     <div>Cuenta: ${esc(saleDisplayNumber(o))} · ${esc(o.label)}</div>
     <div>Fecha: ${formatDateTimeDisplay(new Date())}</div>
-    
     <div class="receipt-sep"></div>
     ${items}
     <div class="receipt-sep"></div>
-    <div class="receipt-row"><span>Consumo</span><b>${fmt(orderTotal(o))}</b></div>
-    <div class="receipt-row"><span>Propina (${percent}%)</span><b>${fmt(tip)}</b></div>
-    <div class="receipt-row receipt-total"><span>Total cuenta</span><b>${fmt(total)}</b></div>
+    <div class="receipt-row receipt-total"><span>Total consumo</span><b>${fmt(subtotal)}</b></div>
+    <div class="receipt-row"><span>Propina sugerida 10%</span><b>${fmt(suggestedTip)}</b></div>
+    <div class="receipt-row receipt-total"><span>Total incluyendo propina</span><b>${fmt(suggestedTotal)}</b></div>
     <div class="receipt-sep"></div>
-    <div class="receipt-row"><span>${esc(payment.method)}</span><b>${fmt(payment.amount)}</b></div>
-    <div class="receipt-row"><span>Saldo pendiente</span><b>${fmt(newBalance)}</b></div>
-    <div class="receipt-sep"></div>
-    <div class="receipt-center">¡Gracias por preferirnos!</div>
+    <div class="receipt-center">¿Desea incluir la propina sugerida?</div>
     <div class="receipt-center" style="margin-top:8px;font-weight:700">Comprobante no válido como boleta.</div>
     <div class="receipt-center" style="margin-top:8px">Síguenos en Instagram:</div>
     <div class="receipt-center" style="font-weight:700">@pillilandia</div>`;
 }
-async function registerPayment({printAfter=false}={}){
+function printCustomerDetail(){
+  const o=state.orders.find(x=>x.id===paymentOrderId);
+  if(!o)return alert('La cuenta ya no está disponible para imprimir.');
+  $('printReceipt').innerHTML=buildCustomerDetailReceiptHtml(o);
+  setTimeout(()=>window.print(),120);
+}
+async function registerPayment(){
   const o=state.orders.find(x=>x.id===paymentOrderId),amount=Number($('paymentAmount').value);
   if(!o||!Number.isFinite(amount)||amount<=0)return alert('Ingresa un monto válido.');
   const hasPayments=(o.payments||[]).length>0;
@@ -997,14 +1015,10 @@ async function registerPayment({printAfter=false}={}){
   const newBalance=Math.max(0,total-payments.reduce((s,p)=>s+Number(p.amount),0));
   const pendingStatus=(o.status==='credit'||o.onCredit===true)?'credit':'open';
   await updateDoc(doc(firestore,'orders',o.id),{payments,tipPercent:percent,tipAmount:tip,status:newBalance===0?'closed':pendingStatus,closedAt:newBalance===0?nowIso():null,...auditFields()});
-  if(printAfter){
-    $('printReceipt').innerHTML=buildReceiptHtml(o,payment,percent,tip,total,newBalance);
-    setTimeout(()=>window.print(),120);
-  }
-  if(newBalance===0){$('paymentDialog').close();switchTab('orders');alert(printAfter?'Cuenta pagada, cerrada y enviada a impresión.':'Cuenta pagada y cerrada.')}else renderPaymentDialog();
+  if(newBalance===0){$('paymentDialog').close();switchTab('orders');alert('Cuenta pagada y cerrada.')}else renderPaymentDialog();
 }
-$('addPaymentBtn').onclick=()=>registerPayment({printAfter:false});
-$('addPaymentPrintBtn').onclick=()=>registerPayment({printAfter:true});
+$('addPaymentBtn').onclick=()=>registerPayment();
+$('printCustomerDetailBtn').onclick=printCustomerDetail;
 window.voidOrder=async id=>{const o=state.orders.find(x=>x.id===id);if(!o||!ensureOrderActionAccess(o,'anular esta cuenta')||!confirm('¿Anular esta cuenta? El stock controlado será devuelto.'))return;const batch=writeBatch(firestore);batch.update(doc(firestore,'orders',id),{status:'void',voidedAt:nowIso(),...auditFields()});for(const i of o.items||[]){const p=state.products.find(x=>x.id===i.productId);if(p?.trackStock)batch.update(doc(firestore,'products',p.id),{stock:Number(p.stock)+Number(i.qty),...auditFields()})}await batch.commit()};
 
 function renderExpenses(){
@@ -1029,7 +1043,7 @@ function renderExpenses(){
   $('expenseCategoryChart').innerHTML=chartData.length?`<div class="expense-chart"><h3>Gastos agrupados por categoría</h3>${chartData.map(([category,amount])=>`<div class="expense-chart-row"><div class="expense-chart-label"><span>${esc(category)}</span><b>${fmt(amount)}</b></div><div class="expense-chart-track"><div class="expense-chart-bar" style="width:${maxValue?Math.max(4,(amount/maxValue)*100):0}%"></div></div></div>`).join('')}</div>`:'<div class="empty">Sin gastos vigentes para el mes seleccionado</div>';
 
   const adminNote=isAdmin&&deletedXs.length?`<div class="expense-admin-note"><b>Vista de administrador:</b> se muestran ${deletedXs.length} gasto${deletedXs.length===1?' eliminado':'s eliminados'} lógicamente en rojo. Estos registros no se incluyen en los totales ni en el gráfico.</div>`:'';
-  $('expenseList').innerHTML=xs.length?`${adminNote}<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción / proveedor</th><th>Registrado por</th><th>Modificado por</th><th class="right">Monto</th><th class="right no-print">Acciones</th></tr></thead><tbody>${xs.map(x=>{
+  $('expenseList').innerHTML=xs.length?`${adminNote}<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción / proveedor / empleado</th><th>Registrado por</th><th>Modificado por</th><th class="right">Monto</th><th class="right no-print">Acciones</th></tr></thead><tbody>${xs.map(x=>{
     const modifiedName=x.modifiedByName||'—';
     const modifiedWhen=x.modifiedAt?formatDateTimeDisplay(x.modifiedAt):'';
     const deleted=x.deleted===true;
@@ -1189,98 +1203,7 @@ window.viewSaleDetail=id=>{
   $('saleDetailDialog').showModal();
 };
 $('reportDate').onchange=renderDashboard;
-function renderMonthly(){
-  const period=$('monthlyPeriod').value;
-  if(!period)return;
-
-  const monthOrders=state.orders.filter(o=>o.status!=='void'&&o.businessDate&&o.businessDate.startsWith(period));
-  const monthPayments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate&&p.businessDate.startsWith(period)));
-  const monthExpenses=state.expenses.filter(x=>x.deleted!==true&&x.date&&x.date.startsWith(period));
-
-  const sales=monthPayments.reduce((s,p)=>s+Number(p.amount),0);
-  const expenses=monthExpenses.reduce((s,x)=>s+Number(x.amount),0);
-  const net=sales-expenses;
-  const margin=sales?Math.round((net/sales)*100):0;
-
-  $('monthlySales').textContent=fmt(sales);
-  $('monthlyExpenses').textContent=fmt(expenses);
-  $('monthlyNet').textContent=fmt(net);
-  $('monthlyMargin').textContent=margin+'%';
-
-  const methods=['Efectivo','Débito','Crédito','Transferencia'];
-  $('monthlyPaymentSummary').innerHTML=methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(monthPayments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('');
-
-  const cats=[...new Set(monthExpenses.map(x=>x.category))].sort();
-  $('monthlyExpenseSummary').innerHTML=cats.length?cats.map(c=>`<div class="payment-line"><span>${esc(c)}</span><span class="money" style="float:right">${fmt(monthExpenses.filter(x=>x.category===c).reduce((s,x)=>s+Number(x.amount),0))}</span></div>`).join(''):'<div class="empty">Sin gastos en el mes</div>';
-
-  const salaryExpenses=monthExpenses
-    .filter(x=>normalizeBulkHeader(x.category)==='sueldos')
-    .sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))||String(a.description||'').localeCompare(String(b.description||''),'es'));
-  const salaryTotal=salaryExpenses.reduce((sum,x)=>sum+Number(x.amount||0),0);
-  const salaryByPerson=new Map();
-  const staffByNormalizedName=new Map(state.staff.map(person=>[normalizeBulkHeader(person.name),person]));
-  const salaryKey=(name,staffId='')=>staffId?`staff:${staffId}`:`name:${normalizeBulkHeader(name)||'sin-identificar'}`;
-
-  salaryExpenses.forEach(x=>{
-    const description=String(x.description||'Sin identificar').trim()||'Sin identificar';
-    const matchedStaff=staffByNormalizedName.get(normalizeBulkHeader(description))||null;
-    const key=salaryKey(description,matchedStaff?.id||'');
-    const current=salaryByPerson.get(key)||{
-      key,
-      staffId:matchedStaff?.id||null,
-      person:matchedStaff?.name||description,
-      count:0,
-      salary:0,
-      tips:0,
-      lastDate:''
-    };
-    current.count+=1;
-    current.salary+=Number(x.amount||0);
-    if(!current.lastDate||String(x.date||'')>current.lastDate)current.lastDate=String(x.date||'');
-    salaryByPerson.set(key,current);
-  });
-
-  monthOrders.forEach(order=>{
-    const tips=tipAmount(order);
-    if(tips<=0)return;
-    const staffId=order.ownerStaffId||order.staffId||null;
-    const person=ownerName(order)||'Sin identificar';
-    let key=salaryKey(person,staffId||'');
-    let current=salaryByPerson.get(key);
-
-    // Compatibilidad con gastos de sueldo antiguos identificados solo por nombre.
-    if(!current&&staffId){
-      const nameKey=salaryKey(person);
-      current=salaryByPerson.get(nameKey);
-      if(current){
-        salaryByPerson.delete(nameKey);
-        current.key=key;
-        current.staffId=staffId;
-        current.person=person;
-        salaryByPerson.set(key,current);
-      }
-    }
-
-    if(!current){
-      current={key,staffId,person,count:0,salary:0,tips:0,lastDate:''};
-      salaryByPerson.set(key,current);
-    }
-    current.tips+=tips;
-  });
-
-  const salaryRows=[...salaryByPerson.values()]
-    .map(x=>({...x,finalTotal:x.salary+x.tips}))
-    .sort((a,b)=>b.finalTotal-a.finalTotal||a.person.localeCompare(b.person,'es'));
-  const tipsTotal=salaryRows.reduce((sum,x)=>sum+x.tips,0);
-  const finalReceivedTotal=salaryTotal+tipsTotal;
-
-  $('monthlySalaryPayments').innerHTML=salaryRows.length?`<div style="overflow:auto"><table><thead><tr><th>Trabajador</th><th class="right">Pagos de sueldo</th><th>Último pago</th><th class="right">Sueldo pagado</th><th class="right">Propinas del mes</th><th class="right">Total final recibido</th></tr></thead><tbody>${salaryRows.map(x=>`<tr><td>${esc(x.person)}</td><td class="right">${x.count}</td><td>${x.lastDate?formatDateDisplay(x.lastDate):'—'}</td><td class="right">${fmt(x.salary)}</td><td class="right">${fmt(x.tips)}</td><td class="right"><b>${fmt(x.finalTotal)}</b></td></tr>`).join('')}</tbody><tfoot><tr><th>Total mensual</th><th class="right">${salaryExpenses.length}</th><th></th><th class="right">${fmt(salaryTotal)}</th><th class="right">${fmt(tipsTotal)}</th><th class="right">${fmt(finalReceivedTotal)}</th></tr></tfoot></table></div>`:'<div class="empty">No hay pagos de sueldos ni propinas asociados a trabajadores para el mes seleccionado.</div>';
-
-  const days=[...new Set([...monthPayments.map(p=>p.businessDate),...monthExpenses.map(x=>x.date)])].sort();
-  $('monthlyDailySummary').innerHTML=days.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th class="right">Ventas</th><th class="right">Gastos</th><th class="right">Resultado</th></tr></thead><tbody>${days.map(d=>{const vs=monthPayments.filter(p=>p.businessDate===d).reduce((s,p)=>s+Number(p.amount),0),gs=monthExpenses.filter(x=>x.date===d).reduce((s,x)=>s+Number(x.amount),0);return `<tr><td>${formatDateDisplay(d)}</td><td class="right">${fmt(vs)}</td><td class="right">${fmt(gs)}</td><td class="right"><b>${fmt(vs-gs)}</b></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Sin movimientos en el mes</div>';
-
-  renderProductSales('monthlyProductSales',monthOrders,'Sin productos vendidos para el mes seleccionado.');
-}
+function renderMonthly(){const period=$('monthlyPeriod').value;if(!period)return;const monthOrders=state.orders.filter(o=>o.status!=='void'&&o.businessDate&&o.businessDate.startsWith(period));const monthPayments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate&&p.businessDate.startsWith(period)));const monthExpenses=state.expenses.filter(x=>x.deleted!==true&&x.date&&x.date.startsWith(period));const sales=monthPayments.reduce((s,p)=>s+Number(p.amount),0),expenses=monthExpenses.reduce((s,x)=>s+Number(x.amount),0),net=sales-expenses,margin=sales?Math.round((net/sales)*100):0;$('monthlySales').textContent=fmt(sales);$('monthlyExpenses').textContent=fmt(expenses);$('monthlyNet').textContent=fmt(net);$('monthlyMargin').textContent=margin+'%';const methods=['Efectivo','Débito','Crédito','Transferencia'];$('monthlyPaymentSummary').innerHTML=methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(monthPayments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('');const cats=[...new Set(monthExpenses.map(x=>x.category))].sort();$('monthlyExpenseSummary').innerHTML=cats.length?cats.map(c=>`<div class="payment-line"><span>${esc(c)}</span><span class="money" style="float:right">${fmt(monthExpenses.filter(x=>x.category===c).reduce((s,x)=>s+Number(x.amount),0))}</span></div>`).join(''):'<div class="empty">Sin gastos en el mes</div>';const tipsByOwner=new Map();monthOrders.forEach(o=>{const tip=tipAmount(o);if(tip<=0)return;const ownerId=o.ownerStaffId||o.staffId||o.createdByUid||o.createdByName||'sin-asignar';const owner=ownerName(o);const current=tipsByOwner.get(ownerId)||{owner,sales:0,tips:0};current.sales+=1;current.tips+=tip;tipsByOwner.set(ownerId,current)});const ownerTips=[...tipsByOwner.values()].sort((a,b)=>b.tips-a.tips||a.owner.localeCompare(b.owner,'es'));const totalOwnerTips=ownerTips.reduce((sum,x)=>sum+x.tips,0);$('monthlyTipsByOwner').innerHTML=ownerTips.length?`<div style="overflow:auto"><table><thead><tr><th>Empleado propietario</th><th class="right">Ventas con propina</th><th class="right">Total propinas</th></tr></thead><tbody>${ownerTips.map(x=>`<tr><td>${esc(x.owner)}</td><td class="right">${x.sales}</td><td class="right"><b>${fmt(x.tips)}</b></td></tr>`).join('')}<tr><td><b>Total mensual</b></td><td class="right"><b>${ownerTips.reduce((sum,x)=>sum+x.sales,0)}</b></td><td class="right"><b>${fmt(totalOwnerTips)}</b></td></tr></tbody></table></div>`:'<div class="empty">Sin propinas registradas en el mes</div>';const days=[...new Set([...monthPayments.map(p=>p.businessDate),...monthExpenses.map(x=>x.date)])].sort();$('monthlyDailySummary').innerHTML=days.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha</th><th class="right">Ventas</th><th class="right">Gastos</th><th class="right">Resultado</th></tr></thead><tbody>${days.map(d=>{const vs=monthPayments.filter(p=>p.businessDate===d).reduce((s,p)=>s+Number(p.amount),0),gs=monthExpenses.filter(x=>x.date===d).reduce((s,x)=>s+Number(x.amount),0);return `<tr><td>${formatDateDisplay(d)}</td><td class="right">${fmt(vs)}</td><td class="right">${fmt(gs)}</td><td class="right"><b>${fmt(vs-gs)}</b></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Sin movimientos en el mes</div>';renderProductSales('monthlyProductSales',monthOrders,'Sin productos vendidos para el mes seleccionado.')}
 $('monthlyPeriod').onchange=renderMonthly;
 
 function renderProductTable(){
@@ -1309,93 +1232,6 @@ $('newProductBtn').onclick=()=>editProduct('');$('saveProductBtn').onclick=async
 
 function renderCloseDay(){const d=today(),orders=state.orders.filter(o=>o.status!=='void'&&o.businessDate===d),payments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate===d)),sales=payments.reduce((s,p)=>s+Number(p.amount),0),open=state.orders.filter(o=>o.status==='open'&&!o.onCredit),creditOpen=state.orders.filter(o=>(o.status==='credit'||o.onCredit===true)&&o.status!=='closed'&&o.status!=='void'),methods=['Efectivo','Débito','Crédito','Transferencia'];$('closeCreditNotice')?.classList.toggle('hidden',creditOpen.length===0);$('closeDaySummary').innerHTML=`<div class="metrics" style="margin-bottom:12px"><div class="metric"><small>Total cobrado hoy</small><b>${fmt(sales)}</b></div><div class="metric"><small>Pedidos del día</small><b>${orders.length}</b></div><div class="metric"><small>Cuentas cerradas</small><b>${orders.filter(o=>o.status==='closed').length}</b></div><div class="metric"><small>Cuentas fiadas pendientes</small><b>${creditOpen.length}</b></div></div><div class="card" style="box-shadow:none"><h3>Medios de pago</h3>${methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(payments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('')}</div>${open.length?`<div class="dangernotice" style="margin-top:12px"><b>Atención:</b> existen ${open.length} cuenta(s) abierta(s) normal(es) por ${fmt(open.reduce((s,o)=>s+balance(o),0))}. Deben pagarse, anularse o ser autorizadas como fiado por un gerente.</div>`:'<div class="oknotice" style="margin-top:12px">No existen cuentas abiertas que bloqueen el cierre.</div>'}${creditOpen.length?`<div class="notice" style="margin-top:12px">Hay ${creditOpen.length} cuenta(s) fiada(s) por ${fmt(creditOpen.reduce((s,o)=>s+balance(o),0))}. No bloquean el cierre diario.</div>`:''}`}
 
-
-
-function payrollClosureId(period,staffId){return `${period}_${staffId}`}
-function payrollClosureFor(period,staffId){return state.payrollClosures.find(x=>x.id===payrollClosureId(period,staffId))||null}
-function isPayrollLocked(period,staffId){return payrollClosureFor(period,staffId)?.status==='paid'}
-function assertPayrollEditable(period,staffId,personName='esta persona'){
-  const closure=payrollClosureFor(period,staffId);
-  if(closure?.status==='paid'){
-    alert(`El período ${period} de ${personName} está bloqueado porque el pago mensual ya fue creado. No se puede modificar la planificación, asistencia ni tarifa de ese mes.`);
-    return false;
-  }
-  return true;
-}
-function lastDateOfPeriod(period){
-  const [year,month]=String(period).split('-').map(Number);
-  const day=new Date(year,month,0).getDate();
-  return `${period}-${String(day).padStart(2,'0')}`;
-}
-window.createPayrollPayment=async(staffId,period)=>{
-  if(!roleIsManager())return alert('Solo administrador o gerente pueden crear el pago mensual.');
-  const person=state.staff.find(x=>x.id===staffId);
-  if(!person)return alert('No fue posible identificar a la persona.');
-  const existing=payrollClosureFor(period,staffId);
-  if(existing)return alert('Este pago mensual ya fue creado anteriormente.');
-  const schedules=state.schedules.filter(x=>x.active!==false&&x.staffId===staffId&&x.date?.startsWith(period));
-  const attendance=state.attendance.filter(x=>x.staffId===staffId&&x.date?.startsWith(period));
-  const completeDays=attendance.filter(x=>x.actualStart&&x.actualEnd).length;
-  const plannedDays=schedules.length;
-  const dailyRate=Number(person.dailyRate)||0;
-  const plannedAmount=dailyRate*plannedDays;
-  const attendanceAmount=dailyRate*completeDays;
-  const tipsAmount=state.orders.filter(o=>{
-    if(o.status==='void'||!o.businessDate?.startsWith(period)||tipAmount(o)<=0)return false;
-    const ownerId=o.ownerStaffId||o.staffId||null;
-    return ownerId?ownerId===staffId:ownerName(o)===person.name;
-  }).reduce((sum,o)=>sum+tipAmount(o),0);
-  if(attendanceAmount<=0)return alert('El pago calculado según asistencia es $0. Revisa la tarifa diaria y los registros de asistencia antes de crear el pago.');
-  const warning=`Se creará un gasto de Sueldos por ${fmt(attendanceAmount)} para ${person.name}, correspondiente a ${period}.
-
-Después de confirmar:
-• No se podrá modificar su planificación del mes.
-• No se podrá modificar ni eliminar su asistencia del mes.
-• No se podrá cambiar su tarifa para este cálculo.
-• Las propinas (${fmt(tipsAmount)}) se mostrarán en el total recibido, pero no se registrarán nuevamente como gasto.
-
-¿Deseas crear el pago y bloquear el período?`;
-  if(!confirm(warning))return;
-  const closureRef=doc(firestore,'payrollClosures',payrollClosureId(period,staffId));
-  const expenseRef=doc(collection(firestore,'expenses'));
-  const actorName=selectedStaff?.name||currentUser.name;
-  const createdAt=nowIso();
-  const expenseData={
-    date:lastDateOfPeriod(period),category:'Sueldos',description:person.name,amount:attendanceAmount,
-    staffId,staffName:person.name,payrollPeriod:period,payrollClosureId:closureRef.id,
-    payrollType:'attendance-base',plannedAmount,attendanceAmount,completeDays,plannedDays,dailyRate,
-    createdAt,...actorFields(),updatedAt:null,updatedByUid:null,updatedByName:null,
-    modifiedAt:null,modifiedByUid:null,modifiedByName:null
-  };
-  const closureData={
-    period,staffId,staffName:person.name,status:'paid',dailyRate,plannedDays,completeDays,
-    plannedAmount,attendanceAmount,tipsAmount,totalReceived:attendanceAmount+tipsAmount,
-    expenseId:expenseRef.id,createdAt,createdByUid:currentUser.uid,createdByName:actorName,
-    lockedAt:createdAt,lockedByUid:currentUser.uid,lockedByName:actorName
-  };
-  const batch=writeBatch(firestore);
-  batch.set(expenseRef,expenseData);
-  batch.set(closureRef,closureData);
-  await batch.commit();
-  state.expenses.push({id:expenseRef.id,...expenseData});
-  state.payrollClosures.push({id:closureRef.id,...closureData});
-  renderAll();
-  showToast(`Pago mensual de ${person.name} creado por ${fmt(attendanceAmount)}. El período quedó bloqueado.`,'success',6000);
-};
-window.unlockPayrollPeriod=async(staffId,period)=>{
-  if(!roleIsAdmin())return alert('Solo el Administrador puede desbloquear un período pagado.');
-  const closure=payrollClosureFor(period,staffId);
-  if(!closure||closure.status!=='paid')return alert('El período no está bloqueado.');
-  const warning=`¿Desbloquear la planificación y asistencia de ${closure.staffName} para ${period}?
-
-El gasto de sueldo ya creado NO será eliminado ni modificado. El desbloqueo quedará auditado y no permitirá crear un segundo pago base para el mismo período.`;
-  if(!confirm(warning))return;
-  const unlockedAt=nowIso(),unlockedByName=selectedStaff?.name||currentUser.name;
-  await updateDoc(doc(firestore,'payrollClosures',closure.id),{status:'unlocked',unlockedAt,unlockedByUid:currentUser.uid,unlockedByName,...auditFields()});
-  Object.assign(closure,{status:'unlocked',unlockedAt,unlockedByUid:currentUser.uid,unlockedByName});
-  renderAll();
-  showToast(`Período ${period} de ${closure.staffName} desbloqueado para correcciones.`,'success');
-};
 
 function renderScheduleStaffChecks(){
   if(!$('scheduleStaff'))return;
@@ -1440,7 +1276,7 @@ function renderScheduleList(){
     `<b>${pendingCount}</b> pendiente(s)`,
     `<b>${xs.length-pendingCount}</b> transcurrido(s)`
   ].filter(Boolean).join(' · ');
-  $('scheduleList').innerHTML=xs.length?`<div class="tiny muted" style="margin-bottom:8px">${summary}</div><div style="overflow:auto"><table><thead><tr><th>Estado</th><th>Fecha</th><th>Día</th><th>Persona</th><th>Rol</th><th>Horario</th><th>Acciones</th></tr></thead><tbody>${xs.map(x=>{const weekday=weekdayInfo(x.date);return `<tr><td><span class="badge ${x._displayState.css}">${x._displayState.label}</span></td><td>${formatDateDisplay(x.date)}</td><td><span class="schedule-day ${weekday.css}">${weekday.label}</span></td><td>${esc(x.staffName)}</td><td>${roleLabel(x.role)}</td><td>${esc(x.startTime)}–${esc(x.endTime)}</td><td><div class="actions" style="margin-top:0;flex-wrap:nowrap">${isPayrollLocked(String(x.date||'').slice(0,7),x.staffId)?'<span class="badge closed">Pago creado · bloqueado</span>':`<button class="btn secondary tiny" onclick="editSchedule('${x.id}')">Editar</button><button class="btn danger tiny" onclick="deleteSchedule('${x.id}')">Eliminar</button>`}</div></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Sin turnos planificados para este mes</div>';
+  $('scheduleList').innerHTML=xs.length?`<div class="tiny muted" style="margin-bottom:8px">${summary}</div><div style="overflow:auto"><table><thead><tr><th>Estado</th><th>Fecha</th><th>Día</th><th>Persona</th><th>Rol</th><th>Horario</th><th>Acciones</th></tr></thead><tbody>${xs.map(x=>{const weekday=weekdayInfo(x.date);return `<tr><td><span class="badge ${x._displayState.css}">${x._displayState.label}</span></td><td>${formatDateDisplay(x.date)}</td><td><span class="schedule-day ${weekday.css}">${weekday.label}</span></td><td>${esc(x.staffName)}</td><td>${roleLabel(x.role)}</td><td>${esc(x.startTime)}–${esc(x.endTime)}</td><td><div class="actions" style="margin-top:0;flex-wrap:nowrap"><button class="btn secondary tiny" onclick="editSchedule('${x.id}')">Editar</button><button class="btn danger tiny" onclick="deleteSchedule('${x.id}')">Eliminar</button></div></td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Sin turnos planificados para este mes</div>';
 }
 function resetScheduleForm(){
   $('editScheduleId').value='';
@@ -1460,7 +1296,6 @@ window.editSchedule=id=>{
   if(!roleIsManager())return;
   const schedule=state.schedules.find(x=>x.id===id);
   if(!schedule)return alert('El turno ya no está disponible.');
-  if(!assertPayrollEditable(String(schedule.date||'').slice(0,7),schedule.staffId,schedule.staffName))return;
   $('editScheduleId').value=schedule.id;
   $('scheduleFormTitle').textContent='Editar turno planificado';
   $('scheduleDateFrom').value=schedule.date;
@@ -1478,7 +1313,7 @@ window.editSchedule=id=>{
 $('newScheduleBtn').onclick=()=>{resetScheduleForm();$('scheduleDialog').showModal();};
 $('cancelScheduleEditBtn').onclick=()=>$('scheduleDialog').close();
 $('scheduleDialog').addEventListener('close',resetScheduleForm);
-window.deleteSchedule=async id=>{if(!roleIsManager())return;const schedule=state.schedules.find(x=>x.id===id);if(!schedule)return alert('El turno ya no está disponible.');if(!assertPayrollEditable(String(schedule.date||'').slice(0,7),schedule.staffId,schedule.staffName))return;if(!confirm('¿Eliminar este turno planificado?'))return;await deleteDoc(doc(firestore,'staffSchedules',id));if($('editScheduleId').value===id)$('scheduleDialog').close()};
+window.deleteSchedule=async id=>{if(!roleIsManager()||!confirm('¿Eliminar este turno planificado?'))return;await deleteDoc(doc(firestore,'staffSchedules',id));if($('editScheduleId').value===id)$('scheduleDialog').close()};
 function datesInRangeSkippingSaturdays(fromDate,toDate){
   const result=[];
   const [fy,fm,fd]=fromDate.split('-').map(Number),[ty,tm,td]=toDate.split('-').map(Number);
@@ -1501,7 +1336,6 @@ $('saveScheduleBtn').onclick=async()=>{
   if(editId){
     const existing=state.schedules.find(x=>x.id===editId);
     if(!existing)return alert('El turno ya no está disponible para editar.');
-    if(!assertPayrollEditable(String(existing.date||'').slice(0,7),existing.staffId,existing.staffName))return;
     if(!confirm(`¿Guardar el nuevo horario ${startTime}–${endTime} para ${existing.staffName} el ${existing.date}?`))return;
     await updateDoc(doc(firestore,'staffSchedules',editId),{
       startTime,endTime,
@@ -1517,8 +1351,6 @@ $('saveScheduleBtn').onclick=async()=>{
   const p=state.staff.find(x=>x.id===staffId);if(!p)return alert('La persona seleccionada ya no está disponible.');
   const dates=datesInRangeSkippingSaturdays(dateFrom,dateTo);
   if(!dates.length)return alert('El rango seleccionado solo contiene sábado(s), por lo que no hay turnos para guardar.');
-  const lockedPeriod=dates.map(date=>date.slice(0,7)).find(period=>isPayrollLocked(period,staffId));
-  if(lockedPeriod)return alert(`No se puede crear ni modificar planificación para ${p.name} en ${lockedPeriod}, porque su pago mensual ya fue creado.`);
   const skippedSaturdays=Math.round((new Date(`${dateTo}T12:00:00`)-new Date(`${dateFrom}T12:00:00`))/86400000)+1-dates.length;
   const message=`Se guardarán ${dates.length} jornada(s) para ${p.name}, desde ${dateFrom} hasta ${dateTo}, con horario ${startTime}–${endTime}.${skippedSaturdays?` Se omitirán ${skippedSaturdays} sábado(s).`:''}`;
   if(!confirm(message+'\n\n¿Deseas continuar?'))return;
@@ -1586,7 +1418,7 @@ function renderMonthlyAttendanceSummary(){
       return `<tr><td>${esc(formattedDate)}</td><td>${sc?`${esc(sc.startTime)}–${esc(sc.endTime)}`:'—'}</td><td>${a?.actualStart||a?.actualEnd?`${esc(a.actualStart||'—')}–${esc(a.actualEnd||'—')}`:'—'}</td><td class="right">${formatHours(planned)}</td><td class="right">${formatHours(worked)}</td><td class="right"><b class="attendance-difference ${dayDiff>0?'positive':dayDiff<0?'negative':'neutral'}">${dayDiffText}</b></td><td><span class="attendance-day-status ${statusClass}">${status}</span></td></tr>`;
     }).join('');
     const detailId=`attendancePersonDetail_${index}`;
-    return `<div class="attendance-person-card"><div class="attendance-person-head"><div><button type="button" class="attendance-person-name-button" data-attendance-detail-target="${detailId}" aria-expanded="false"><span class="attendance-person-toggle">▶</span>${esc(p.name)}</button><div class="muted tiny">${roleLabel(p.role)} · ${p.plannedDays} jornada(s) solicitada(s)</div></div><div class="attendance-hours">${formatHours(p.workedMinutes)} / ${formatHours(p.plannedMinutes)}</div></div><div class="attendance-progress"><div class="attendance-progress-bar ${pct>100?'over':''}" style="width:${bar}%"></div></div><div class="tiny muted">Cumplimiento de horas: <b>${pct}%</b></div><div class="attendance-person-details"><div class="attendance-detail"><small>Horas solicitadas</small><b>${formatHours(p.plannedMinutes)}</b></div><div class="attendance-detail"><small>Horas trabajadas</small><b>${formatHours(p.workedMinutes)}</b></div><div class="attendance-detail"><small>Diferencia</small><b class="attendance-difference ${diffClass}">${diffText}</b></div><div class="attendance-detail"><small>Jornadas completas</small><b>${p.completeDays}</b></div><div class="attendance-detail"><small>Registros parciales</small><b>${p.partialDays}</b></div></div>${p.unplannedDays?`<div class="notice" style="margin:10px 0 0">Incluye ${p.unplannedDays} jornada(s) no planificada(s).</div>`:''}<div id="${detailId}" class="attendance-person-day-detail hidden"><div style="overflow:auto"><table class="attendance-detail-table"><thead><tr><th>Fecha</th><th>Horario solicitado</th><th>Asistencia real</th><th class="right">Horas solicitadas</th><th class="right">Horas trabajadas</th><th class="right">Diferencia</th><th>Estado</th></tr></thead><tbody>${dayRows||'<tr><td colspan="7" class="muted">Sin detalle para este mes.</td></tr>'}</tbody></table></div><div class="attendance-payment-details">${(()=>{const closure=payrollClosureFor(period,p.staffId);const locked=closure?.status==='paid';const alreadyCreated=Boolean(closure);return `<div class="attendance-detail"><small>Tarifa diaria</small>${p.staffId?`<div class="attendance-rate-editor"><input id="attendanceRate_${esc(p.staffId)}" type="number" min="0" step="100" value="${p.dailyRate}" aria-label="Tarifa diaria de ${esc(p.name)}" ${locked?'disabled':''}><button class="btn secondary tiny" onclick="saveAttendanceRate('${esc(p.staffId)}')" ${locked?'disabled':''}>Guardar</button></div>`:`<b>${fmt(p.dailyRate)}</b>`}${locked?'<span class="tiny muted">Bloqueada por pago creado</span>':''}</div><div class="attendance-detail"><small>Pago mensual planificado</small><b>${fmt(plannedPayment)}</b><span class="tiny muted">${p.plannedDays} jornada(s) planificada(s)</span></div><div class="attendance-detail"><small>Pago según asistencia</small><b>${fmt(actualPayment)}</b><span class="tiny muted">${p.completeDays} día(s) trabajado(s)</span><div class="attendance-payment-breakdown"><div class="attendance-payment-line"><span>Propinas del mes</span><span>${fmt(personTips)}</span></div><div class="attendance-payment-line total"><span>Total a recibir</span><span>${fmt(actualPaymentWithTips)}</span></div></div><div class="actions" style="margin-top:10px">${!alreadyCreated?`<button class="btn success" type="button" onclick="createPayrollPayment('${esc(p.staffId)}','${esc(period)}')">Crear pago</button>`:`<span class="badge ${locked?'closed':'today'}">${locked?'Pago creado · período bloqueado':'Pago creado · período desbloqueado'}</span>${locked&&roleIsAdmin()?`<button class="btn danger tiny" type="button" onclick="unlockPayrollPeriod('${esc(p.staffId)}','${esc(period)}')">Desbloquear edición</button>`:''}`} </div>${closure?`<div class="tiny muted" style="margin-top:8px">Pago base: ${fmt(closure.attendanceAmount)} · Creado por ${esc(closure.createdByName||'Usuario')} · ${formatDateTimeDisplay(closure.createdAt)}</div>`:''}</div>`})()}</div></div></div></div>`;
+    return `<div class="attendance-person-card"><div class="attendance-person-head"><div><button type="button" class="attendance-person-name-button" data-attendance-detail-target="${detailId}" aria-expanded="false"><span class="attendance-person-toggle">▶</span>${esc(p.name)}</button><div class="muted tiny">${roleLabel(p.role)} · ${p.plannedDays} jornada(s) solicitada(s)</div></div><div class="attendance-hours">${formatHours(p.workedMinutes)} / ${formatHours(p.plannedMinutes)}</div></div><div class="attendance-progress"><div class="attendance-progress-bar ${pct>100?'over':''}" style="width:${bar}%"></div></div><div class="tiny muted">Cumplimiento de horas: <b>${pct}%</b></div><div class="attendance-person-details"><div class="attendance-detail"><small>Horas solicitadas</small><b>${formatHours(p.plannedMinutes)}</b></div><div class="attendance-detail"><small>Horas trabajadas</small><b>${formatHours(p.workedMinutes)}</b></div><div class="attendance-detail"><small>Diferencia</small><b class="attendance-difference ${diffClass}">${diffText}</b></div><div class="attendance-detail"><small>Jornadas completas</small><b>${p.completeDays}</b></div><div class="attendance-detail"><small>Registros parciales</small><b>${p.partialDays}</b></div></div>${p.unplannedDays?`<div class="notice" style="margin:10px 0 0">Incluye ${p.unplannedDays} jornada(s) no planificada(s).</div>`:''}<div id="${detailId}" class="attendance-person-day-detail hidden"><div style="overflow:auto"><table class="attendance-detail-table"><thead><tr><th>Fecha</th><th>Horario solicitado</th><th>Asistencia real</th><th class="right">Horas solicitadas</th><th class="right">Horas trabajadas</th><th class="right">Diferencia</th><th>Estado</th></tr></thead><tbody>${dayRows||'<tr><td colspan="7" class="muted">Sin detalle para este mes.</td></tr>'}</tbody></table></div><div class="attendance-payment-details"><div class="attendance-detail"><small>Tarifa diaria</small>${p.staffId?`<div class="attendance-rate-editor"><input id="attendanceRate_${esc(p.staffId)}" type="number" min="0" step="100" value="${p.dailyRate}" aria-label="Tarifa diaria de ${esc(p.name)}"><button class="btn secondary tiny" onclick="saveAttendanceRate('${esc(p.staffId)}')">Guardar</button></div>`:`<b>${fmt(p.dailyRate)}</b>`}</div><div class="attendance-detail"><small>1. Pago planificado según agenda</small><b>${fmt(plannedPayment)}</b><span class="tiny muted">${p.plannedDays} jornada(s) planificada(s)</span></div><div class="attendance-detail"><small>2. Pago según días efectivamente trabajados</small><b>${fmt(actualPayment)}</b><span class="tiny muted">${p.completeDays} día(s) con asistencia completa</span><div class="attendance-payment-breakdown"><div class="attendance-payment-line"><span>Propinas del mes</span><span>${fmt(personTips)}</span></div><div class="attendance-payment-line total"><span>Total sueldo + propinas</span><span>${fmt(actualPaymentWithTips)}</span></div></div>${p.staffId?`<div class="attendance-payment-actions"><button class="btn primary tiny" ${payrollExpenseFor(period,p.staffId,'salary')?'disabled':''} onclick="createPayrollExpense('${esc(p.staffId)}','${esc(p.name)}','${esc(period)}','salary',${actualPayment})">${payrollExpenseFor(period,p.staffId,'salary')?'Sueldo ya creado':'Crear Pago de Sueldo'}</button><button class="btn secondary tiny" ${personTips<=0||payrollExpenseFor(period,p.staffId,'tips')?'disabled':''} onclick="createPayrollExpense('${esc(p.staffId)}','${esc(p.name)}','${esc(period)}','tips',${personTips})">${payrollExpenseFor(period,p.staffId,'tips')?'Propinas ya creadas':'Crear Pago de Propinas'}</button></div>`:''}</div></div></div></div>`;
   }).join('');
   $('monthlyAttendanceSummary').innerHTML=`<div class="attendance-summary-metrics"><div class="attendance-summary-card"><small>Horas solicitadas</small><b>${formatHours(totalPlanned)}</b></div><div class="attendance-summary-card"><small>Horas trabajadas</small><b>${formatHours(totalWorked)}</b></div><div class="attendance-summary-card"><small>Cumplimiento general</small><b>${overallPct}%</b></div><div class="attendance-summary-card"><small>Registros completos / parciales</small><b>${totalComplete} / ${totalPartial}</b></div></div>${cards}`;
   $('monthlyAttendanceSummary').querySelectorAll('[data-attendance-detail-target]').forEach(btn=>btn.onclick=()=>{
@@ -1598,12 +1430,31 @@ function renderMonthlyAttendanceSummary(){
   });
 }
 
+function payrollExpenseFor(period,staffId,type){
+  return state.expenses.find(x=>x.deleted!==true&&x.category==='Pago de Sueldos'&&x.payrollPeriod===period&&x.employeeId===staffId&&x.payrollType===type);
+}
+window.createPayrollExpense=async(staffId,staffName,period,type,amount)=>{
+  if(!roleIsManager())return alert('Solo administrador o gerente pueden crear pagos.');
+  amount=Number(amount)||0;
+  if(amount<=0)return alert(type==='tips'?'No existen propinas para crear este pago.':'El pago calculado debe ser mayor que cero.');
+  const label=type==='tips'?'Propinas':'Sueldo';
+  const existing=payrollExpenseFor(period,staffId,type);
+  if(existing)return alert(`Ya existe un gasto de ${label.toLowerCase()} para ${staffName} en ${period}. Puedes editarlo desde Gastos Mensual o registrar un pago extra como un gasto independiente.`);
+  if(!confirm(`Se creará un gasto por ${fmt(amount)} correspondiente a ${label.toLowerCase()} de ${staffName} para ${period}. ¿Deseas continuar?`))return;
+  const date=`${period}-${String(new Date(Number(period.slice(0,4)),Number(period.slice(5,7)),0).getDate()).padStart(2,'0')}`;
+  const data={date,category:'Pago de Sueldos',description:`${label} ${period} · ${staffName}`,amount,employeeId:staffId,employeeName:staffName,expensePartyType:'employee',payrollPeriod:period,payrollType:type,createdAt:nowIso(),...actorFields(),updatedAt:null,updatedByUid:null,updatedByName:null,modifiedAt:null,modifiedByUid:null,modifiedByName:null};
+  const ref=await addDoc(collection(firestore,'expenses'),data);
+  state.expenses.push({id:ref.id,...data});
+  showToast(`${label} de ${staffName} creado como gasto correctamente.`,'success',4800);
+  renderMonthlyAttendanceSummary();
+  renderExpenses();
+  renderMonthly();
+};
+
 window.saveAttendanceRate=async staffId=>{
   if(!roleIsManager())return alert('Solo administrador o gerente pueden modificar la tarifa.');
   const input=$(`attendanceRate_${staffId}`),staffMember=state.staff.find(x=>x.id===staffId);
   if(!input||!staffMember)return alert('No fue posible identificar a la persona.');
-  const period=$('attendanceSummaryMonth')?.value||$('scheduleMonth')?.value;
-  if(period&&!assertPayrollEditable(period,staffId,staffMember.name))return;
   const dailyRate=Number(input.value);
   if(!Number.isFinite(dailyRate)||dailyRate<0)return alert('Ingresa una tarifa válida, igual o mayor que cero.');
   await updateDoc(doc(firestore,'staff',staffId),{dailyRate,...auditFields()});
@@ -1657,11 +1508,11 @@ function renderAttendance(){
   const tableRows=rows.map(r=>{
     const saved=confirmedByStaff.get(r.staffId),staffRoleLabel=roleLabel(r.role),typeLabel=(saved?.planned!==false&&r.planned!==false)?'Planificada':'No planificada';
     const defaultStart=saved?.actualStart||r.startTime||localTimeFromIso(op?.openedAt)||'',defaultEnd=saved?.actualEnd||r.endTime||localTimeFromIso(op?.closedAt)||'';
-    const payrollLocked=isPayrollLocked(String(date||'').slice(0,7),r.staffId),hasStart=Boolean(saved?.actualStart),hasEnd=Boolean(saved?.actualEnd),stateLabel=hasStart&&hasEnd?'Completa':(hasStart||hasEnd?'Parcial':'Pendiente'),stateClass=hasStart&&hasEnd?'closed':(hasStart||hasEnd?'today':'open');
-    const startCell=payrollLocked?`<div><b>${esc(saved?.actualStart||'—')}</b><div class="tiny muted">Bloqueado</div></div>`:hasStart?`<div><b>${esc(saved.actualStart)}</b><button class="btn secondary tiny" style="margin-top:6px" onclick="editAttendancePart('${r.staffId}','start')">Modificar entrada</button></div>`:`<div><input id="att-start-${r.staffId}" type="time" value="${esc(defaultStart)}"><button class="btn primary tiny" style="margin-top:6px;width:100%" onclick="saveAttendancePart('${r.staffId}','start')">Guardar entrada</button></div>`;
-    const endCell=payrollLocked?`<div><b>${esc(saved?.actualEnd||'—')}</b><div class="tiny muted">Bloqueado</div></div>`:hasEnd?`<div><b>${esc(saved.actualEnd)}</b><button class="btn secondary tiny" style="margin-top:6px" onclick="editAttendancePart('${r.staffId}','end')">Modificar salida</button></div>`:`<div><input id="att-end-${r.staffId}" type="time" value="${esc(defaultEnd)}"><button class="btn primary tiny" style="margin-top:6px;width:100%" onclick="saveAttendancePart('${r.staffId}','end')">Guardar salida</button></div>`;
-    const notesCell=payrollLocked?`<div>${esc(saved?.notes||'—')}<div class="tiny muted">Bloqueado</div></div>`:`<div><textarea id="att-notes-${r.staffId}" rows="1" placeholder="Observación opcional">${esc(saved?.notes||'')}</textarea><button class="btn secondary tiny" style="margin-top:6px;width:100%" onclick="saveAttendanceNotes('${r.staffId}')">${saved?.notes?'Actualizar observación':'Guardar observación'}</button></div>`;
-    return `<tr><td><b>${esc(saved?.staffName||r.staffName)}</b><div class="muted tiny">${staffRoleLabel}</div></td><td><span class="status-pill ${saved?.planned!==false&&r.planned!==false?'planned':'unplanned'}">${typeLabel}</span></td><td><span class="badge ${stateClass}">${stateLabel}</span></td><td>${startCell}</td><td>${endCell}</td><td>${notesCell}</td><td>${saved?attendanceUpdatedLabel(saved):'—'}</td><td>${payrollLocked?'<span class="badge closed">Pago creado</span>':saved?`<button class="btn danger tiny" onclick="cancelAttendance('${r.staffId}')">Anular registro</button>`:'—'}</td></tr>`;
+    const hasStart=Boolean(saved?.actualStart),hasEnd=Boolean(saved?.actualEnd),stateLabel=hasStart&&hasEnd?'Completa':(hasStart||hasEnd?'Parcial':'Pendiente'),stateClass=hasStart&&hasEnd?'closed':(hasStart||hasEnd?'today':'open');
+    const startCell=hasStart?`<div><b>${esc(saved.actualStart)}</b><button class="btn secondary tiny" style="margin-top:6px" onclick="editAttendancePart('${r.staffId}','start')">Modificar entrada</button></div>`:`<div><input id="att-start-${r.staffId}" type="time" value="${esc(defaultStart)}"><button class="btn primary tiny" style="margin-top:6px;width:100%" onclick="saveAttendancePart('${r.staffId}','start')">Guardar entrada</button></div>`;
+    const endCell=hasEnd?`<div><b>${esc(saved.actualEnd)}</b><button class="btn secondary tiny" style="margin-top:6px" onclick="editAttendancePart('${r.staffId}','end')">Modificar salida</button></div>`:`<div><input id="att-end-${r.staffId}" type="time" value="${esc(defaultEnd)}"><button class="btn primary tiny" style="margin-top:6px;width:100%" onclick="saveAttendancePart('${r.staffId}','end')">Guardar salida</button></div>`;
+    const notesCell=`<div><textarea id="att-notes-${r.staffId}" rows="1" placeholder="Observación opcional">${esc(saved?.notes||'')}</textarea><button class="btn secondary tiny" style="margin-top:6px;width:100%" onclick="saveAttendanceNotes('${r.staffId}')">${saved?.notes?'Actualizar observación':'Guardar observación'}</button></div>`;
+    return `<tr><td><b>${esc(saved?.staffName||r.staffName)}</b><div class="muted tiny">${staffRoleLabel}</div></td><td><span class="status-pill ${saved?.planned!==false&&r.planned!==false?'planned':'unplanned'}">${typeLabel}</span></td><td><span class="badge ${stateClass}">${stateLabel}</span></td><td>${startCell}</td><td>${endCell}</td><td>${notesCell}</td><td>${saved?attendanceUpdatedLabel(saved):'—'}</td><td>${saved?`<button class="btn danger tiny" onclick="cancelAttendance('${r.staffId}')">Anular registro</button>`:'—'}</td></tr>`;
   }).join('');
   let html=`<div class="row" style="margin-bottom:12px"><div><h3 style="margin:0">Pendientes: ${pendingCount}</h3></div><div><h3 style="margin:0;text-align:center">Parciales: ${partialCount}</h3></div><div><h3 style="margin:0;text-align:right">Completas: ${completeCount}</h3></div></div>`;
   html+=rows.length?`<div style="overflow:auto"><table class="attendance-table"><thead><tr><th>Persona</th><th>Tipo</th><th>Estado</th><th>Entrada</th><th>Salida</th><th>Observación</th><th>Última modificación</th><th></th></tr></thead><tbody>${tableRows}</tbody></table></div>`:'<div class="empty">No hay personal planificado ni asistencia registrada para esta fecha.</div>';
@@ -1671,10 +1522,10 @@ function renderAttendance(){
   const btn=$('addUnplannedBtn');if(btn)btn.onclick=()=>{const sid=$('unplannedStaff').value;if(!sid)return alert('Selecciona una persona.');const set=pendingUnplannedByDate.get(date)||new Set();set.add(sid);pendingUnplannedByDate.set(date,set);renderAttendance();};
 }
 function attendanceBaseData(date,staffId){const row=attendanceRowsForDate(date).find(r=>r.staffId===staffId),existing=state.attendance.find(a=>a.date===date&&a.staffId===staffId);if(!row&&!existing)return null;return{row:row||existing,existing};}
-window.saveAttendancePart=async(staffId,part)=>{if(!roleIsManager())return;const date=$('attendanceDate').value;if(!assertPayrollEditable(String(date||'').slice(0,7),staffId,state.staff.find(x=>x.id===staffId)?.name||'esta persona'))return;const base=attendanceBaseData(date,staffId);if(!base)return alert('No fue posible identificar a la persona seleccionada.');const inputId=part==='start'?`att-start-${staffId}`:`att-end-${staffId}`,value=$(inputId)?.value||'';if(!value)return alert(part==='start'?'Ingresa la hora de entrada.':'Ingresa la hora de salida.');const currentStart=part==='start'?value:(base.existing?.actualStart||''),currentEnd=part==='end'?value:(base.existing?.actualEnd||'');if(currentStart&&currentEnd&&timeToMinutes(currentEnd)<timeToMinutes(currentStart))return alert('La salida no puede ser anterior a la entrada.');const notes=$(`att-notes-${staffId}`)?.value.trim()??base.existing?.notes??'',data={date,staffId,staffName:base.row.staffName,role:normalizeRole(base.row.role),planned:base.row.planned!==false,actualStart:currentStart,actualEnd:currentEnd,notes,createdByUid:base.existing?.createdByUid||currentUser.uid,createdByName:base.existing?.createdByName||(selectedStaff?.name||currentUser.name),createdAt:base.existing?.createdAt||nowIso(),...auditFields()};await setDoc(doc(firestore,'attendance',`${date}_${staffId}`),data,{merge:true});const optimistic={id:`${date}_${staffId}`,...data},index=state.attendance.findIndex(a=>a.date===date&&a.staffId===staffId);if(index>=0)state.attendance[index]=optimistic;else state.attendance.push(optimistic);const set=pendingUnplannedByDate.get(date);if(set){set.delete(staffId);if(!set.size)pendingUnplannedByDate.delete(date)}renderAttendance();showAttendanceNotice(`✓ ${part==='start'?'Entrada':'Salida'} de ${base.row.staffName} guardada correctamente.`);};
-window.saveAttendanceNotes=async(staffId)=>{if(!roleIsManager())return;const date=$('attendanceDate').value;if(!assertPayrollEditable(String(date||'').slice(0,7),staffId,state.staff.find(x=>x.id===staffId)?.name||'esta persona'))return;const base=attendanceBaseData(date,staffId);if(!base)return alert('No fue posible identificar a la persona seleccionada.');const notes=$(`att-notes-${staffId}`)?.value.trim()||'',data={date,staffId,staffName:base.row.staffName,role:normalizeRole(base.row.role),planned:base.row.planned!==false,actualStart:base.existing?.actualStart||'',actualEnd:base.existing?.actualEnd||'',notes,createdByUid:base.existing?.createdByUid||currentUser.uid,createdByName:base.existing?.createdByName||(selectedStaff?.name||currentUser.name),createdAt:base.existing?.createdAt||nowIso(),...auditFields()};await setDoc(doc(firestore,'attendance',`${date}_${staffId}`),data,{merge:true});const optimistic={id:`${date}_${staffId}`,...data},index=state.attendance.findIndex(a=>a.date===date&&a.staffId===staffId);if(index>=0)state.attendance[index]=optimistic;else state.attendance.push(optimistic);renderAttendance();showAttendanceNotice(`✓ Observación de ${base.row.staffName} guardada correctamente.`);};
-window.editAttendancePart=async(staffId,part)=>{if(!roleIsManager())return;const date=$('attendanceDate').value;if(!assertPayrollEditable(String(date||'').slice(0,7),staffId,state.staff.find(x=>x.id===staffId)?.name||'esta persona'))return;const existing=state.attendance.find(a=>a.date===date&&a.staffId===staffId);if(!existing)return;const current=part==='start'?existing.actualStart:existing.actualEnd,label=part==='start'?'entrada':'salida',value=prompt(`Nueva hora de ${label} para ${existing.staffName}:`,current||'');if(value===null)return;if(!/^\d{2}:\d{2}$/.test(value))return alert('Ingresa una hora válida en formato HH:MM.');const newStart=part==='start'?value:(existing.actualStart||''),newEnd=part==='end'?value:(existing.actualEnd||'');if(newStart&&newEnd&&timeToMinutes(newEnd)<timeToMinutes(newStart))return alert('La salida no puede ser anterior a la entrada.');const changes=part==='start'?{actualStart:value,...auditFields()}:{actualEnd:value,...auditFields()};await updateDoc(doc(firestore,'attendance',`${date}_${staffId}`),changes);Object.assign(existing,changes);renderAttendance();showAttendanceNotice(`✓ Hora de ${label} de ${existing.staffName} actualizada.`);};
-window.cancelAttendance=async(staffId)=>{if(!roleIsManager())return;const date=$('attendanceDate').value;if(!assertPayrollEditable(String(date||'').slice(0,7),staffId,state.staff.find(x=>x.id===staffId)?.name||'esta persona'))return;const existing=state.attendance.find(a=>a.date===date&&a.staffId===staffId);if(!existing||!confirm(`¿Anular todo el registro de asistencia de ${existing.staffName}?`))return;await deleteDoc(doc(firestore,'attendance',`${date}_${staffId}`));state.attendance=state.attendance.filter(a=>!(a.date===date&&a.staffId===staffId));if(existing.planned===false){const set=pendingUnplannedByDate.get(date)||new Set();set.add(staffId);pendingUnplannedByDate.set(date,set)}renderAttendance();showAttendanceNotice(`Registro de ${existing.staffName} anulado.`);};
+window.saveAttendancePart=async(staffId,part)=>{if(!roleIsManager())return;const date=$('attendanceDate').value,base=attendanceBaseData(date,staffId);if(!base)return alert('No fue posible identificar a la persona seleccionada.');const inputId=part==='start'?`att-start-${staffId}`:`att-end-${staffId}`,value=$(inputId)?.value||'';if(!value)return alert(part==='start'?'Ingresa la hora de entrada.':'Ingresa la hora de salida.');const currentStart=part==='start'?value:(base.existing?.actualStart||''),currentEnd=part==='end'?value:(base.existing?.actualEnd||'');if(currentStart&&currentEnd&&timeToMinutes(currentEnd)<timeToMinutes(currentStart))return alert('La salida no puede ser anterior a la entrada.');const notes=$(`att-notes-${staffId}`)?.value.trim()??base.existing?.notes??'',data={date,staffId,staffName:base.row.staffName,role:normalizeRole(base.row.role),planned:base.row.planned!==false,actualStart:currentStart,actualEnd:currentEnd,notes,createdByUid:base.existing?.createdByUid||currentUser.uid,createdByName:base.existing?.createdByName||(selectedStaff?.name||currentUser.name),createdAt:base.existing?.createdAt||nowIso(),...auditFields()};await setDoc(doc(firestore,'attendance',`${date}_${staffId}`),data,{merge:true});const optimistic={id:`${date}_${staffId}`,...data},index=state.attendance.findIndex(a=>a.date===date&&a.staffId===staffId);if(index>=0)state.attendance[index]=optimistic;else state.attendance.push(optimistic);const set=pendingUnplannedByDate.get(date);if(set){set.delete(staffId);if(!set.size)pendingUnplannedByDate.delete(date)}renderAttendance();showAttendanceNotice(`✓ ${part==='start'?'Entrada':'Salida'} de ${base.row.staffName} guardada correctamente.`);};
+window.saveAttendanceNotes=async(staffId)=>{if(!roleIsManager())return;const date=$('attendanceDate').value,base=attendanceBaseData(date,staffId);if(!base)return alert('No fue posible identificar a la persona seleccionada.');const notes=$(`att-notes-${staffId}`)?.value.trim()||'',data={date,staffId,staffName:base.row.staffName,role:normalizeRole(base.row.role),planned:base.row.planned!==false,actualStart:base.existing?.actualStart||'',actualEnd:base.existing?.actualEnd||'',notes,createdByUid:base.existing?.createdByUid||currentUser.uid,createdByName:base.existing?.createdByName||(selectedStaff?.name||currentUser.name),createdAt:base.existing?.createdAt||nowIso(),...auditFields()};await setDoc(doc(firestore,'attendance',`${date}_${staffId}`),data,{merge:true});const optimistic={id:`${date}_${staffId}`,...data},index=state.attendance.findIndex(a=>a.date===date&&a.staffId===staffId);if(index>=0)state.attendance[index]=optimistic;else state.attendance.push(optimistic);renderAttendance();showAttendanceNotice(`✓ Observación de ${base.row.staffName} guardada correctamente.`);};
+window.editAttendancePart=async(staffId,part)=>{if(!roleIsManager())return;const date=$('attendanceDate').value,existing=state.attendance.find(a=>a.date===date&&a.staffId===staffId);if(!existing)return;const current=part==='start'?existing.actualStart:existing.actualEnd,label=part==='start'?'entrada':'salida',value=prompt(`Nueva hora de ${label} para ${existing.staffName}:`,current||'');if(value===null)return;if(!/^\d{2}:\d{2}$/.test(value))return alert('Ingresa una hora válida en formato HH:MM.');const newStart=part==='start'?value:(existing.actualStart||''),newEnd=part==='end'?value:(existing.actualEnd||'');if(newStart&&newEnd&&timeToMinutes(newEnd)<timeToMinutes(newStart))return alert('La salida no puede ser anterior a la entrada.');const changes=part==='start'?{actualStart:value,...auditFields()}:{actualEnd:value,...auditFields()};await updateDoc(doc(firestore,'attendance',`${date}_${staffId}`),changes);Object.assign(existing,changes);renderAttendance();showAttendanceNotice(`✓ Hora de ${label} de ${existing.staffName} actualizada.`);};
+window.cancelAttendance=async(staffId)=>{if(!roleIsManager())return;const date=$('attendanceDate').value,existing=state.attendance.find(a=>a.date===date&&a.staffId===staffId);if(!existing||!confirm(`¿Anular todo el registro de asistencia de ${existing.staffName}?`))return;await deleteDoc(doc(firestore,'attendance',`${date}_${staffId}`));state.attendance=state.attendance.filter(a=>!(a.date===date&&a.staffId===staffId));if(existing.planned===false){const set=pendingUnplannedByDate.get(date)||new Set();set.add(staffId);pendingUnplannedByDate.set(date,set)}renderAttendance();showAttendanceNotice(`Registro de ${existing.staffName} anulado.`);};
 $('attendanceDate').onchange=()=>{clearTimeout(attendanceNoticeTimer);$('attendanceSaveNotice').classList.add('hidden');renderAttendance()};
 function renderOperation(){
   if(!$('operationStatus'))return;const op=getTodayOperation();let cls='pending',text='<b>Día sin abrir.</b> Aún no se ha habilitado la atención.';if(op?.status==='open'){cls='opened';text=`<b>Día abierto.</b><br>Abierto por ${esc(op.openedByName||'Usuario')} a las ${esc(localTimeFromIso(op.openedAt))}.`}else if(op?.status==='closed'){cls='closed-day';text=`<b>Día cerrado.</b><br>Cerrado por ${esc(op.closedByName||'Usuario')} a las ${esc(localTimeFromIso(op.closedAt))}.`}$('operationStatus').className=`operation-status ${cls}`;$('operationStatus').innerHTML=text;
@@ -1801,7 +1652,7 @@ $('previewBulkSalesBtn').onclick=()=>{try{renderBulkSalesPreview(parseBulkSalesT
 $('commitBulkSalesBtn').onclick=commitBulkSales;
 
 const FIRESTORE_EXPORT_COLLECTIONS=[
-  'settings','users','staff','products','orders','salesCounters','expenses','payrollClosures',
+  'settings','users','staff','products','orders','salesCounters','expenses',
   'staffSchedules','attendance','dailyOperations','dailyClosures'
 ];
 let pendingImportCollection='';
