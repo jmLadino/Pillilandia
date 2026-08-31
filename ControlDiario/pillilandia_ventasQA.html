@@ -3,9 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<!-- QA-ONLY: BEGIN - TÍTULO DEL AMBIENTE -->
 <title>Pillilandia POS — PRUEBAS</title>
-<!-- QA-ONLY: END - TÍTULO DEL AMBIENTE -->
 <link rel="icon" type="image/png" sizes="32x32" href="images/Icono.png">
 <link rel="icon" type="image/png" sizes="192x192" href="images/Icono.png">
 <link rel="apple-touch-icon" href="images/Icono.png">
@@ -53,6 +51,7 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 
 .user-area{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:3px}.user-chip{font-size:.76rem;font-weight:800;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.38);border-radius:999px;padding:5px 9px}.logout-btn{border:1px solid rgba(255,255,255,.55);background:transparent;color:#fff;border-radius:8px;padding:5px 9px;font-weight:800;cursor:pointer}.logout-btn:hover{background:rgba(255,255,255,.14)}
 .sale-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px;margin-bottom:14px}.sale-detail-field{padding:8px 0;border-bottom:1px solid var(--line)}.sale-detail-field span{display:block;font-size:.78rem;color:var(--muted);font-weight:750;margin-bottom:3px}.sale-detail-section{margin-top:16px}.sale-detail-section h3{margin:0 0 8px}.sale-detail-totals{margin-left:auto;width:min(340px,100%)}.sale-detail-totals .payment-line{padding:7px 0}.sale-detail-totals .grand-total{font-size:1.08rem;border-top:2px solid var(--line);margin-top:4px;padding-top:10px}@media(max-width:620px){.sale-detail-grid{grid-template-columns:1fr}}
+.sale-reassignment-history{display:grid;gap:8px}.sale-reassignment-item{padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:#f7fbfb}.sale-reassignment-item b{display:block}.sale-reassignment-item small{color:var(--muted)}
 .login-overlay{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#159eaa,#075f67);display:flex;align-items:center;justify-content:center;padding:18px}.login-card{width:min(440px,100%);background:#fff;border:3px solid #b7d9dc;border-radius:20px;padding:25px;box-shadow:0 24px 70px rgba(0,0,0,.34)}.shift-lock-overlay{position:fixed;inset:0;z-index:10000;background:linear-gradient(135deg,#159eaa,#075f67);display:flex;align-items:center;justify-content:center;padding:18px}.shift-lock-card{width:min(480px,100%);background:#fff;border:3px solid #b7d9dc;border-radius:20px;padding:28px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.34)}.shift-lock-card h2{color:var(--brand2);margin:12px 0 8px}.shift-lock-icon{font-size:3rem;line-height:1}.shift-lock-detail{margin:16px 0;padding:12px;border-radius:10px;background:#fff5d9;color:#6d4700;font-weight:750}.shift-lock-card .btn{width:100%;margin-top:10px;padding:13px}.login-brand{text-align:center;margin-bottom:20px}.login-logo{width:96px;height:96px;object-fit:cover;border-radius:50%;border:4px solid #159eaa;background:#fff}.login-brand h1{margin:10px 0 3px;color:#075f67}.login-brand p{margin:0;color:#415f63;font-weight:700}.login-card label{margin-top:12px}.login-card .btn{width:100%;margin-top:18px;padding:13px}.login-error{display:none;margin-top:12px;padding:10px;border-radius:9px;background:#fee4e2;color:#8b1a12;font-weight:750}.role-hidden{display:none!important}
 
 .schedule-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.schedule-day{font-weight:800}.schedule-day-sunday{color:var(--brand2)}.schedule-day-saturday{color:var(--muted);opacity:.75}.operation-status{padding:14px;border-radius:12px;border:2px solid var(--line);background:#eef8f9;margin-bottom:12px}.operation-status.opened{background:#daf5e8;border-color:#65b98d}.operation-status.closed-day{background:#fee4e2;border-color:#d89a96}.operation-status.pending{background:#fff5d9;border-color:#dfbd6d}.restricted-tab{opacity:.5}.attendance-table input{min-width:110px;padding:7px}.attendance-table textarea{min-width:170px;padding:7px}.status-pill{display:inline-block;border-radius:999px;padding:4px 8px;font-size:.75rem;font-weight:800;background:#e5eff0}.status-pill.planned{background:#dff0f2}.status-pill.unplanned{background:#fff1d6;color:var(--warning)}
@@ -69,18 +68,19 @@ dialog{border:0;border-radius:14px;padding:0;max-width:650px;width:calc(100% - 2
 .product-admin-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}.product-admin-metric{background:linear-gradient(135deg,#eff9fa,#dff1f3);border:1px solid #bddcdf;border-radius:12px;padding:13px 14px}.product-admin-metric small{display:block;color:#41666a;font-weight:800}.product-admin-metric b{display:block;margin-top:4px;font-size:1.45rem;color:#12383c}.product-category-group{border:1px solid #c6dde0;border-radius:12px;background:#fff;margin-top:12px;overflow:hidden;box-shadow:0 3px 12px rgba(12,67,73,.06)}.product-category-group summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;background:#dceff1;color:#12383c;font-weight:900;user-select:none}.product-category-group summary::-webkit-details-marker{display:none}.product-category-title{display:flex;align-items:center;gap:9px}.product-category-title:before{content:'›';font-size:1.35rem;line-height:1;transition:transform .18s ease}.product-category-group[open] .product-category-title:before{transform:rotate(90deg)}.product-category-count{font-size:.8rem;background:#fff;border:1px solid #acd0d4;border-radius:999px;padding:4px 9px;color:#365d61}.product-category-table{overflow:auto}.product-category-table table{margin:0}.product-category-table thead th{background:#f4f9fa}.product-name-cell{font-weight:800;color:#173f43}@media(max-width:700px){.product-admin-summary{grid-template-columns:1fr}.product-category-group summary{padding:12px}.product-category-table table{min-width:780px}}
 .toast-container{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:100000;width:min(680px,calc(100% - 24px));display:grid;gap:8px;pointer-events:none}.toast-message{display:flex;align-items:flex-start;gap:11px;padding:13px 16px;border-radius:11px;background:#0284c7;color:#fff;font-weight:800;line-height:1.35;box-shadow:0 10px 30px rgba(0,0,0,.28);opacity:0;transform:translateY(-12px);transition:opacity .2s ease,transform .2s ease}.toast-message.show{opacity:1;transform:translateY(0)}.toast-message.success{background:#15803d;color:#fff}.toast-message.error{background:#b91c1c;color:#fff}.toast-message.warning{background:#f59e0b;color:#1f2937}.toast-message.info{background:#0284c7;color:#fff}.toast-icon{flex:0 0 auto;font-size:1.15rem;line-height:1.25}.toast-text{flex:1;min-width:0;overflow-wrap:anywhere}.order-items-list{margin-top:10px;padding:10px 12px;border-radius:9px;background:#f3f9fa;border:1px solid #c2dadd}.order-item-row{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid #dce9ea}.order-item-row:last-child{border-bottom:0}.edit-order-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(300px,.9fr);gap:14px;align-items:start}.edit-order-products{overflow:visible;padding-right:4px}.edit-order-cart{max-height:440px;overflow:auto}.edit-order-summary{position:sticky;top:0}.edit-order-dialog{max-width:1050px;height:min(92vh,900px);max-height:92vh;overflow:hidden}.edit-order-dialog .dialog-body{height:100%;max-height:92vh;padding:0;display:flex;flex-direction:column;overflow:hidden}.edit-order-fixed{flex:0 0 auto;padding:18px 18px 0;background:#fff;position:relative;z-index:3}.edit-order-fixed #editOrderHeader{margin-bottom:0}.edit-order-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:14px 18px 18px}.edit-order-scroll .edit-order-layout{min-height:100%}@media(max-width:850px){.edit-order-dialog{height:92vh}.edit-order-layout{grid-template-columns:1fr}.edit-order-summary{position:static}.edit-order-products{max-height:none;overflow:visible}.edit-order-cart{max-height:none;overflow:visible}}
 
-.test-environment-banner {
-  position: sticky;
-  top: 0;
-  z-index: 99999;
-  padding: 10px;
-  background: #fff3cd;
-  color: #664d03;
-  border-bottom: 2px solid #ffca2c;
-  font-weight: 800;
-  text-align: center;
-}
-
+/* ==== QA-ONLY ==== */
+	.test-environment-banner {
+	  position: sticky;
+	  top: 0;
+	  z-index: 99999;
+	  padding: 10px;
+	  background: #fff3cd;
+	  color: #664d03;
+	  border-bottom: 2px solid #ffca2c;
+	  font-weight: 800;
+	  text-align: center;
+	}
+/* ==== END QA-ONLY ==== */
 @media print{
   body>*:not(#printReceipt){display:none!important}
   #printReceipt{display:block!important;width:58mm;max-width:58mm;margin:0;padding:2mm;font-family:monospace;color:#000;background:#fff;font-size:11px;line-height:1.25}
@@ -128,43 +128,33 @@ th.sortable-column::after{content:'⇅';position:absolute;right:9px;top:50%;tran
 th.sortable-column[data-sort-direction="asc"]::after{content:'▲';opacity:1;color:var(--brand2)}
 th.sortable-column[data-sort-direction="desc"]::after{content:'▼';opacity:1;color:var(--brand2)}
 
-
-/* ==========================================================================
-   QA-ONLY: BEGIN - IDENTIDAD VISUAL DEL AMBIENTE QA
-   Excluir este bloque completo al promover o fusionar hacia Producción.
-   ========================================================================== */
-:root{--brand:#f28c28;--brand2:#a94f00;--bg:#fff3e6;--card:#fffaf5;--text:#3b2415;--muted:#795b45;--danger:#9f1d14;--ok:#2e6b3f;--warning:#884d00;--line:#e4b98e;--shadow:0 5px 18px rgba(120,62,12,.16)}
-body{background:linear-gradient(180deg,#fff0df 0%,#fff8f1 100%)}
-header,.login-overlay,.shift-lock-overlay{background:linear-gradient(135deg,#f49a38,#9f4700)}
-.test-environment-banner{background:#7a3000;color:#fff4e8;border-bottom:3px solid #ffb15c;letter-spacing:.04em}
-.tab{border-color:#dfa66d;background:#fff8f1;color:#5a2c0c}.tab:hover{background:#ffe3c4;border-color:#a94f00}.tab.active{background:#a94f00;border-color:#a94f00;box-shadow:0 3px 9px rgba(169,79,0,.28)}
-.card,.order-card,.attendance-person-card,.product-category-group{border-color:#e2b486;background:#fffaf5;box-shadow:0 4px 14px rgba(120,62,12,.10)}
-input,select,textarea{border-color:#d9a16b;background:#fffdf9}input:focus,select:focus,textarea:focus{outline-color:rgba(242,140,40,.22);border-color:#a94f00}
-.primary,.service-button.active,.tip-btn.active{background:#a94f00!important;border-color:#a94f00!important}.secondary{background:#ffe2c2;color:#5a2c0c;border-color:#d9a16b}.outline{border-color:#cc8c4c;color:#5a2c0c;background:#fffaf5}
-.metric,.attendance-summary-card,.attendance-detail,.service-picker,.category,.product-admin-metric,th{background:#ffead3!important;border-color:#dfad78!important;color:#5a2c0c!important}
-.sale-panel{background:linear-gradient(180deg,#fffdf9 0%,#ffead5 100%);border-color:#e4811e;box-shadow:0 8px 24px rgba(169,79,0,.16)}
-.product,.service-button{border-color:#dfa66d}.product:hover,.service-button:hover{border-color:#a94f00;background:#fff0df}.product.product-selected{background:#ffd5a8!important;border-color:#a94f00!important}
-.product .product-count-badge{background:#a94f00!important}.product span,.attendance-hours,.attendance-summary-card b,.attendance-person-name-button{color:#8d4100!important}
-.notice{background:#fff0cf;color:#6d3b00}.oknotice{background:#e5f3df;color:#315d2c}.operation-status{background:#fff3df;border-color:#dfa66d}
-.expense-chart,.tip-picker{background:#fff8f1;border-color:#dfa66d}.expense-chart-track,.product-sales-track,.attendance-progress{background:#f6dcc0;border-color:#dfb486}.expense-chart-bar,.product-sales-bar,.attendance-progress-bar{background:linear-gradient(90deg,#f49a38,#a94f00)}
-.payment-workflow-step{padding:12px 14px;border:2px solid #e1ad76;border-radius:12px;background:#fff8ef;margin-bottom:12px}.payment-workflow-step h3{margin:0 0 6px;color:#7d3900}.payment-print-action{width:100%;padding:13px;font-size:1.02rem}
-.attendance-payment-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.attendance-payment-actions .btn{width:100%}@media(max-width:650px){.attendance-payment-actions{grid-template-columns:1fr}}
-/* ==========================================================================
-   QA-ONLY: END - IDENTIDAD VISUAL DEL AMBIENTE QA
-   ========================================================================== */
-
+/* ==== QA-ONLY ==== */
+		:root{--brand:#f28c28;--brand2:#a94f00;--bg:#fff3e6;--card:#fffaf5;--text:#3b2415;--muted:#795b45;--danger:#9f1d14;--ok:#2e6b3f;--warning:#884d00;--line:#e4b98e;--shadow:0 5px 18px rgba(120,62,12,.16)}
+		body{background:linear-gradient(180deg,#fff0df 0%,#fff8f1 100%)}
+		header,.login-overlay,.shift-lock-overlay{background:linear-gradient(135deg,#f49a38,#9f4700)}
+		.test-environment-banner{background:#7a3000;color:#fff4e8;border-bottom:3px solid #ffb15c;letter-spacing:.04em}
+		.tab{border-color:#dfa66d;background:#fff8f1;color:#5a2c0c}.tab:hover{background:#ffe3c4;border-color:#a94f00}.tab.active{background:#a94f00;border-color:#a94f00;box-shadow:0 3px 9px rgba(169,79,0,.28)}
+		.card,.order-card,.attendance-person-card,.product-category-group{border-color:#e2b486;background:#fffaf5;box-shadow:0 4px 14px rgba(120,62,12,.10)}
+		input,select,textarea{border-color:#d9a16b;background:#fffdf9}input:focus,select:focus,textarea:focus{outline-color:rgba(242,140,40,.22);border-color:#a94f00}
+		.primary,.service-button.active,.tip-btn.active{background:#a94f00!important;border-color:#a94f00!important}.secondary{background:#ffe2c2;color:#5a2c0c;border-color:#d9a16b}.outline{border-color:#cc8c4c;color:#5a2c0c;background:#fffaf5}
+		.metric,.attendance-summary-card,.attendance-detail,.service-picker,.category,.product-admin-metric,th{background:#ffead3!important;border-color:#dfad78!important;color:#5a2c0c!important}
+		.sale-panel{background:linear-gradient(180deg,#fffdf9 0%,#ffead5 100%);border-color:#e4811e;box-shadow:0 8px 24px rgba(169,79,0,.16)}
+		.product,.service-button{border-color:#dfa66d}.product:hover,.service-button:hover{border-color:#a94f00;background:#fff0df}.product.product-selected{background:#ffd5a8!important;border-color:#a94f00!important}
+		.product .product-count-badge{background:#a94f00!important}.product span,.attendance-hours,.attendance-summary-card b,.attendance-person-name-button{color:#8d4100!important}
+		.notice{background:#fff0cf;color:#6d3b00}.oknotice{background:#e5f3df;color:#315d2c}.operation-status{background:#fff3df;border-color:#dfa66d}
+		.expense-chart,.tip-picker{background:#fff8f1;border-color:#dfa66d}.expense-chart-track,.product-sales-track,.attendance-progress{background:#f6dcc0;border-color:#dfb486}.expense-chart-bar,.product-sales-bar,.attendance-progress-bar{background:linear-gradient(90deg,#f49a38,#a94f00)}
+		.payment-workflow-step{padding:12px 14px;border:2px solid #e1ad76;border-radius:12px;background:#fff8ef;margin-bottom:12px}.payment-workflow-step h3{margin:0 0 6px;color:#7d3900}.payment-print-action{width:100%;padding:13px;font-size:1.02rem}
+		.attendance-payment-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.attendance-payment-actions .btn{width:100%}@media(max-width:650px){.attendance-payment-actions{grid-template-columns:1fr}}
+/* ==== END QA-ONLY ==== */
 </style>
 </head>
 <body>
 <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
-<!-- ======================================================================
-     QA-ONLY: BEGIN - AVISO VISIBLE DEL AMBIENTE
-     Excluir este bloque completo al promover o fusionar hacia Producción.
-     ====================================================================== -->
-<div class="test-environment-banner">
-  AMBIENTE DE PRUEBAS — LOS DATOS NO SON REALES
-</div>
-<!-- QA-ONLY: END - AVISO VISIBLE DEL AMBIENTE -->
+/* ==== QA-ONLY ==== */
+	<div class="test-environment-banner">
+	  AMBIENTE DE PRUEBAS — LOS DATOS NO SON REALES
+	</div>
+/* ==== END QA-ONLY ==== */
 <div id="loginOverlay" class="login-overlay">
   <div class="login-card">
     <div class="login-brand">
@@ -295,6 +285,8 @@ input,select,textarea{border-color:#d9a16b;background:#fffdf9}input:focus,select
 <dialog id="orderEditDialog" class="edit-order-dialog"><div class="dialog-body"><div class="edit-order-fixed"><div class="dialog-head"><h2>Modificar cuenta abierta</h2><button class="x" onclick="closeOrderEditor()">×</button></div><div id="editOrderHeader" class="notice"></div></div><div class="edit-order-scroll"><div class="edit-order-layout"><div><label>Referencia adicional</label><input id="editOrderReference" placeholder="Nombre del cliente o detalle"><label style="margin-top:10px">Observación general</label><textarea id="editOrderNotes" rows="3" placeholder="Ej.: sin azúcar, llevar a mesa..."></textarea><h3 style="margin-top:16px">Agregar productos</h3><div id="editOrderProducts" class="products edit-order-products"></div></div><div class="edit-order-summary"><h3>Productos de la cuenta</h3><div id="editOrderCart" class="edit-order-cart"></div><div class="total"><span>Nuevo total</span><span id="editOrderTotal">$0</span></div><div class="actions"><button class="btn primary" id="saveOrderChangesBtn">Guardar cambios</button><button class="btn secondary" type="button" onclick="closeOrderEditor()">Cancelar</button></div></div></div></div></div></dialog>
 
 <dialog id="saleDetailDialog"><div class="dialog-body"><div class="dialog-head"><h2>Detalle de la venta</h2><button class="x" onclick="saleDetailDialog.close()">×</button></div><div id="saleDetailContent"></div><div class="actions"><button class="btn secondary" onclick="saleDetailDialog.close()">Cerrar</button></div></div></dialog>
+
+<dialog id="saleReassignmentDialog"><div class="dialog-body"><div class="dialog-head"><h2>Reasignar venta</h2><button class="x" type="button" onclick="saleReassignmentDialog.close()">×</button></div><input id="reassignSaleId" type="hidden"><div id="reassignSaleInfo" class="notice"></div><label style="margin-top:12px">Nuevo responsable de la venta</label><select id="reassignSaleStaff"><option value="">Seleccionar persona</option></select><label style="margin-top:12px">Motivo u observación (opcional)</label><textarea id="reassignSaleReason" rows="3" maxlength="300" placeholder="Ej.: la venta fue cursada desde la cuenta de la gerenta porque la trabajadora no tenía turno planificado."></textarea><div class="notice" style="margin-top:12px">Se actualizará la persona responsable de la venta y de sus pagos. La persona que creó originalmente el registro se conservará en la trazabilidad.</div><div class="actions"><button id="confirmSaleReassignmentBtn" class="btn primary" type="button">Confirmar reasignación</button><button class="btn secondary" type="button" onclick="saleReassignmentDialog.close()">Cancelar</button></div></div></dialog>
 
 <dialog id="productDialog"><div class="dialog-body"><div class="dialog-head"><h2 id="productDialogTitle">Producto</h2><button class="x" onclick="productDialog.close()">×</button></div><input id="editProductId" type="hidden"><label>Nombre</label><input id="editProductName"><label style="margin-top:10px">Descripción para el menú público</label><textarea id="editProductDescription" rows="2" placeholder="Ej.: Preparado con café en grano recién molido."></textarea><div class="row" style="margin-top:10px"><div><label>Categoría</label><input id="editProductCategory"></div><div><label>Precio</label><input id="editProductPrice" type="number" min="0"></div></div><div class="row" style="margin-top:10px"><div><label>Stock actual</label><input id="editProductStock" type="number" step="1"></div><div><label>Control de stock</label><select id="editProductTrack"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Activo</label><select id="editProductActive"><option value="true">Sí</option><option value="false">No</option></select></div></div><div class="notice" style="margin-top:14px"><b>Oferta por cantidad</b><div class="tiny">Ejemplo: cantidad 2 y precio oferta $1.000 para vender 2 unidades por $1.000. Las unidades sobrantes mantienen el precio normal.</div><div class="row" style="margin-top:10px"><div><label>Oferta activa</label><select id="editProductOfferActive"><option value="false">No</option><option value="true">Sí</option></select></div><div><label>Cantidad de la oferta</label><input id="editProductOfferQty" type="number" min="2" step="1" placeholder="2"></div><div><label>Precio total de la oferta</label><input id="editProductOfferPrice" type="number" min="0" step="1" placeholder="1000"></div></div></div><button class="btn primary" style="margin-top:12px" id="saveProductBtn">Guardar producto</button></div></dialog>
 
@@ -1208,7 +1200,7 @@ function renderDashboard(){
   const methods=['Efectivo','Débito','Crédito','Transferencia'];
   $('paymentSummary').innerHTML=methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(payments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('');
   $('activitySummary').innerHTML=`<div class="payment-line">Pedidos creados <b style="float:right">${orders.length}</b></div><div class="payment-line">Cuentas cerradas <b style="float:right">${orders.filter(o=>o.status==='closed').length}</b></div><div class="payment-line">Cuentas abiertas <b style="float:right">${orders.filter(o=>o.status==='open'||o.status==='credit'||o.onCredit===true).length}</b></div><div class="payment-line">Saldo pendiente <b style="float:right">${fmt(pending)}</b></div>`;
-  $('dailyOrders').innerHTML=orders.length?`<div style="overflow:auto"><table><thead><tr><th>N°</th><th>Fecha y hora</th><th>Referencia</th><th>Atendido por</th><th>Estado</th><th class="right">Consumo</th><th class="right">Propina</th><th class="right">Total</th><th class="right">Pagado</th><th>Detalle</th></tr></thead><tbody>${orders.map(o=>`<tr><td>${esc(saleDisplayNumber(o))}</td><td>${formatDateTimeDisplay(o.createdAt)}</td><td>${esc(o.label)}</td><td>${esc(o.staffName||o.createdByName||'')}</td><td><span class="badge ${o.status==='closed'?'closed':'open'}">${o.status==='closed'?'Pagada':(o.status==='credit'||o.onCredit===true?'Fiada':'Abierta')}</span></td><td class="right">${fmt(orderTotal(o))}</td><td class="right">${fmt(tipAmount(o))}</td><td class="right">${fmt(chargedTotal(o))}</td><td class="right">${fmt(paidTotal(o))}</td><td><button type="button" class="btn secondary" onclick="viewSaleDetail('${o.id}')">Ver</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sin ventas registradas</div>';
+  $('dailyOrders').innerHTML=orders.length?`<div style="overflow:auto"><table><thead><tr><th>N°</th><th>Fecha y hora</th><th>Referencia</th><th>Atendido por</th><th>Estado</th><th class="right">Consumo</th><th class="right">Propina</th><th class="right">Total</th><th class="right">Pagado</th><th>Acciones</th></tr></thead><tbody>${orders.map(o=>`<tr><td>${esc(saleDisplayNumber(o))}</td><td>${formatDateTimeDisplay(o.createdAt)}</td><td>${esc(o.label)}</td><td>${esc(o.staffName||o.createdByName||'')}</td><td><span class="badge ${o.status==='closed'?'closed':'open'}">${o.status==='closed'?'Pagada':(o.status==='credit'||o.onCredit===true?'Fiada':'Abierta')}</span></td><td class="right">${fmt(orderTotal(o))}</td><td class="right">${fmt(tipAmount(o))}</td><td class="right">${fmt(chargedTotal(o))}</td><td class="right">${fmt(paidTotal(o))}</td><td><div class="actions" style="margin:0;flex-wrap:nowrap"><button type="button" class="btn secondary" onclick="viewSaleDetail('${o.id}')">Ver</button>${roleIsAdmin()?`<button type="button" class="btn outline" onclick="openSaleReassignment('${o.id}')">Reasignar</button>`:''}</div></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sin ventas registradas</div>';
   renderProductSales('dailyProductSales',orders,'Sin productos vendidos para la fecha seleccionada.');
 }
 
@@ -1219,6 +1211,7 @@ window.viewSaleDetail=id=>{
   const created=formatDateTimeDisplay(o.createdAt);
   const items=o.items||[];
   const payments=o.payments||[];
+  const reassignmentHistory=o.reassignmentHistory||[];
   const itemsHtml=items.length?`<div style="overflow:auto"><table><thead><tr><th>Producto</th><th class="right">Cantidad</th><th class="right">Precio unitario</th><th class="right">Subtotal</th></tr></thead><tbody>${items.map(i=>`<tr><td>${esc(i.name||'Producto')}${offerDescription(i)?`<div class="tiny offer-line">Oferta ${esc(offerDescription(i))}</div>`:''}</td><td class="right">${Number(i.qty)||0}</td><td class="right">${fmt(Number(i.price)||0)}</td><td class="right">${fmt(lineSubtotal(i))}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Esta venta no tiene productos registrados.</div>';
   const paymentsHtml=payments.length?`<div style="overflow:auto"><table><thead><tr><th>Fecha y hora</th><th>Medio de pago</th><th class="right">Monto</th></tr></thead><tbody>${payments.map(p=>`<tr><td>${p.createdAt?formatDateTimeDisplay(p.createdAt):formatDateDisplay(p.businessDate)}</td><td>${esc(p.method||'Sin especificar')}</td><td class="right">${fmt(Number(p.amount)||0)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No hay pagos registrados.</div>';
   $('saleDetailContent').innerHTML=`
@@ -1239,8 +1232,49 @@ window.viewSaleDetail=id=>{
       <div class="payment-line grand-total"><span>Total</span><b>${fmt(chargedTotal(o))}</b></div>
       <div class="payment-line"><span>Pagado</span><b>${fmt(paidTotal(o))}</b></div>
     </div>
-    <div class="sale-detail-section"><h3>Pagos registrados</h3>${paymentsHtml}</div>`;
+    <div class="sale-detail-section"><h3>Pagos registrados</h3>${paymentsHtml}</div>
+    ${reassignmentHistory.length?`<div class="sale-detail-section"><h3>Historial de reasignaciones</h3><div class="sale-reassignment-history">${reassignmentHistory.slice().reverse().map(x=>`<div class="sale-reassignment-item"><b>${esc(x.previousStaffName||'Sin asignar')} → ${esc(x.newStaffName||'Sin asignar')}</b><small>${formatDateTimeDisplay(x.changedAt)} · Realizada por ${esc(x.changedByName||'Sin identificar')}</small>${x.reason?`<div class="tiny" style="margin-top:4px">${esc(x.reason)}</div>`:''}</div>`).join('')}</div></div>`:''}`;
   $('saleDetailDialog').showModal();
+};
+
+window.openSaleReassignment=id=>{
+  if(!roleIsAdmin())return alert('Solo un administrador puede reasignar ventas.');
+  const o=state.orders.find(x=>x.id===id);
+  if(!o)return alert('No se encontró la venta seleccionada.');
+  const currentId=o.ownerStaffId||o.staffId||'';
+  const available=state.staff.filter(x=>x.active!==false||x.id===currentId).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'es'));
+  $('reassignSaleId').value=id;
+  $('reassignSaleInfo').innerHTML=`Venta <b>${esc(saleDisplayNumber(o))}</b> · ${formatDateDisplay(o.businessDate)}<br>Responsable actual: <b>${esc(o.staffName||o.ownerStaffName||o.createdByName||'Sin identificar')}</b>`;
+  $('reassignSaleStaff').innerHTML='<option value="">Seleccionar persona</option>'+available.map(x=>`<option value="${esc(x.id)}" ${x.id===currentId?'selected':''}>${esc(x.name)} · ${esc(roleLabel(x.role))}</option>`).join('');
+  $('reassignSaleReason').value='';
+  $('saleDetailDialog').close();
+  $('saleReassignmentDialog').showModal();
+};
+
+$('confirmSaleReassignmentBtn').onclick=async()=>{
+  if(!roleIsAdmin())return alert('Solo un administrador puede reasignar ventas.');
+  const id=$('reassignSaleId').value,o=state.orders.find(x=>x.id===id),newStaffId=$('reassignSaleStaff').value;
+  if(!o)return alert('No se encontró la venta seleccionada.');
+  if(!newStaffId)return alert('Selecciona la persona que realmente atendió la venta.');
+  const newStaff=state.staff.find(x=>x.id===newStaffId);
+  if(!newStaff)return alert('La persona seleccionada ya no está disponible.');
+  const previousStaffId=o.ownerStaffId||o.staffId||null;
+  const previousStaffName=o.staffName||o.ownerStaffName||o.createdByName||'Sin identificar';
+  if(previousStaffId===newStaff.id)return alert('La venta ya está asignada a esta persona.');
+  const reason=$('reassignSaleReason').value.trim();
+  const changedAt=nowIso(),changedByName=selectedStaff?.name||currentUser.name;
+  const change={previousStaffId,previousStaffName,newStaffId:newStaff.id,newStaffName:newStaff.name,changedAt,changedByUid:currentUser.uid,changedByName,reason};
+  const payments=(o.payments||[]).map(p=>({...p,staffId:newStaff.id,staffName:newStaff.name}));
+  const changes={staffId:newStaff.id,staffName:newStaff.name,ownerStaffId:newStaff.id,ownerStaffName:newStaff.name,payments,reassignmentHistory:[...(o.reassignmentHistory||[]),change],lastReassignedAt:changedAt,lastReassignedByUid:currentUser.uid,lastReassignedByName:changedByName,...auditFields()};
+  const button=$('confirmSaleReassignmentBtn'),original=button.textContent;
+  button.disabled=true;button.textContent='Guardando...';
+  try{
+    await updateDoc(doc(firestore,'orders',id),changes);
+    Object.assign(o,changes);
+    $('saleReassignmentDialog').close();
+    renderDashboard();renderMonthly();renderMonthlyAttendanceSummary();
+    showToast(`Venta ${saleDisplayNumber(o)} reasignada a ${newStaff.name}.`,'success',6000);
+  }catch(error){console.error('Error al reasignar venta:',error);alert(`No fue posible reasignar la venta: ${error.message||String(error)}`)}finally{button.disabled=false;button.textContent=original}
 };
 $('reportDate').onchange=renderDashboard;
 function renderMonthly(){
