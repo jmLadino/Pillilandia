@@ -203,7 +203,7 @@ th.sortable-column[data-sort-direction="desc"]::after{content:'▼';opacity:1;co
 <nav class="no-print">
 <button class="tab active requires-open" data-tab="sale">Nueva venta</button>
 <button class="tab requires-open" data-tab="orders">Cuentas abiertas</button>
-<button class="tab" data-tab="dashboard">Ventas del día</button>
+<button class="tab" data-tab="dashboard"><span id="dashboardTabLabel">Ventas del día</span></button>
 <button class="tab manager-only" data-tab="calendar">Calendario y asistencia</button>
 <button class="tab manager-only" data-tab="expenses">Gastos Mensual</button>
 <button class="tab manager-only" data-tab="monthly">Gestión Mensual</button>
@@ -215,11 +215,11 @@ th.sortable-column[data-sort-direction="desc"]::after{content:'▼';opacity:1;co
 <section id="dashboard">
 <div class="grid">
 <div class="card span-12 no-print"><div class="row"><div><label>Fecha de ventas</label><input id="reportDate" type="date"></div><div><button class="btn outline" onclick="window.print()">Imprimir ventas</button></div></div></div>
-<div class="card span-12"><h2>Ventas del día</h2><div class="metrics"><div class="metric"><small>Total consumo</small><b id="mConsumption">$0</b></div><div class="metric"><small>Total propinas</small><b id="mTips">$0</b></div><div class="metric"><small>Total cobrado</small><b id="mSales">$0</b></div><div class="metric"><small>Por cobrar</small><b id="mPending">$0</b></div><div class="metric"><small>Pedidos creados</small><b id="mOrders">0</b></div><div class="metric"><small>Cuentas cerradas</small><b id="mClosed">0</b></div></div></div>
+<div class="card span-12"><h2 id="dashboardTitle">Ventas del día</h2><div class="metrics"><div class="metric"><small>Total consumo</small><b id="mConsumption">$0</b></div><div class="metric"><small>Total propinas</small><b id="mTips">$0</b></div><div class="metric"><small>Total cobrado</small><b id="mSales">$0</b></div><div class="metric"><small>Por cobrar</small><b id="mPending">$0</b></div><div class="metric"><small>Pedidos creados</small><b id="mOrders">0</b></div><div class="metric"><small>Cuentas cerradas</small><b id="mClosed">0</b></div></div></div>
 <div class="card span-6"><h3>Medios de pago</h3><div id="paymentSummary"></div></div>
 <div class="card span-6"><h3>Actividad de ventas</h3><div id="activitySummary"></div></div>
 <div class="card span-12"><h3>Productos vendidos del día</h3><div id="dailyProductSales"></div></div>
-<div class="card span-12"><h3>Detalle de ventas del día</h3><div id="dailyOrders"></div></div>
+<div class="card span-12"><h3 id="dailyOrdersTitle">Detalle de ventas del día</h3><div id="dailyOrders"></div></div>
 </div>
 </section>
 
@@ -474,6 +474,11 @@ function friendlyAuthError(code){
 
 function applyPermissions(){
   const manager=roleIsManager();
+  const isEmployee=currentUser?.role==='empleado';
+  const salesLabel=isEmployee?'Mis ventas del día':'Ventas del día';
+  $('dashboardTabLabel').textContent=salesLabel;
+  $('dashboardTitle').textContent=salesLabel;
+  $('dailyOrdersTitle').textContent=isEmployee?'Detalle de mis ventas':'Detalle de ventas del día';
   document.querySelectorAll('.manager-only').forEach(el=>el.classList.toggle('role-hidden',!manager));
   document.querySelectorAll('.admin-only').forEach(el=>el.classList.toggle('role-hidden',!roleIsAdmin()));
   $('userArea').classList.toggle('hidden',!currentUser);
@@ -1186,7 +1191,11 @@ function renderProductSales(containerId,orders,emptyMessage){
 
 function renderDashboard(){
   const d=$('reportDate').value;
-  const orders=state.orders.filter(o=>o.status!=='void'&&o.businessDate===d).sort((a,b)=>{
+  const staffId=currentStaffId();
+  const isEmployee=currentUser?.role==='empleado';
+  const orders=state.orders.filter(o=>o.status!=='void'&&o.businessDate===d&&(!isEmployee||(
+    (staffId&&(o.ownerStaffId===staffId||o.staffId===staffId))||o.createdByUid===currentUser?.uid
+  ))).sort((a,b)=>{
     const timeA=asDate(a.createdAt).getTime();
     const timeB=asDate(b.createdAt).getTime();
     if(timeA!==timeB)return timeB-timeA;
@@ -1194,7 +1203,7 @@ function renderDashboard(){
     const sequenceB=Number(b.monthlySequence??b.number??0);
     return sequenceB-sequenceA;
   });
-  const payments=state.orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate===d));
+  const payments=orders.flatMap(o=>(o.payments||[]).filter(p=>p.businessDate===d));
   const sales=payments.reduce((s,p)=>s+Number(p.amount),0),consumption=orders.reduce((s,o)=>s+orderTotal(o),0),tips=orders.reduce((s,o)=>s+tipAmount(o),0),pending=orders.filter(o=>o.status==='open'||o.status==='credit'||o.onCredit===true).reduce((s,o)=>s+balance(o),0);
   $('mConsumption').textContent=fmt(consumption);$('mTips').textContent=fmt(tips);$('mSales').textContent=fmt(sales);$('mPending').textContent=fmt(pending);$('mOrders').textContent=orders.length;$('mClosed').textContent=orders.filter(o=>o.status==='closed').length;
   const methods=['Efectivo','Débito','Crédito','Transferencia'];
