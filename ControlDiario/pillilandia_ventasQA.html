@@ -669,6 +669,13 @@ function balance(o){return Math.max(0,chargedTotal(o)-paidTotal(o))}
 function auditFields(){return{updatedAt:nowIso(),updatedByUid:currentUser.uid,updatedByName:selectedStaff?.name||currentUser.name}}
 function actorFields(){return{createdByUid:currentUser.uid,createdByName:selectedStaff?.name||currentUser.name,staffId:selectedStaff?.id||null,staffName:selectedStaff?.name||null}}
 function currentStaffId(){return selectedStaff?.id||currentUser?.staffId||null}
+function orderBelongsToEmployee(o){
+  const staffId=currentStaffId();
+  if(staffId)return o?.ownerStaffId===staffId||o?.staffId===staffId;
+  const employeeName=String(selectedStaff?.name||currentUser?.name||'').trim().toLocaleLowerCase('es');
+  if(!employeeName)return false;
+  return [o?.ownerStaffName,o?.staffName].some(name=>String(name||'').trim().toLocaleLowerCase('es')===employeeName);
+}
 function isOrderOwner(o){const assignedId=o?.ownerStaffId||o?.staffId||null;return roleIsManager()||Boolean(o&&currentStaffId()&&assignedId===currentStaffId())}
 function canTakeOrder(o){return !roleIsManager()&&Boolean(o)&&o.status==='open'&&!o.onCredit&&!isOrderOwner(o)}
 function ownerName(o){return o?.ownerStaffName||o?.staffName||o?.createdByName||'Sin asignar'}
@@ -1191,11 +1198,8 @@ function renderProductSales(containerId,orders,emptyMessage){
 
 function renderDashboard(){
   const d=$('reportDate').value;
-  const staffId=currentStaffId();
   const isEmployee=currentUser?.role==='empleado';
-  const orders=state.orders.filter(o=>o.status!=='void'&&o.businessDate===d&&(!isEmployee||(
-    (staffId&&(o.ownerStaffId===staffId||o.staffId===staffId))||o.createdByUid===currentUser?.uid
-  ))).sort((a,b)=>{
+  const orders=state.orders.filter(o=>o.status!=='void'&&o.businessDate===d&&(!isEmployee||orderBelongsToEmployee(o))).sort((a,b)=>{
     const timeA=asDate(a.createdAt).getTime();
     const timeB=asDate(b.createdAt).getTime();
     if(timeA!==timeB)return timeB-timeA;
