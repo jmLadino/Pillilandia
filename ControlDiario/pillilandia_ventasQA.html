@@ -670,11 +670,16 @@ function auditFields(){return{updatedAt:nowIso(),updatedByUid:currentUser.uid,up
 function actorFields(){return{createdByUid:currentUser.uid,createdByName:selectedStaff?.name||currentUser.name,staffId:selectedStaff?.id||null,staffName:selectedStaff?.name||null}}
 function currentStaffId(){return selectedStaff?.id||currentUser?.staffId||null}
 function orderBelongsToEmployee(o){
-  const staffId=currentStaffId();
-  if(staffId)return o?.ownerStaffId===staffId||o?.staffId===staffId;
+  const employeeId=currentStaffId();
   const employeeName=String(selectedStaff?.name||currentUser?.name||'').trim().toLocaleLowerCase('es');
-  if(!employeeName)return false;
-  return [o?.ownerStaffName,o?.staffName].some(name=>String(name||'').trim().toLocaleLowerCase('es')===employeeName);
+  const ownerId=o?.ownerStaffId||o?.staffId||null;
+  const ownerName=String(o?.ownerStaffName||o?.staffName||'').trim().toLocaleLowerCase('es');
+  const hasIdComparison=Boolean(employeeId&&ownerId);
+  const hasNameComparison=Boolean(employeeName&&ownerName);
+  if(!hasIdComparison&&!hasNameComparison)return false;
+  if(hasIdComparison&&ownerId!==employeeId)return false;
+  if(hasNameComparison&&ownerName!==employeeName)return false;
+  return true;
 }
 function isOrderOwner(o){const assignedId=o?.ownerStaffId||o?.staffId||null;return roleIsManager()||Boolean(o&&currentStaffId()&&assignedId===currentStaffId())}
 function canTakeOrder(o){return !roleIsManager()&&Boolean(o)&&o.status==='open'&&!o.onCredit&&!isOrderOwner(o)}
@@ -1213,7 +1218,7 @@ function renderDashboard(){
   const methods=['Efectivo','Débito','Crédito','Transferencia'];
   $('paymentSummary').innerHTML=methods.map(m=>`<div class="payment-line"><span>${m}</span><span class="money" style="float:right">${fmt(payments.filter(p=>p.method===m).reduce((s,p)=>s+Number(p.amount),0))}</span></div>`).join('');
   $('activitySummary').innerHTML=`<div class="payment-line">Pedidos creados <b style="float:right">${orders.length}</b></div><div class="payment-line">Cuentas cerradas <b style="float:right">${orders.filter(o=>o.status==='closed').length}</b></div><div class="payment-line">Cuentas abiertas <b style="float:right">${orders.filter(o=>o.status==='open'||o.status==='credit'||o.onCredit===true).length}</b></div><div class="payment-line">Saldo pendiente <b style="float:right">${fmt(pending)}</b></div>`;
-  $('dailyOrders').innerHTML=orders.length?`<div style="overflow:auto"><table><thead><tr><th>N°</th><th>Fecha y hora</th><th>Referencia</th><th>Atendido por</th><th>Estado</th><th class="right">Consumo</th><th class="right">Propina</th><th class="right">Total</th><th class="right">Pagado</th><th>Acciones</th></tr></thead><tbody>${orders.map(o=>`<tr><td>${esc(saleDisplayNumber(o))}</td><td>${formatDateTimeDisplay(o.createdAt)}</td><td>${esc(o.label)}</td><td>${esc(o.staffName||o.createdByName||'')}</td><td><span class="badge ${o.status==='closed'?'closed':'open'}">${o.status==='closed'?'Pagada':(o.status==='credit'||o.onCredit===true?'Fiada':'Abierta')}</span></td><td class="right">${fmt(orderTotal(o))}</td><td class="right">${fmt(tipAmount(o))}</td><td class="right">${fmt(chargedTotal(o))}</td><td class="right">${fmt(paidTotal(o))}</td><td><div class="actions" style="margin:0;flex-wrap:nowrap"><button type="button" class="btn secondary" onclick="viewSaleDetail('${o.id}')">Ver</button>${roleIsAdmin()?`<button type="button" class="btn outline" onclick="openSaleReassignment('${o.id}')">Reasignar</button>`:''}</div></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sin ventas registradas</div>';
+  $('dailyOrders').innerHTML=orders.length?`<div style="overflow:auto"><table><thead><tr><th>N°</th><th>Fecha y hora</th><th>Referencia</th><th>Atendido por</th><th>Estado</th><th class="right">Consumo</th><th class="right">Propina</th><th class="right">Total</th><th class="right">Pagado</th><th>Acciones</th></tr></thead><tbody>${orders.map(o=>`<tr><td>${esc(saleDisplayNumber(o))}</td><td>${formatDateTimeDisplay(o.createdAt)}</td><td>${esc(o.label)}</td><td>${esc(o.ownerStaffName||o.staffName||o.createdByName||'')}</td><td><span class="badge ${o.status==='closed'?'closed':'open'}">${o.status==='closed'?'Pagada':(o.status==='credit'||o.onCredit===true?'Fiada':'Abierta')}</span></td><td class="right">${fmt(orderTotal(o))}</td><td class="right">${fmt(tipAmount(o))}</td><td class="right">${fmt(chargedTotal(o))}</td><td class="right">${fmt(paidTotal(o))}</td><td><div class="actions" style="margin:0;flex-wrap:nowrap"><button type="button" class="btn secondary" onclick="viewSaleDetail('${o.id}')">Ver</button>${roleIsAdmin()?`<button type="button" class="btn outline" onclick="openSaleReassignment('${o.id}')">Reasignar</button>`:''}</div></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sin ventas registradas</div>';
   renderProductSales('dailyProductSales',orders,'Sin productos vendidos para la fecha seleccionada.');
 }
 
